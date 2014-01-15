@@ -19,10 +19,22 @@ static int in_room(room * r, int x, int y)
 		&& y >= r->y && y < r->y + r->h;
 }
 
+static int on(int ** walls, int x, int y, zone * z)
+{
+	if (x < 0) return 1;
+	if (y < 0) return 1;
+	if (x >= z->width)  return 1;
+	if (y >= z->height) return 1;
+	return walls[x][y];
+}
+
+// this function is really ugly
 static void generate(zone * z)
 {
 	int i, x, y;
 	int rc;
+	int ** walls;
+	chtype ch;
 	room * rv;
 	object * o;
 
@@ -36,19 +48,54 @@ static void generate(zone * z)
 		rv[i].y = rand() % (z->height - rv[i].h);
 	}
 
+	walls = malloc(sizeof(int *) * z->width);
 	for (x = 0; x < z->width; x++) {
+		walls[x] = malloc(sizeof(int) * z->height);
+
 		for (y = 0; y < z->height; y++) {
 			for (i = 0; i < rc; i++) {
 				if (in_room(rv + i, x, y)) break;
 			}
 
-			if (i == rc) {
-				o = obj_new(USELESS, '#');
-				o->x = x;
-				o->y = y;
-				o->z = z;
-				z->objs[x][y] = o;
+			walls[x][y] = (i == rc);
+		}
+	}
+
+	for (x = 0; x < z->width; x++) {
+		for (y = 0; y < z->height; y++) {
+			// upper left corner
+			if (on(walls, x+1, y, z) && on(walls, x, y+1, z) && !on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
+				ch = ACS_ULCORNER;
 			}
+			// upper right corner
+			else if (!on(walls, x+1, y, z) && on(walls, x, y+1, z) && on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
+				ch = ACS_URCORNER;
+			}
+			// bottom left corner
+			else if (on(walls, x+1, y, z) && !on(walls, x, y+1, z) && !on(walls, x-1, y, z) && on(walls, x, y-1, z)) {
+				ch = ACS_LLCORNER;
+			}
+			// bottom right corner
+			else if (!on(walls, x+1, y, z) && !on(walls, x, y+1, z) && on(walls, x-1, y, z) && on(walls, x, y-1, z)) {
+				ch = ACS_LRCORNER;
+			}
+			// h line
+			else if (!on(walls, x, y+1, z) || !on(walls, x, y-1, z)) {
+				ch = ACS_HLINE;
+			}
+			// v line
+			else if (!on(walls, x+1, y, z) || !on(walls, x-1, y, z)) {
+				ch = ACS_VLINE;
+			}
+			else {
+				ch = ' ';
+			}
+
+			o = obj_new(USELESS, ch);
+			o->x = x;
+			o->y = y;
+			o->z = z;
+			z->objs[x][y] = o;
 		}
 	}
 }
