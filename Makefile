@@ -5,7 +5,7 @@
 SHELL  = bash
 TARGET = iiag
 CC     = gcc
-CCFL   = -c -Wall -g
+CCFL   = -c -g -Wall
 LDFL   = -Wall -lncurses
 
 SRCS := main.c object.c world.c zone.c display.c log.c

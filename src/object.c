@@ -2,10 +2,26 @@
 // object.c
 //
 
+#include <stdlib.h>
 #include <ncurses.h>
 #include "world.h"
 #include "object.h"
 #include "display.h"
+
+object * obj_new(obj_type type, chtype ch)
+{
+	object * o = malloc(sizeof(object));
+	o->type = type;
+	o->ch = ch;
+	o->x = o->y = 0;
+	o->z = NULL;
+	return o;
+}
+
+void obj_free(object * o)
+{
+	free(o);
+}
 
 void obj_tele(object * obj, int x, int y, zone * z)
 {

@@ -34,4 +34,5 @@ void wrlog(const char * fmt, ...)
 	va_end(vl);
 
 	fputc('\n', logf);
+	fflush(logf);
 }
