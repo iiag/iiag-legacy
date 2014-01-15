@@ -63,39 +63,41 @@ static void generate(zone * z)
 
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
-			// upper left corner
-			if (on(walls, x+1, y, z) && on(walls, x, y+1, z) && !on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
-				ch = ACS_ULCORNER;
-			}
-			// upper right corner
-			else if (!on(walls, x+1, y, z) && on(walls, x, y+1, z) && on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
-				ch = ACS_URCORNER;
-			}
-			// bottom left corner
-			else if (on(walls, x+1, y, z) && !on(walls, x, y+1, z) && !on(walls, x-1, y, z) && on(walls, x, y-1, z)) {
-				ch = ACS_LLCORNER;
-			}
-			// bottom right corner
-			else if (!on(walls, x+1, y, z) && !on(walls, x, y+1, z) && on(walls, x-1, y, z) && on(walls, x, y-1, z)) {
-				ch = ACS_LRCORNER;
-			}
-			// h line
-			else if (!on(walls, x, y+1, z) || !on(walls, x, y-1, z)) {
-				ch = ACS_HLINE;
-			}
-			// v line
-			else if (!on(walls, x+1, y, z) || !on(walls, x-1, y, z)) {
-				ch = ACS_VLINE;
-			}
-			else {
-				ch = ' ';
-			}
+			if (walls[x][y]) {
+				// upper left corner
+				if (on(walls, x+1, y, z) && on(walls, x, y+1, z) && !on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
+					ch = ACS_ULCORNER;
+				}
+				// upper right corner
+				else if (!on(walls, x+1, y, z) && on(walls, x, y+1, z) && on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
+					ch = ACS_URCORNER;
+				}
+				// bottom left corner
+				else if (on(walls, x+1, y, z) && !on(walls, x, y+1, z) && !on(walls, x-1, y, z) && on(walls, x, y-1, z)) {
+					ch = ACS_LLCORNER;
+				}
+				// bottom right corner
+				else if (!on(walls, x+1, y, z) && !on(walls, x, y+1, z) && on(walls, x-1, y, z) && on(walls, x, y-1, z)) {
+					ch = ACS_LRCORNER;
+				}
+				// h line
+				else if (!on(walls, x, y+1, z) || !on(walls, x, y-1, z)) {
+					ch = ACS_HLINE;
+				}
+				// v line
+				else if (!on(walls, x+1, y, z) || !on(walls, x-1, y, z)) {
+					ch = ACS_VLINE;
+				}
+				else {
+					ch = ' ';
+				}
 
-			o = obj_new(USELESS, ch);
-			o->x = x;
-			o->y = y;
-			o->z = z;
-			z->objs[x][y] = o;
+				o = obj_new(USELESS, ch);
+				o->x = x;
+				o->y = y;
+				o->z = z;
+				z->objs[x][y] = o;
+			}
 		}
 	}
 }
