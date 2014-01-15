@@ -47,9 +47,13 @@ void obj_move(object * obj, int dx, int dy)
 	if (oy + dy >= 0 && oy + dy < obj->z->height
 		&& ox + dx >= 0 &&ox + dx < obj->z->width)
 	{
-		obj->x = nx = ox + dx;
-		obj->y = ny = oy + dy;
+		nx = ox + dx;
+		ny = oy + dy;
 
+		if (obj->z->objs[nx][ny] != NULL) return;
+
+		obj->x = nx;
+		obj->y = ny;
 		obj->z->objs[ox][oy] = NULL;
 		obj->z->objs[nx][ny] = obj;
 

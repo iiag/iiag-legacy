@@ -2,8 +2,10 @@
 // main.c
 //
 
+#include <time.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include "world.h"
 #include "object.h"
 #include "display.h"
@@ -16,6 +18,8 @@ void moveplyr(int dx, int dy)
 int main(int argc, char ** argv)
 {
 	int c;
+
+	srand(time(NULL));
 
 	init_disp();
 	init_world();

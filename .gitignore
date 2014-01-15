@@ -1,4 +1,5 @@
 *.log
+*.swp
 dep/
 obj/
 iiag
