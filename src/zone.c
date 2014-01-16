@@ -10,6 +10,107 @@
 #include "display.h"
 #include "inventory.h"
 
+#define countof(X) (sizeof(X) / sizeof(*X))
+
+// begin adjacent walls style
+static struct {
+	int dx, dy;
+} adjind[] = {
+	{ -1,  1 }, // lower left
+	{  0,  1 }, // lower middle
+	{  1,  1 }, // lower right
+	{ -1,  0 }, // middle left
+	{  1,  0 }, // middle right
+	{ -1, -1 }, // upper left
+	{  0, -1 }, // upper middle
+	{  1, -1 }  // upper right
+};
+
+static chtype adjchs[7];
+
+static struct {
+	int on[8];
+	int ci;
+} adjsty[] = {
+	// lower left corner
+	{ { 0,0,0, 0,1, 0,1,0 }, 0 },
+
+	{ { 0,0,0, 0,1, 0,1,1 }, 0 },
+	{ { 0,0,0, 0,1, 1,1,1 }, 0 },
+	{ { 0,0,1, 0,1, 0,1,1 }, 0 },
+
+	{ { 1,1,1, 1,1, 1,1,0 }, 0 },
+
+	// lower right corner
+	{ { 0,0,0, 1,0, 0,1,0 }, 1 },
+
+	{ { 0,0,0, 1,0, 1,1,0 }, 1 },
+	{ { 1,0,0, 1,0, 1,1,0 }, 1 },
+	{ { 0,0,0, 1,0, 1,1,1 }, 1 },
+
+	{ { 1,1,1, 1,1, 0,1,1 }, 1 },
+
+	// upper left corner
+	{ { 0,1,0, 1,0, 0,0,0 }, 2 },
+
+	{ { 0,1,1, 1,0, 0,0,0 }, 2 },
+	{ { 1,1,1, 1,0, 0,0,0 }, 2 },
+	{ { 0,1,1, 1,0, 0,0,1 }, 2 },
+
+	{ { 1,1,0, 1,1, 1,1,1 }, 2 },
+
+	// upper right corner
+	{ { 0,1,0, 0,1, 0,0,0 }, 3 },
+
+	{ { 1,1,0, 0,1, 0,0,0 }, 3 },
+	{ { 1,1,1, 0,1, 0,0,0 }, 3 },
+	{ { 1,1,0, 0,1, 0,0,1 }, 3 },
+
+	{ { 0,1,1, 1,1, 1,1,1 }, 3 },
+
+	// h line
+	{ { 0,1,0, 0,0, 0,1,0 }, 4 },
+	{ { 0,0,0, 0,0, 0,1,0 }, 4 },
+	{ { 0,1,0, 0,0, 0,0,0 }, 4 },
+
+	{ { 1,1,0, 0,0, 0,1,0 }, 4 },
+	{ { 0,1,1, 0,0, 0,1,0 }, 4 },
+	{ { 0,1,0, 0,0, 1,1,0 }, 4 },
+	{ { 0,1,0, 0,0, 0,1,1 }, 4 },
+
+	{ { 0,1,1, 0,1, 0,1,1 }, 4 },
+	{ { 1,1,1, 0,1, 0,1,1 }, 4 },
+	{ { 0,1,1, 0,1, 1,1,1 }, 4 },
+
+	{ { 1,1,0, 1,0, 1,1,0 }, 4 },
+	{ { 1,1,1, 1,0, 1,1,0 }, 4 },
+	{ { 1,1,0, 1,0, 1,1,1 }, 4 },
+
+	// vline
+	{ { 0,0,0, 1,1, 0,0,0 }, 5 },
+	{ { 0,0,0, 0,1, 0,0,0 }, 5 },
+	{ { 0,0,0, 1,0, 0,0,0 }, 5 },
+
+	{ { 1,0,0, 1,1, 0,0,0 }, 5 },
+	{ { 0,0,1, 1,1, 0,0,0 }, 5 },
+	{ { 0,0,0, 1,1, 1,0,0 }, 5 },
+	{ { 0,0,0, 1,1, 0,0,1 }, 5 },
+
+	{ { 1,1,1, 1,1, 0,0,0 }, 5 },
+	{ { 1,1,1, 1,1, 1,0,0 }, 5 },
+	{ { 1,1,1, 1,1, 0,0,1 }, 5 },
+
+	{ { 0,0,0, 1,1, 1,1,1 }, 5 },
+	{ { 1,0,0, 1,1, 1,1,1 }, 5 },
+	{ { 0,0,1, 1,1, 1,1,1 }, 5 },
+
+	// space
+	{ { 1,1,1, 1,1, 1,1,1 }, 6 },
+};
+
+static int defsty = '#';
+//// end adjacent walls style ////
+
 typedef struct {
 	int x, y, w, h;
 } room;
@@ -32,12 +133,27 @@ static int on(int ** walls, int x, int y, zone * z)
 // this function is really ugly
 static void generate(zone * z)
 {
-	int i, x, y;
+	static int init = 0;
+
+	int i, j;
+	int x, y;
+	int tx, ty;
 	int rc;
 	int ** walls;
 	chtype ch;
 	room * rv;
 	object * o;
+
+	if (!init) {
+		adjchs[0] = ACS_LLCORNER;
+		adjchs[1] = ACS_LRCORNER;
+		adjchs[2] = ACS_ULCORNER;
+		adjchs[3] = ACS_URCORNER;
+		adjchs[4] = ACS_VLINE;
+		adjchs[5] = ACS_HLINE;
+		adjchs[6] = ' ';
+		init = 1;
+	}
 
 	rc = rand() % 10 + 10;
 	rv = malloc(sizeof(room) * rc);
@@ -65,34 +181,17 @@ static void generate(zone * z)
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
 			if (walls[x][y]) {
-				// this is awful
+				// this is not quite so awful
 
-				// upper left corner
-				if (on(walls, x+1, y, z) && on(walls, x, y+1, z) && !on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
-					ch = ACS_ULCORNER;
-				}
-				// upper right corner
-				else if (!on(walls, x+1, y, z) && on(walls, x, y+1, z) && on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
-					ch = ACS_URCORNER;
-				}
-				// bottom left corner
-				else if (on(walls, x+1, y, z) && !on(walls, x, y+1, z) && !on(walls, x-1, y, z) && on(walls, x, y-1, z)) {
-					ch = ACS_LLCORNER;
-				}
-				// bottom right corner
-				else if (!on(walls, x+1, y, z) && !on(walls, x, y+1, z) && on(walls, x-1, y, z) && on(walls, x, y-1, z)) {
-					ch = ACS_LRCORNER;
-				}
-				// h line
-				else if (!on(walls, x, y+1, z) || !on(walls, x, y-1, z)) {
-					ch = ACS_HLINE;
-				}
-				// v line
-				else if (!on(walls, x+1, y, z) || !on(walls, x-1, y, z)) {
-					ch = ACS_VLINE;
-				}
-				else {
-					ch = ' ';
+				ch = defsty;
+				for (i = 0; i < countof(adjsty); i++) {
+					for (j = 0; j < 8; j++) {
+						tx = x + adjind[j].dx;
+						ty = y + adjind[j].dy;
+						if (on(walls, tx, ty, z) != adjsty[i].on[j]) break;
+					}
+
+					if (j == 8) ch = adjchs[adjsty[i].ci];
 				}
 
 				o = obj_new(USELESS, ch);
