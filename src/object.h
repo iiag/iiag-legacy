@@ -7,16 +7,21 @@
 
 #include <ncurses.h>
 
+#define FL_NOFREE 1
+
 struct zone;
 
 typedef enum {
+	NONE = -1,
 	USELESS,
 	CREATURE
 } obj_type;
 
 typedef struct object {
 	obj_type type;
-	int x, y;
+	unsigned flags;
+	int x, y, i;
+	int weight;
 	struct zone * z;
 	chtype ch;
 } object;

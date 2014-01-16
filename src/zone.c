@@ -8,6 +8,7 @@
 #include "world.h"
 #include "object.h"
 #include "display.h"
+#include "inventory.h"
 
 typedef struct {
 	int x, y, w, h;
@@ -38,7 +39,7 @@ static void generate(zone * z)
 	room * rv;
 	object * o;
 
-	rc = rand() % 10 + 5;
+	rc = rand() % 10 + 10;
 	rv = malloc(sizeof(room) * rc);
 
 	for (i = 0; i < rc; i++) {
@@ -64,6 +65,8 @@ static void generate(zone * z)
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
 			if (walls[x][y]) {
+				// this is awful
+
 				// upper left corner
 				if (on(walls, x+1, y, z) && on(walls, x, y+1, z) && !on(walls, x-1, y, z) && !on(walls, x, y-1, z)) {
 					ch = ACS_ULCORNER;
@@ -96,7 +99,8 @@ static void generate(zone * z)
 				o->x = x;
 				o->y = y;
 				o->z = z;
-				z->objs[x][y] = o;
+				o->weight = TILE_MAX_WEIGHT;
+				inv_add(z->tiles[x][y], o);
 			}
 		}
 	}
@@ -111,11 +115,11 @@ zone * zone_new(int w, int h)
 	z->width = w;
 	z->height = h;
 
-	z->objs = malloc(sizeof(object **) * w);
+	z->tiles = malloc(sizeof(inventory **) * w);
 	for (i = 0; i < w; i++) {
-		z->objs[i] = malloc(sizeof(object *) * h);
+		z->tiles[i] = malloc(sizeof(inventory *) * h);
 		for (j = 0; j < h; j++) {
-			z->objs[i][j] = NULL;
+			z->tiles[i][j] = inv_new(TILE_MAX_WEIGHT);
 		}
 	}
 
@@ -130,26 +134,31 @@ void zone_free(zone * z)
 
 	for (i = 0; i < z->width; i++) {
 		for (j = 0; j < z->height; j++) {
-			obj_free(z->objs[i][j]);
+			inv_free(z->tiles[i][j]);
 		}
-		free(z->objs[i]);
+		free(z->tiles[i]);
 	}
 
-	free(z->objs);
+	free(z->tiles);
 	free(z);
 }
 
-void zone_update(zone * z, int i, int j)
+void zone_update(zone * z, int x, int y)
 {
-	chtype ch;
+	int i;
+	object * ob;
+	chtype ch = '.';
+	obj_type ty = NONE;
 
-	if (z->objs[i][j] != NULL) {
-		ch = z->objs[i][j]->ch;
-	} else {
-		ch = '.';
+	for (i = 0; i < z->tiles[x][y]->size; i++) {
+		ob = z->tiles[x][y]->objs[i];
+		if (ob != NULL && ob->type > ty) {
+			ty = ob->type;
+			ch = ob->ch;
+		}
 	}
 
-	mvwaddch(dispscr, j, i, ch);
+	mvwaddch(dispscr, y, x, ch);
 }
 
 void zone_draw(zone * z)

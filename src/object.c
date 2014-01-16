@@ -7,39 +7,46 @@
 #include "world.h"
 #include "object.h"
 #include "display.h"
+#include "inventory.h"
 
 object * obj_new(obj_type type, chtype ch)
 {
 	object * o = malloc(sizeof(object));
 	o->type = type;
 	o->ch = ch;
-	o->x = o->y = 0;
+	o->x = o->y = o->i = 0;
+	o->weight = 1;
 	o->z = NULL;
+	o->flags = 0;
 	return o;
 }
 
 void obj_free(object * o)
 {
-	free(o);
+	if (~world.plyr.flags & FL_NOFREE) {
+		free(o);
+	}
 }
 
 void obj_tele(object * obj, int x, int y, zone * z)
 {
-	if (z->objs[x][y] == NULL) {
+	int i = inv_add(z->tiles[x][y], obj);
+
+	if (i != INVALID) {
 		if (obj->z != NULL) {
-			obj->z->objs[obj->x][obj->y] = NULL;
+			inv_rm(z->tiles[x][y], obj->i);
 		}
 
 		obj->x = x;
 		obj->y = y;
 		obj->z = z;
-
-		z->objs[x][y] = obj;
+		obj->i = i;
 	}
 }
 
 void obj_move(object * obj, int dx, int dy)
 {
+	int i;
 	int nx, ny;
 	int ox = obj->x;
 	int oy = obj->y;
@@ -50,12 +57,12 @@ void obj_move(object * obj, int dx, int dy)
 		nx = ox + dx;
 		ny = oy + dy;
 
-		if (obj->z->objs[nx][ny] != NULL) return;
+		i = inv_add(obj->z->tiles[nx][ny], obj);
+		if (i == INVALID) return;
+		inv_rm(obj->z->tiles[ox][oy], obj->i);
 
 		obj->x = nx;
 		obj->y = ny;
-		obj->z->objs[ox][oy] = NULL;
-		obj->z->objs[nx][ny] = obj;
 
 		zone_update(obj->z, nx, ny);
 		zone_update(obj->z, ox, oy);

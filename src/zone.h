@@ -5,11 +5,13 @@
 #ifndef ZONE_H
 #define ZONE_H
 
-struct object;
+#define TILE_MAX_WEIGHT 1000
+
+struct inventory;
 
 typedef struct zone {
 	int width, height;
-	struct object *** objs;
+	struct inventory *** tiles;
 } zone;
 
 zone * zone_new(int, int);
