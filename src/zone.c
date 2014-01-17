@@ -26,7 +26,7 @@ static struct {
 	{  1, -1 }  // upper right
 };
 
-static chtype adjchs[27];
+static chtype adjchs[11];
 
 static struct {
 	int on[8];
@@ -108,8 +108,24 @@ static struct {
 	{ { 0,0,1, 1,1, 1,1,1 }, 5 },
 	{ { 1,0,1, 1,1, 1,1,1 }, 5 },
 
+	// left tee
+	{ { 0,1,0, 0,1, 0,1,0 }, 6 },
+	{ { 1,1,0, 1,1, 1,1,0 }, 6 },
+
+	// right tee
+	{ { 0,1,0, 1,0, 0,1,0 }, 7 },
+	{ { 0,1,1, 1,1, 0,1,1 }, 7 },
+
+	// top tee
+	{ { 0,1,0, 1,1, 0,0,0 }, 8 },
+	{ { 0,1,0, 1,1, 1,1,1 }, 8 },
+
+	// bottom tee
+	{ { 0,0,0, 1,1, 0,1,0 }, 9 },
+	{ { 1,1,1, 1,1, 0,1,0 }, 9 },
+
 	// space
-	{ { 1,1,1, 1,1, 1,1,1 }, 6 },
+	{ { 1,1,1, 1,1, 1,1,1 }, 10 },
 };
 
 static int defsty = '#';
@@ -155,27 +171,11 @@ static void generate(zone * z)
 		adjchs[3] = ACS_URCORNER;
 		adjchs[4] = ACS_VLINE;
 		adjchs[5] = ACS_HLINE;
-		adjchs[6] = ' ';
-		adjchs[7] = 'a';
-		adjchs[8] = 'b';
-		adjchs[9] = 'c';
-		adjchs[10] = 'd';
-		adjchs[11] = 'e';
-		adjchs[12] = 'f';
-		adjchs[13] = 'g';
-		adjchs[14] = 'h';
-		adjchs[15] = 'i';
-		adjchs[16] = 'j';
-		adjchs[17] = 'k';
-		adjchs[18] = 'l';
-		adjchs[19] = 'm';
-		adjchs[20] = 'n';
-		adjchs[21] = 'o';
-		adjchs[22] = 'p';
-		adjchs[23] = 'q';
-		adjchs[24] = 'r';
-		adjchs[25] = 's';
-		adjchs[26] = 't';
+		adjchs[6] = ACS_LTEE;
+		adjchs[7] = ACS_RTEE;
+		adjchs[8] = ACS_TTEE;
+		adjchs[9] = ACS_BTEE;
+		adjchs[10] = ' ';
 		init = 1;
 	}
 
