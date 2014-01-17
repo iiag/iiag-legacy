@@ -16,6 +16,7 @@ typedef enum {
 typedef struct {
 	int refs;
 	int weight;
+	char * name;
 	obj_type type;
 	chtype ch;
 } form;

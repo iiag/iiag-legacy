@@ -43,6 +43,6 @@ int main(int argc, char ** argv)
 	}
 
 cleanup:
-	endwin();
+	end_disp();
 	return 0;
 }

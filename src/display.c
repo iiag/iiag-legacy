@@ -29,6 +29,11 @@ void init_disp(void)
 	statscr = newwin(3, max_width, max_height - 3, 0);
 }
 
+void end_disp(void)
+{
+	endwin();
+}
+
 void memo(const char * fmt, ...)
 {
 	va_list vl;

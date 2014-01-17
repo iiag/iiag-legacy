@@ -9,8 +9,10 @@
 #include "object.h"
 
 typedef struct {
-	zone ** zones;
 	object plyr;
+	zone ** zones;
+	form ** forms;
+	int form_count;
 } world_st;
 
 extern int width, height;

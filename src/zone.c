@@ -40,7 +40,7 @@ enum {
 
 static form * adjforms[MAX_FORMS];
 
-// 1 indicates presence of wall, 0 possibly
+// 1 indicates presence of wall, -1 for not, 0 for either
 static struct {
 	int on[8];
 	int fi;
@@ -80,14 +80,14 @@ static struct {
 	// vline overriding left/right tees
 	{ {
 		1, 1, 0,
-		1,    0,
+		1,   -1,
 		1, 1, 0,
 	}, VLN },
 
 	{ {
-		0, 1, 1,
-		0,    1,
-		0, 1, 1,
+		 0, 1, 1,
+		-1,    1,
+		 0, 1, 1,
 	}, VLN },
 
 	// left/right tees
@@ -105,15 +105,15 @@ static struct {
 
 	// hline overriding bot/top tees
 	{ {
-		1, 1, 1,
-		1,    1,
-		0, 0, 0,
+		1,  1, 1,
+		1,     1,
+		0, -1, 0,
 	}, HLN },
 
 	{ {
-		0, 0, 0,
-		1,    1,
-		1, 1, 1,
+		0, -1, 0,
+		1,     1,
+		1,  1, 1,
 	}, HLN },
 
 	// top/bot tees
@@ -210,18 +210,18 @@ static int on(int ** walls, int x, int y, zone * z)
 
 static form * get_form(int ** walls, int x, int y, zone * z)
 {
+	int want;
 	int i, j;
 	int tx, ty;
 
 	for (i = 0; i < countof(adjsty); i++) {
 		for (j = 0; j < 8; j++) {
 			if (adjsty[i].on[j]) {
-				assert(adjsty[i].on[j] == 1);
-
 				tx = x + adjind[j].dx;
 				ty = y + adjind[j].dy;
 
-				if (!on(walls, tx, ty, z)) break;
+				want = !!(adjsty[i].on[j] + 1);
+				if (on(walls, tx, ty, z) != want) break;
 			}
 		}
 
@@ -262,6 +262,7 @@ static void generate(zone * z)
 		defform->weight = TILE_MAX_WEIGHT;
 	}
 
+	// generate rooms
 	rc = rand() % 10 + 10;
 	rv = malloc(sizeof(room) * rc);
 
@@ -272,6 +273,7 @@ static void generate(zone * z)
 		rv[i].y = rand() % (z->height - rv[i].h);
 	}
 
+	// cut out rooms
 	walls = malloc(sizeof(int *) * z->width);
 	for (x = 0; x < z->width; x++) {
 		walls[x] = malloc(sizeof(int) * z->height);
@@ -285,17 +287,30 @@ static void generate(zone * z)
 		}
 	}
 
+	// draw walls
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
 			if (walls[x][y]) {
-				// this is not quite so awful
-
 				o = obj_new(get_form(walls, x, y, z));
 				o->x = x;
 				o->y = y;
 				o->z = z;
 				inv_add(z->tiles[x][y], o);
 			}
+		}
+	}
+
+	// place some random junk
+	if (world.form_count != 0) {
+		for (i = rand() % 10 + 5; i >= 0; i--) {
+			o = obj_new(world.forms[rand() % world.form_count]);
+
+			do {
+				x = rand() % z->width;
+				y = rand() % z->height;
+			} while (!inv_try(z->tiles[x][y], o));
+
+			obj_tele(o, x, y, z);
 		}
 	}
 }

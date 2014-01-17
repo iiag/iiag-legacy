@@ -65,6 +65,7 @@ void obj_move(object * obj, int dx, int dy)
 
 		obj->x = nx;
 		obj->y = ny;
+		obj->i = i;
 
 		zone_update(obj->z, nx, ny);
 		zone_update(obj->z, ox, oy);

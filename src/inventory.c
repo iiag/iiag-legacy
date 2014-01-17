@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include "log.h"
 #include "object.h"
 #include "inventory.h"
 
@@ -68,6 +69,7 @@ int inv_rm(inventory * inv, int i)
 {
 	if (inv->objs[i] == NULL) return 0;
 	obj_free(inv->objs[i]);
+	inv->weight -= inv->objs[i]->f->weight;
 	inv->objs[i] = NULL;
 	return 1;
 }

@@ -1,0 +1,3 @@
+# script/forms
+
+u { name = rock, char = *, weight = 10 }
