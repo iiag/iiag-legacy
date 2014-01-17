@@ -2,6 +2,7 @@
 // zone.c
 //
 
+#include <assert.h>
 #include <stdlib.h>
 #include "form.h"
 #include "zone.h"
@@ -12,140 +13,181 @@
 
 #define countof(X) (sizeof(X) / sizeof(*X))
 
-// begin adjacent walls style
 static struct {
 	int dx, dy;
 } adjind[] = {
+	{ -1, -1 }, // upper left
+	{  0, -1 }, // upper middle
+	{  1, -1 }, // upper right
+	{ -1,  0 }, // middle left
+	{  1,  0 }, // middle right
 	{ -1,  1 }, // lower left
 	{  0,  1 }, // lower middle
 	{  1,  1 }, // lower right
-	{ -1,  0 }, // middle left
-	{  1,  0 }, // middle right
-	{ -1, -1 }, // upper left
-	{  0, -1 }, // upper middle
-	{  1, -1 }  // upper right
 };
 
-static form * adjforms[11];
+enum {
+	// for indexing adjforms
+	LLC, LRC,
+	ULC, URC,
+	VLN, HLN,
+	LTE, RTE,
+	TTE, BTE,
+	CRS,
+	BLN,
+	MAX_FORMS
+};
 
+static form * adjforms[MAX_FORMS];
+
+// 1 indicates presence of wall, 0 possibly
 static struct {
 	int on[8];
 	int fi;
 } adjsty[] = {
-	// lower left corner
-	{ { 0,0,0, 0,1, 0,1,0 }, 0 },
+	// blank
+	{ {
+		1, 1, 1,
+		1,    1,
+		1, 1, 1,
+	}, BLN },
 
-	{ { 0,0,0, 0,1, 0,1,1 }, 0 },
-	{ { 0,0,0, 0,1, 1,1,1 }, 0 },
-	{ { 0,0,1, 0,1, 0,1,1 }, 0 },
+	// corners
+	{ {
+		0, 1, 1,
+		1,    1,
+		1, 1, 1,
+	}, LRC },
 
-	{ { 1,1,1, 1,1, 1,1,0 }, 0 },
+	{ {
+		1, 1, 0,
+		1,    1,
+		1, 1, 1,
+	}, LLC },
 
-	// lower right corner
-	{ { 0,0,0, 1,0, 0,1,0 }, 1 },
+	{ {
+		1, 1, 1,
+		1,    1,
+		0, 1, 1,
+	}, URC },
 
-	{ { 0,0,0, 1,0, 1,1,0 }, 1 },
-	{ { 1,0,0, 1,0, 1,1,0 }, 1 },
-	{ { 0,0,0, 1,0, 1,1,1 }, 1 },
+	{ {
+		1, 1, 1,
+		1,    1,
+		1, 1, 0,
+	}, ULC },
 
-	{ { 1,1,1, 1,1, 0,1,1 }, 1 },
+	// vline overriding left/right tees
+	{ {
+		1, 1, 0,
+		1,    0,
+		1, 1, 0,
+	}, VLN },
 
-	// upper left corner
-	{ { 0,1,0, 0,1, 0,0,0 }, 2 },
+	{ {
+		0, 1, 1,
+		0,    1,
+		0, 1, 1,
+	}, VLN },
 
-	{ { 0,1,1, 0,1, 0,0,0 }, 2 },
-	{ { 1,1,1, 0,1, 0,0,0 }, 2 },
-	{ { 0,1,1, 0,1, 0,0,1 }, 2 },
+	// left/right tees
+	{ {
+		0, 1, 0,
+		1,    0,
+		0, 1, 0,
+	}, RTE },
 
-	{ { 1,1,0, 1,1, 1,1,1 }, 2 },
+	{ {
+		0, 1, 0,
+		0,    1,
+		0, 1, 0,
+	}, LTE },
 
-	// upper right corner
-	{ { 0,1,0, 1,0, 0,0,0 }, 3 },
+	// hline overriding bot/top tees
+	{ {
+		1, 1, 1,
+		1,    1,
+		0, 0, 0,
+	}, HLN },
 
-	{ { 1,1,0, 1,0, 0,0,0 }, 3 },
-	{ { 1,1,1, 1,0, 0,0,0 }, 3 },
-	{ { 1,1,0, 1,0, 0,0,1 }, 3 },
+	{ {
+		0, 0, 0,
+		1,    1,
+		1, 1, 1,
+	}, HLN },
 
-	{ { 0,1,1, 1,1, 1,1,1 }, 3 },
+	// top/bot tees
+	{ {
+		0, 1, 0,
+		1,    1,
+		0, 0, 0,
+	}, BTE },
 
-	// h line
-	{ { 0,1,0, 0,0, 0,1,0 }, 4 },
-	{ { 0,0,0, 0,0, 0,1,0 }, 4 },
-	{ { 0,1,0, 0,0, 0,0,0 }, 4 },
+	{ {
+		0, 0, 0,
+		1,    1,
+		0, 1, 0,
+	}, TTE },
 
-	{ { 1,1,0, 0,0, 0,1,0 }, 4 },
-	{ { 0,1,1, 0,0, 0,1,0 }, 4 },
-	{ { 0,1,0, 0,0, 1,1,0 }, 4 },
-	{ { 0,1,0, 0,0, 0,1,1 }, 4 },
+	// more corners
+	{ {
+		0, 1, 0,
+		1,    0,
+		0, 0, 0,
+	}, LRC },
 
-	{ { 0,1,1, 0,1, 0,1,1 }, 4 },
-	{ { 1,1,1, 0,1, 0,1,1 }, 4 },
-	{ { 0,1,1, 0,1, 1,1,1 }, 4 },
-	{ { 1,1,1, 0,1, 1,1,1 }, 4 },
+	{ {
+		0, 1, 0,
+		0,    1,
+		0, 0, 0,
+	}, LLC },
 
-	{ { 1,1,0, 1,0, 1,1,0 }, 4 },
-	{ { 1,1,1, 1,0, 1,1,0 }, 4 },
-	{ { 1,1,0, 1,0, 1,1,1 }, 4 },
-	{ { 1,1,1, 1,0, 1,1,1 }, 4 },
+	{ {
+		0, 0, 0,
+		1,    0,
+		0, 1, 0,
+	}, URC },
 
-	// vline
-	{ { 0,0,0, 1,1, 0,0,0 }, 5 },
-	{ { 0,0,0, 0,1, 0,0,0 }, 5 },
-	{ { 0,0,0, 1,0, 0,0,0 }, 5 },
+	{ {
+		0, 0, 0,
+		0,    1,
+		0, 1, 0,
+	}, ULC },
 
-	{ { 1,0,0, 1,1, 0,0,0 }, 5 },
-	{ { 0,0,1, 1,1, 0,0,0 }, 5 },
-	{ { 0,0,0, 1,1, 1,0,0 }, 5 },
-	{ { 0,0,0, 1,1, 0,0,1 }, 5 },
+	// cross
+	{ {
+		0, 1, 0,
+		1,    1,
+		0, 1, 0,
+	}, CRS },
 
-	{ { 1,1,1, 1,1, 0,0,0 }, 5 },
-	{ { 1,1,1, 1,1, 1,0,0 }, 5 },
-	{ { 1,1,1, 1,1, 0,0,1 }, 5 },
-	{ { 1,1,1, 1,1, 1,0,1 }, 5 },
+	// vline/hline
+	{ {
+		0, 0, 0,
+		0,    0,
+		0, 1, 0,
+	}, VLN },
 
-	{ { 0,0,0, 1,1, 1,1,1 }, 5 },
-	{ { 1,0,0, 1,1, 1,1,1 }, 5 },
-	{ { 0,0,1, 1,1, 1,1,1 }, 5 },
-	{ { 1,0,1, 1,1, 1,1,1 }, 5 },
+	{ {
+		0, 1, 0,
+		0,    0,
+		0, 0, 0,
+	}, VLN },
 
-	// left tee
-	{ { 0,1,0, 0,1, 0,1,0 }, 6 },
-	{ { 0,1,1, 0,1, 0,1,0 }, 6 },
-	{ { 0,1,0, 0,1, 0,1,1 }, 6 },
-	{ { 1,1,0, 1,1, 1,1,0 }, 6 },
-	{ { 1,1,1, 1,1, 1,1,0 }, 6 },
-	{ { 1,1,0, 1,1, 1,1,1 }, 6 },
+	{ {
+		0, 0, 0,
+		1,    0,
+		0, 0, 0,
+	}, HLN },
 
-	// right tee
-	{ { 0,1,0, 1,0, 0,1,0 }, 7 },
-	{ { 1,1,0, 1,0, 0,1,0 }, 7 },
-	{ { 0,1,0, 1,0, 1,1,0 }, 7 },
-	{ { 0,1,1, 1,1, 0,1,1 }, 7 },
-	{ { 1,1,1, 1,1, 0,1,1 }, 7 },
-	{ { 0,1,1, 1,1, 1,1,1 }, 7 },
-
-	// top tee
-	{ { 0,1,0, 1,1, 0,0,0 }, 8 },
-	{ { 1,1,0, 1,1, 0,0,0 }, 8 },
-	{ { 0,1,1, 1,1, 0,0,0 }, 8 },
-	{ { 0,1,0, 1,1, 1,1,1 }, 8 },
-	{ { 1,1,0, 1,1, 1,1,1 }, 8 },
-	{ { 0,1,1, 1,1, 1,1,1 }, 8 },
-
-	// bottom tee
-	{ { 0,0,0, 1,1, 0,1,0 }, 9 },
-	{ { 0,0,0, 1,1, 1,1,0 }, 9 },
-	{ { 0,0,0, 1,1, 0,1,1 }, 9 },
-	{ { 1,1,1, 1,1, 0,1,0 }, 9 },
-	{ { 1,1,1, 1,1, 1,1,0 }, 9 },
-	{ { 1,1,1, 1,1, 0,1,1 }, 9 },
-
-	// space
-	{ { 1,1,1, 1,1, 1,1,1 }, 10 },
+	{ {
+		0, 0, 0,
+		0,    1,
+		0, 0, 0,
+	}, HLN },
 };
 
 static form * defform = NULL;
-//// end adjacent walls style ////
 
 typedef struct {
 	int x, y, w, h;
@@ -166,30 +208,51 @@ static int on(int ** walls, int x, int y, zone * z)
 	return walls[x][y];
 }
 
+static form * get_form(int ** walls, int x, int y, zone * z)
+{
+	int i, j;
+	int tx, ty;
+
+	for (i = 0; i < countof(adjsty); i++) {
+		for (j = 0; j < 8; j++) {
+			if (adjsty[i].on[j]) {
+				assert(adjsty[i].on[j] == 1);
+
+				tx = x + adjind[j].dx;
+				ty = y + adjind[j].dy;
+
+				if (!on(walls, tx, ty, z)) break;
+			}
+		}
+
+		if (j == 8) return adjforms[adjsty[i].fi];
+	}
+
+	return defform;
+}
+
 // this function is really ugly
 static void generate(zone * z)
 {
-	int i, j;
-	int x, y;
-	int tx, ty;
+	int i, x, y;
 	int rc;
 	int ** walls;
-	form * fm;
 	room * rv;
 	object * o;
 
 	if (defform == NULL) {
-		adjforms[0] = form_new(USELESS, ACS_LLCORNER);
-		adjforms[1] = form_new(USELESS, ACS_LRCORNER);
-		adjforms[2] = form_new(USELESS, ACS_ULCORNER);
-		adjforms[3] = form_new(USELESS, ACS_URCORNER);
-		adjforms[4] = form_new(USELESS, ACS_VLINE);
-		adjforms[5] = form_new(USELESS, ACS_HLINE);
-		adjforms[6] = form_new(USELESS, ACS_LTEE);
-		adjforms[7] = form_new(USELESS, ACS_RTEE);
-		adjforms[8] = form_new(USELESS, ACS_TTEE);
-		adjforms[9] = form_new(USELESS, ACS_BTEE);
-		adjforms[10] = form_new(USELESS, ' ');
+		adjforms[LLC] = form_new(USELESS, ACS_LLCORNER);
+		adjforms[LRC] = form_new(USELESS, ACS_LRCORNER);
+		adjforms[ULC] = form_new(USELESS, ACS_ULCORNER);
+		adjforms[URC] = form_new(USELESS, ACS_URCORNER);
+		adjforms[VLN] = form_new(USELESS, ACS_VLINE);
+		adjforms[HLN] = form_new(USELESS, ACS_HLINE);
+		adjforms[LTE] = form_new(USELESS, ACS_LTEE);
+		adjforms[RTE] = form_new(USELESS, ACS_RTEE);
+		adjforms[TTE] = form_new(USELESS, ACS_TTEE);
+		adjforms[BTE] = form_new(USELESS, ACS_BTEE);
+		adjforms[CRS] = form_new(USELESS, ACS_PLUS);
+		adjforms[BLN] = form_new(USELESS, ' ');
 
 		for (i = 0; i < countof(adjforms); i++) {
 			adjforms[i]->weight = TILE_MAX_WEIGHT;
@@ -227,21 +290,7 @@ static void generate(zone * z)
 			if (walls[x][y]) {
 				// this is not quite so awful
 
-				fm = defform;
-				for (i = 0; i < countof(adjsty); i++) {
-					for (j = 0; j < 8; j++) {
-						tx = x + adjind[j].dx;
-						ty = y + adjind[j].dy;
-						if (on(walls, tx, ty, z) != adjsty[i].on[j]) break;
-					}
-
-					if (j == 8) {
-						fm = adjforms[adjsty[i].fi];
-						break;
-					}
-				}
-
-				o = obj_new(fm);
+				o = obj_new(get_form(walls, x, y, z));
 				o->x = x;
 				o->y = y;
 				o->z = z;
