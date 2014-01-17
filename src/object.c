@@ -4,18 +4,19 @@
 
 #include <stdlib.h>
 #include <ncurses.h>
+#include "form.h"
 #include "world.h"
 #include "object.h"
 #include "display.h"
 #include "inventory.h"
 
-object * obj_new(obj_type type, chtype ch)
+object * obj_new(form * f)
 {
 	object * o = malloc(sizeof(object));
-	o->type = type;
-	o->ch = ch;
-	o->x = o->y = o->i = 0;
-	o->weight = 1;
+	o->f = form_copy(f);
+	o->x = 0;
+	o->y = 0;
+	o->i = 0;
 	o->z = NULL;
 	o->flags = 0;
 	return o;
@@ -24,6 +25,7 @@ object * obj_new(obj_type type, chtype ch)
 void obj_free(object * o)
 {
 	if (~world.plyr.flags & FL_NOFREE) {
+		form_free(o->f);
 		free(o);
 	}
 }

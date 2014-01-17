@@ -17,8 +17,8 @@ void init_world(void)
 
 	world.zones = malloc(sizeof(zone *));
 	*world.zones = zone_new(80, 25);
-	world.plyr.ch = '@' | A_BOLD;
-	world.plyr.weight = TILE_MAX_WEIGHT / 2;
+	world.plyr.f = form_new(CREATURE, '@' | A_BOLD);
+	world.plyr.f->weight = TILE_MAX_WEIGHT / 2;
 	world.plyr.flags |= FL_NOFREE;
 
 	do {

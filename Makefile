@@ -8,7 +8,7 @@ CC     = gcc
 CCFL   = -c -g -Wall
 LDFL   = -Wall -lncurses
 
-SRCS := main.c object.c world.c zone.c display.c log.c inventory.c
+SRCS := main.c object.c world.c zone.c display.c log.c inventory.c form.c
 
 OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(SRCS)))
 DEPS := $(addprefix dep/,$(patsubst %.c,%.d,$(SRCS)))

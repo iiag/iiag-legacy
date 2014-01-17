@@ -54,14 +54,14 @@ int inv_add(inventory * inv, object * o)
 	}
 
 	inv->size += REALLOC_SIZE;
-	inv->weight += o->weight;
+	inv->weight += o->f->weight;
 	return inv->size - REALLOC_SIZE;
 }
 
 int inv_try(inventory * inv, object * o)
 {
 	if (inv->max_weight == INFINITE) return 1;
-	return o->weight + inv->weight <= inv->max_weight;
+	return o->f->weight + inv->weight <= inv->max_weight;
 }
 
 int inv_rm(inventory * inv, int i)

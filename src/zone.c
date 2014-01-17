@@ -3,7 +3,7 @@
 //
 
 #include <stdlib.h>
-#include "log.h"
+#include "form.h"
 #include "zone.h"
 #include "world.h"
 #include "object.h"
@@ -26,11 +26,11 @@ static struct {
 	{  1, -1 }  // upper right
 };
 
-static chtype adjchs[11];
+static form * adjforms[11];
 
 static struct {
 	int on[8];
-	int ci;
+	int fi;
 } adjsty[] = {
 	// lower left corner
 	{ { 0,0,0, 0,1, 0,1,0 }, 0 },
@@ -110,25 +110,41 @@ static struct {
 
 	// left tee
 	{ { 0,1,0, 0,1, 0,1,0 }, 6 },
+	{ { 0,1,1, 0,1, 0,1,0 }, 6 },
+	{ { 0,1,0, 0,1, 0,1,1 }, 6 },
 	{ { 1,1,0, 1,1, 1,1,0 }, 6 },
+	{ { 1,1,1, 1,1, 1,1,0 }, 6 },
+	{ { 1,1,0, 1,1, 1,1,1 }, 6 },
 
 	// right tee
 	{ { 0,1,0, 1,0, 0,1,0 }, 7 },
+	{ { 1,1,0, 1,0, 0,1,0 }, 7 },
+	{ { 0,1,0, 1,0, 1,1,0 }, 7 },
 	{ { 0,1,1, 1,1, 0,1,1 }, 7 },
+	{ { 1,1,1, 1,1, 0,1,1 }, 7 },
+	{ { 0,1,1, 1,1, 1,1,1 }, 7 },
 
 	// top tee
 	{ { 0,1,0, 1,1, 0,0,0 }, 8 },
+	{ { 1,1,0, 1,1, 0,0,0 }, 8 },
+	{ { 0,1,1, 1,1, 0,0,0 }, 8 },
 	{ { 0,1,0, 1,1, 1,1,1 }, 8 },
+	{ { 1,1,0, 1,1, 1,1,1 }, 8 },
+	{ { 0,1,1, 1,1, 1,1,1 }, 8 },
 
 	// bottom tee
 	{ { 0,0,0, 1,1, 0,1,0 }, 9 },
+	{ { 0,0,0, 1,1, 1,1,0 }, 9 },
+	{ { 0,0,0, 1,1, 0,1,1 }, 9 },
 	{ { 1,1,1, 1,1, 0,1,0 }, 9 },
+	{ { 1,1,1, 1,1, 1,1,0 }, 9 },
+	{ { 1,1,1, 1,1, 0,1,1 }, 9 },
 
 	// space
 	{ { 1,1,1, 1,1, 1,1,1 }, 10 },
 };
 
-static int defsty = '#';
+static form * defform = NULL;
 //// end adjacent walls style ////
 
 typedef struct {
@@ -153,30 +169,34 @@ static int on(int ** walls, int x, int y, zone * z)
 // this function is really ugly
 static void generate(zone * z)
 {
-	static int init = 0;
-
 	int i, j;
 	int x, y;
 	int tx, ty;
 	int rc;
 	int ** walls;
-	chtype ch;
+	form * fm;
 	room * rv;
 	object * o;
 
-	if (!init) {
-		adjchs[0] = ACS_LLCORNER;
-		adjchs[1] = ACS_LRCORNER;
-		adjchs[2] = ACS_ULCORNER;
-		adjchs[3] = ACS_URCORNER;
-		adjchs[4] = ACS_VLINE;
-		adjchs[5] = ACS_HLINE;
-		adjchs[6] = ACS_LTEE;
-		adjchs[7] = ACS_RTEE;
-		adjchs[8] = ACS_TTEE;
-		adjchs[9] = ACS_BTEE;
-		adjchs[10] = ' ';
-		init = 1;
+	if (defform == NULL) {
+		adjforms[0] = form_new(USELESS, ACS_LLCORNER);
+		adjforms[1] = form_new(USELESS, ACS_LRCORNER);
+		adjforms[2] = form_new(USELESS, ACS_ULCORNER);
+		adjforms[3] = form_new(USELESS, ACS_URCORNER);
+		adjforms[4] = form_new(USELESS, ACS_VLINE);
+		adjforms[5] = form_new(USELESS, ACS_HLINE);
+		adjforms[6] = form_new(USELESS, ACS_LTEE);
+		adjforms[7] = form_new(USELESS, ACS_RTEE);
+		adjforms[8] = form_new(USELESS, ACS_TTEE);
+		adjforms[9] = form_new(USELESS, ACS_BTEE);
+		adjforms[10] = form_new(USELESS, ' ');
+
+		for (i = 0; i < countof(adjforms); i++) {
+			adjforms[i]->weight = TILE_MAX_WEIGHT;
+		}
+
+		defform = form_new(USELESS, '#');
+		defform->weight = TILE_MAX_WEIGHT;
 	}
 
 	rc = rand() % 10 + 10;
@@ -207,7 +227,7 @@ static void generate(zone * z)
 			if (walls[x][y]) {
 				// this is not quite so awful
 
-				ch = defsty;
+				fm = defform;
 				for (i = 0; i < countof(adjsty); i++) {
 					for (j = 0; j < 8; j++) {
 						tx = x + adjind[j].dx;
@@ -215,14 +235,16 @@ static void generate(zone * z)
 						if (on(walls, tx, ty, z) != adjsty[i].on[j]) break;
 					}
 
-					if (j == 8) ch = adjchs[adjsty[i].ci];
+					if (j == 8) {
+						fm = adjforms[adjsty[i].fi];
+						break;
+					}
 				}
 
-				o = obj_new(USELESS, ch);
+				o = obj_new(fm);
 				o->x = x;
 				o->y = y;
 				o->z = z;
-				o->weight = TILE_MAX_WEIGHT;
 				inv_add(z->tiles[x][y], o);
 			}
 		}
@@ -275,9 +297,9 @@ void zone_update(zone * z, int x, int y)
 
 	for (i = 0; i < z->tiles[x][y]->size; i++) {
 		ob = z->tiles[x][y]->objs[i];
-		if (ob != NULL && ob->type > ty) {
-			ty = ob->type;
-			ch = ob->ch;
+		if (ob != NULL && ob->f->type > ty) {
+			ty = ob->f->type;
+			ch = ob->f->ch;
 		}
 	}
 
