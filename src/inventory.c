@@ -74,7 +74,7 @@ int inv_rm(inventory * inv, int i)
 	return 1;
 }
 
-char inv_ind2ch(inventory * inv, int i)
+char ind2ch(int i)
 {
 	if (i < 26) return 'a' + i;
 	if (i < 52) return 'A' + i - 26;
@@ -82,7 +82,7 @@ char inv_ind2ch(inventory * inv, int i)
 	assert(0); // TODO
 }
 
-int  inv_ch2ind(inventory * inv, char c)
+int  ch2ind(char c)
 {
 	if (c <= '9') return (int)c + 52 - '0';
 	if (c <= 'Z') return (int)c + 26 - 'A';

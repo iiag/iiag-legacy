@@ -23,7 +23,7 @@ void inv_free(inventory *);
 int inv_add(inventory *, struct object *);
 int inv_try(inventory *, struct object *);
 int inv_rm(inventory *, int);
-char inv_ind2ch(inventory *, int);
-int  inv_ch2ind(inventory *, char);
+char ind2ch(int);
+int  ch2ind(char);
 
 #endif

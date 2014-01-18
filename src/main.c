@@ -18,42 +18,56 @@ static void moveplyr(int dx, int dy)
 	obj_move(&PLYR, dx, dy);
 }
 
-static void pickup(void)
-{
-	int i, j;
-
-	for (i = 0; i < PLYRT.size; i++) {
-		if (PLYRT.objs[i] != NULL && &world.plyr != PLYRT.objs[i]) {
-			if ((j = inv_add(PLYR.inv, PLYRT.objs[i])) != INVALID) {
-				PLYRT.objs[i]->i = j;
-				inv_rm(&PLYRT, i);
-				memo("You pick up the %s", PLYR.inv->objs[i]->f->name);
-				return;
-			} else {
-				memo("You cannot pick up the %s.", PLYRT.objs[i]->f->name);
-			}
-		}
-	}
-
-	memo("You don't pick up anything.");
-}
-
-static void show_inv(void)
+static void show_inv_h(inventory * inv)
 {
 	int i;
 
-	wclear(dispscr);
-	wmove(dispscr, 0, 0);
-
-	wprintw(dispscr, "Weight: %d/%d\n", PLYR.inv->weight, PLYR.inv->max_weight);
-
-	for (i = 0; i < PLYR.inv->size; i++) {
-		if (PLYR.inv->objs[i] != NULL) {
-			wprintw(dispscr, "~ %s\n", PLYR.inv->objs[i]->f->name);
+	for (i = 0; i < inv->size; i++) {
+		if (inv->objs[i] != NULL && inv->objs[i] != &PLYR) {
+			wprintw(dispscr, " %c) %s\n", ind2ch(i), inv->objs[i]->f->name);
 		}
 	}
 
 	wrefresh(dispscr);
+}
+
+static void pickup(void)
+{
+	int i, j;
+
+	if (PLYRT.weight == 0) {
+		memo("There is nothing here to pick up.");
+	} else {
+		wmove(dispscr, 0, 0);
+		wprintw(dispscr, "Pick up what?\n");
+
+		show_inv_h(&PLYRT);
+		i = ch2ind(wgetch(dispscr));
+
+		if (PLYRT.size > i && PLYRT.objs[i] != NULL && PLYRT.objs[i] != &PLYR) {
+			if ((j = inv_add(PLYR.inv, PLYRT.objs[i])) != INVALID) {
+				PLYRT.objs[i]->i = j;
+				inv_rm(&PLYRT, i);
+				memo("You pick up the %s", PLYR.inv->objs[i]->f->name);
+			} else {
+				memo("You cannot pick up the %s.", PLYRT.objs[i]->f->name);
+			}
+		} else {
+			memo("There is no such item.");
+		}
+
+		wclear(dispscr);
+		zone_draw(PLYR.z);
+		wrefresh(dispscr);
+	}
+}
+
+static void show_inv(void)
+{
+	wmove(dispscr, 0, 0);
+	wprintw(dispscr, "Weight: %d/%d\n", PLYR.inv->weight, PLYR.inv->max_weight);
+
+	show_inv_h(PLYR.inv);
 	wgetch(dispscr);
 
 	wclear(dispscr);
