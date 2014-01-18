@@ -10,6 +10,8 @@
 #include "display.h"
 #include "inventory.h"
 
+#define MAX_WEIGHT 500
+
 object * obj_new(form * f)
 {
 	object * o = malloc(sizeof(object));
@@ -19,6 +21,7 @@ object * obj_new(form * f)
 	o->i = 0;
 	o->z = NULL;
 	o->flags = 0;
+	o->inv = (f->flags & FL_HASINV) ? inv_new(MAX_WEIGHT) : NULL;
 	return o;
 }
 

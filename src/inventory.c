@@ -39,6 +39,7 @@ int inv_add(inventory * inv, object * o)
 	int i;
 
 	if (!inv_try(inv, o)) return INVALID;
+	inv->weight += o->f->weight;
 
 	for (i = 0; i < inv->size; i++) {
 		if (inv->objs[i] == NULL) {
@@ -55,7 +56,6 @@ int inv_add(inventory * inv, object * o)
 	}
 
 	inv->size += REALLOC_SIZE;
-	inv->weight += o->f->weight;
 	return inv->size - REALLOC_SIZE;
 }
 

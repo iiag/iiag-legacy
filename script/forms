@@ -1,3 +1,4 @@
 # script/forms
 
 u { name = rock, char = *, weight = 10 }
+c { name = gnat, char = g, weight = 700 }

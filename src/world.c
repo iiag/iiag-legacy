@@ -18,7 +18,6 @@ const char * form_file = "script/forms";
 static int form_line;
 
 world_st world;
-object * plyr;
 
 static void ff_error(char * fmt, ...)
 {
@@ -162,6 +161,7 @@ void init_world(void)
 
 	*world.zones = zone_new(80, 25);
 	world.plyr.f = form_new(CREATURE, '@' | A_BOLD);
+	world.plyr.inv = inv_new(500);
 	world.plyr.f->weight = TILE_MAX_WEIGHT / 2;
 	world.plyr.flags |= FL_NOFREE;
 
@@ -171,5 +171,4 @@ void init_world(void)
 	} while (!inv_try(world.zones[0]->tiles[x][y], &world.plyr));
 
 	obj_tele(&world.plyr, x, y, *world.zones);
-	plyr = &world.plyr;
 }

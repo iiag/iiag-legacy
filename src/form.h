@@ -7,6 +7,8 @@
 
 #include <ncurses.h>
 
+#define FL_HASINV 1
+
 typedef enum {
 	NONE = -1,
 	USELESS,
@@ -14,6 +16,7 @@ typedef enum {
 } obj_type;
 
 typedef struct {
+	unsigned flags;
 	int refs;
 	int weight;
 	char * name;

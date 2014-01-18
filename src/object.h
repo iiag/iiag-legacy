@@ -10,12 +10,14 @@
 #define FL_NOFREE 1
 
 struct zone;
+struct inventory;
 
 typedef struct object {
 	unsigned flags;
 	int x, y, i;
 	struct zone * z;
 	form * f;
+	struct inventory * inv;
 } object;
 
 object * obj_new(form *);

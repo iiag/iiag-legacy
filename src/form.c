@@ -7,11 +7,12 @@
 
 form * form_new(obj_type type, chtype ch)
 {
-	form * f = malloc(sizeof(form));
-	f->type = type;
-	f->name = NULL;
-	f->ch = ch;
-	f->refs = 1;
+	form * f  = malloc(sizeof(form));
+	f->flags  = (type == CREATURE) ? FL_HASINV : 0;
+	f->type   = type;
+	f->name   = NULL;
+	f->ch     = ch;
+	f->refs   = 1;
 	f->weight = 1;
 	return f;
 }
