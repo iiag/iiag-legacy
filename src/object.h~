@@ -12,14 +12,14 @@
 struct zone;
 struct inventory;
 
-typedef struct object{
+typedef struct object {
 	unsigned flags;
 	int x, y, i;
 	int health;
 	struct zone * z;
 	form * f;
 	struct inventory * inv;
-}object;
+} object;
 
 object * obj_new(form *);
 void obj_free(object *);

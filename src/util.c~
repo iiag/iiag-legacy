@@ -7,7 +7,7 @@
 #include <string.h>
 #include "util.h"
 
-char * read_file(const char * fn)//reading the file contaning teh list of creatures, monsters, and generic items 
+char * read_file(const char * fn)
 {
 	FILE * f;
 	char * buf;
@@ -29,7 +29,7 @@ char * read_file(const char * fn)//reading the file contaning teh list of creatu
 	return buf;
 }
 
-char * copy_str(const char * old)//copy string
+char * copy_str(const char * old)
 {
 	char * str = malloc(strlen(old) + 1);
 	strcpy(str, old);
