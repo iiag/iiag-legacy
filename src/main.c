@@ -75,6 +75,16 @@ static void show_inv(void)
 	wrefresh(dispscr);
 }
 
+static void step(void)
+{
+	if (PLYR.health <= 0) {
+		memo("You are dead.");
+		wgetch(memoscr);
+		end_disp();
+		exit(0);
+	}
+}
+
 int main(int argc, char ** argv)
 {
 	int c;
@@ -105,6 +115,8 @@ int main(int argc, char ** argv)
 		default:
 			memo("Unknown key press: %c (%d)", c, c);
 		}
+
+		step();
 	}
 
 cleanup:

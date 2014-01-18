@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include "form.h"
 
+#define DEF_HEALTH 10
+
 form * form_new(obj_type type, chtype ch)
 {
 	form * f  = malloc(sizeof(form));
@@ -14,6 +16,7 @@ form * form_new(obj_type type, chtype ch)
 	f->ch     = ch;
 	f->refs   = 1;
 	f->weight = 1;
+	f->max_health = DEF_HEALTH;
 	return f;
 }
 

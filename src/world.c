@@ -163,6 +163,8 @@ void init_world(void)
 	world.plyr.f = form_new(CREATURE, '@' | A_BOLD);
 	world.plyr.inv = inv_new(500);
 	world.plyr.f->weight = TILE_MAX_WEIGHT / 2;
+	world.plyr.f->max_health = 10;
+	world.plyr.health = 10;
 	world.plyr.flags |= FL_NOFREE;
 
 	do {

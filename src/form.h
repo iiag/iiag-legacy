@@ -19,6 +19,7 @@ typedef struct {
 	unsigned flags;
 	int refs;
 	int weight;
+	int max_health;
 	char * name;
 	obj_type type;
 	chtype ch;

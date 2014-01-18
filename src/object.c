@@ -22,6 +22,7 @@ object * obj_new(form * f)
 	o->z = NULL;
 	o->flags = 0;
 	o->inv = (f->flags & FL_HASINV) ? inv_new(MAX_WEIGHT) : NULL;
+	o->health = f->max_health;
 	return o;
 }
 
@@ -49,7 +50,7 @@ void obj_tele(object * obj, int x, int y, zone * z)
 	}
 }
 
-void obj_move(object * obj, int dx, int dy)
+int obj_move(object * obj, int dx, int dy)
 {
 	int i;
 	int nx, ny;
@@ -63,7 +64,7 @@ void obj_move(object * obj, int dx, int dy)
 		ny = oy + dy;
 
 		i = inv_add(obj->z->tiles[nx][ny], obj);
-		if (i == INVALID) return;
+		if (i == INVALID) return 0;
 		inv_rm(obj->z->tiles[ox][oy], obj->i);
 
 		obj->x = nx;
@@ -73,5 +74,8 @@ void obj_move(object * obj, int dx, int dy)
 		zone_update(obj->z, nx, ny);
 		zone_update(obj->z, ox, oy);
 		wrefresh(dispscr);
+		return 1;
 	}
+
+	return 0;
 }
