@@ -13,143 +13,34 @@
 #include "world.h"
 #include "display.h"
 #include "inventory.h"
-
-const char * form_file = "script/forms";
-static int form_line;
+#include "iml/iml.h"
 
 world_st world;
+const char * form_file = "script/forms";
 
-static void ff_error(char * fmt, ...)
+static char * type_names[] = {
+	"useless",
+	"creature",
+};
+
+void load_forms(void)
 {
-	va_list vl;
+	form * def = form_new(USELESS, '?');
+	iml_lang * lang = iml_lang_new(form, def);
 
-	end_disp();
+	iml_lang_add(lang, IML_INT, "weight", form, weight);
+	iml_lang_add(lang, IML_CHAR, "char", form, ch);
+	iml_lang_add(lang, IML_STRING, "name", form, name);
+	iml_lang_add_enum(lang, "type", form, type, type_names);
 
-	va_start(vl, fmt);
-	fprintf(stderr, "Error: ");
-	vfprintf(stderr, fmt, vl);
-	fprintf(stderr, " (%s, line %d)\n", form_file, form_line);
-	va_end(vl);
-
-	exit(1);
-}
-
-static void igspaces(char ** buf)
-{
-redo:
-	while (isspace(**buf)) {
-		if (**buf == '\n') ++form_line;
-		++*buf;
-	}
-
-	if (**buf == '#') {
-		while (**buf != '\n') ++*buf;
-		form_line++;
-		goto redo;
-	}
-}
-
-static int nexttok(char ** buf, char * delims, char ** tok)
-{
-	char * d;
-	int l = 0;
-
-	igspaces(buf);
-	*tok = *buf;
-
-	while (!isspace((*buf)[l])) {
-		for (d = delims; *d != 0; d++) {
-			if (*d == (*buf)[l]) return l;
-		}
-		l++;
-	}
-	return l;
-}
-
-
-static void expect(char ** buf, char c)
-{
-	igspaces(buf);
-	if (**buf != c) {
-		ff_error("Expected '%c', got '%c'", c, **buf);
-	}
-	++*buf;
-}
-
-static void load_forms(void)
-{
-#define REALLOC_SIZE 10
-
-	form * fm;
-	char dlm;
-	char * buf, * orig;
-	char * fld, * val;
-	int lenf, lenv;
+	world.forms = iml_read(form_file, lang);
 
 	world.form_count = 0;
-	world.forms = NULL;
-
-	orig = buf = read_file(form_file);
-	if (buf == NULL) {
-		end_disp();
-		fprintf(stderr, "Error: Cannot load form file '%s'\n", form_file);
-		exit(1);
+	while (world.forms[world.form_count] != NULL) {
+		world.form_count++;
 	}
 
-	while (*buf != 0) {
-		igspaces(&buf);
-		if (*buf == 0) break;
-
-		switch (*buf++) {
-		case 'u': fm = form_new(USELESS,  '?'); break;
-		case 'c': fm = form_new(CREATURE, '?'); break;
-		default: ff_error("Unknown form type '%c'", *buf);
-		}
-
-		expect(&buf, '{');
-
-		do {
-			lenf = nexttok(&buf, "=,", &fld);
-			buf += lenf;
-
-			expect(&buf, '=');
-
-			lenv = nexttok(&buf, ",}", &val);
-			buf += lenv;
-
-			if (isspace(*buf)) {
-				if (*buf == '\n') form_line++;
-				*buf++ = 0;
-				igspaces(&buf);
-				dlm = *buf++;
-			} else {
-				dlm = *buf;
-				*buf++ = 0;
-			}
-
-			if (!memcmp(fld, "weight", lenf)) {
-				fm->weight = atoi(val);
-			}
-			else if (!memcmp(fld, "char", lenf)) {
-				fm->ch = *val;
-			}
-			else if (!memcmp(fld, "name", lenf)) {
-				fm->name = copy_str(val);
-			}
-			else {
-				ff_error("Unknown field name");
-			}
-
-			if (!(world.form_count % REALLOC_SIZE)) {
-				world.forms = realloc(world.forms, (world.form_count + REALLOC_SIZE) * sizeof(form *));
-			}
-
-			world.forms[world.form_count++] = fm;
-
-		} while (dlm != '}');
-	}
-
-	free(orig);
+	form_free(def);
 }
 
 void init_world(void)

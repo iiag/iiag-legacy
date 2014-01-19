@@ -9,7 +9,7 @@ CCFL   = -c -g -Wall
 LDFL   = -Wall -lncurses
 
 SRCS := main.c object.c world.c zone.c display.c log.c inventory.c form.c \
-        util.c
+        util.c iml/iml.c iml/lang.c
 
 OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(SRCS)))
 DEPS := $(addprefix dep/,$(patsubst %.c,%.d,$(SRCS)))

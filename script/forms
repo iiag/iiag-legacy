@@ -1,4 +1,4 @@
 # script/forms
 
-u { name = rock, char = *, weight = 10 }
-c { name = gnat, char = g, weight = 700 }
+rock { type = useless, char = *, weight = 10 }
+gnat { type = useless, char = g, weight = 700 }
