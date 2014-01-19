@@ -10,10 +10,9 @@
 
 struct object;
 
-typedef struct{
+typedef struct creature{
 	char *ability;
-	Object *obj;
-	tiles **;
-}cretr;
+	struct object *obj;
+}creature;
 
 #endif

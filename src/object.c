@@ -28,29 +28,79 @@ object * obj_new(form * f)
 
 void obj_free(object * o)
 {
-	if (~world.plyr.flags & FL_NOFREE) {
+	if (~o->flags & FL_NOFREE) {
 		form_free(o->f);
 		free(o);
 	}
 }
 
-void obj_tele(object * obj, int x, int y, zone * z)
+static void update2(zone * z, int x1, int y1, int x2, int y2)
 {
-	int i = inv_add(z->tiles[x][y], obj);
+	if (z != NULL && z == world.plyr.obj->z) {
+		zone_update(z, x1, y1);
+		zone_update(z, x2, y2);
+		wrefresh(dispscr);
+	}
+}
+
+int crtr_tele(creature * crtr, int x, int y, zone * z)
+{
+	if (x >= 0 && x < z->width 
+		&& y >= 0 && y < z->height
+		&& z->tiles[x][y].crtr == NULL
+		&& !z->tiles[x][y].impassible)
+	{
+		z->tiles[x][y].crtr = crtr;
+
+		if (crtr->obj->z != NULL) {
+			tileof(crtr->obj)->crtr = NULL;
+		}
+
+		update2(crtr->obj->z, x, y, crtr->obj->x, crtr->obj->y);
+
+		crtr->obj->x = x;
+		crtr->obj->y = y;
+		crtr->obj->z = z;
+
+		return 1;
+	}
+
+	return 0;
+}
+
+int crtr_move(creature * crtr, int dx, int dy)
+{
+	int ox = crtr->obj->x;
+	int oy = crtr->obj->y;
+	int nx = ox + dx;
+	int ny = oy + dy;
+
+	return crtr_tele(crtr, nx, ny, crtr->obj->z);
+}
+
+int item_tele(object * obj, int x, int y, zone * z)
+{
+	int i = inv_add(z->tiles[x][y].inv, obj);
 
 	if (i != INVALID) {
 		if (obj->z != NULL) {
-			inv_rm(z->tiles[x][y], obj->i);
+			inv_rm(z->tiles[x][y].inv, obj->i);
 		}
+
+		update2(obj->z, obj->x, obj->y, x, y);
 
 		obj->x = x;
 		obj->y = y;
 		obj->z = z;
 		obj->i = i;
+
+		return 1;
 	}
+
+	return 0;
 }
 
-int obj_move(object * obj, int dx, int dy)
+int item_move(object * obj, int dx, int dy)
 {
 	int i;
 	int nx, ny;
@@ -63,16 +113,15 @@ int obj_move(object * obj, int dx, int dy)
 		nx = ox + dx;
 		ny = oy + dy;
 
-		i = inv_add(obj->z->tiles[nx][ny], obj);
+		i = inv_add(obj->z->tiles[nx][ny].inv, obj);
 		if (i == INVALID) return 0;
-		inv_rm(obj->z->tiles[ox][oy], obj->i);
+		inv_rm(obj->z->tiles[ox][oy].inv, obj->i);
 
 		obj->x = nx;
 		obj->y = ny;
 		obj->i = i;
 
-		zone_update(obj->z, nx, ny);
-		zone_update(obj->z, ox, oy);
+		update2(obj->z, nx, ny, ox, oy);
 		wrefresh(dispscr);
 		return 1;
 	}

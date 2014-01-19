@@ -295,7 +295,8 @@ static void generate(zone * z)
 				o->x = x;
 				o->y = y;
 				o->z = z;
-				inv_add(z->tiles[x][y], o);
+				inv_add(z->tiles[x][y].inv, o);
+				z->tiles[x][y].impassible = 1;
 			}
 		}
 	}
@@ -308,9 +309,9 @@ static void generate(zone * z)
 			do {
 				x = rand() % z->width;
 				y = rand() % z->height;
-			} while (!inv_try(z->tiles[x][y], o));
+			} while (!inv_try(z->tiles[x][y].inv, o));
 
-			obj_tele(o, x, y, z);
+			item_tele(o, x, y, z);
 		}
 	}
 }
@@ -324,11 +325,13 @@ zone * zone_new(int w, int h)
 	z->width = w;
 	z->height = h;
 
-	z->tiles = malloc(sizeof(inventory **) * w);
+	z->tiles = malloc(sizeof(tile *) * w);
 	for (i = 0; i < w; i++) {
-		z->tiles[i] = malloc(sizeof(inventory *) * h);
+		z->tiles[i] = malloc(sizeof(tile) * h);
 		for (j = 0; j < h; j++) {
-			z->tiles[i][j] = inv_new(TILE_MAX_WEIGHT);
+			z->tiles[i][j].impassible = 0;
+			z->tiles[i][j].crtr = NULL;
+			z->tiles[i][j].inv = inv_new(TILE_MAX_WEIGHT);
 		}
 	}
 
@@ -343,7 +346,8 @@ void zone_free(zone * z)
 
 	for (i = 0; i < z->width; i++) {
 		for (j = 0; j < z->height; j++) {
-			inv_free(z->tiles[i][j]);
+			// TODO free creature
+			inv_free(z->tiles[i][j].inv);
 		}
 		free(z->tiles[i]);
 	}
@@ -359,12 +363,16 @@ void zone_update(zone * z, int x, int y)
 	chtype ch = '.';
 	obj_type ty = NONE;
 
-	for (i = 0; i < z->tiles[x][y]->size; i++) {
-		ob = z->tiles[x][y]->objs[i];
-		if (ob != NULL && ob->f->type > ty) {
-			ty = ob->f->type;
-			ch = ob->f->ch;
+	if (z->tiles[x][y].crtr == NULL) {
+		for (i = 0; i < z->tiles[x][y].inv->size; i++) {
+			ob = z->tiles[x][y].inv->objs[i];
+			if (ob != NULL && ob->f->type > ty) {
+				ty = ob->f->type;
+				ch = ob->f->ch;
+			}
 		}
+	} else {
+		ch = z->tiles[x][y].crtr->obj->f->ch;
 	}
 
 	mvwaddch(dispscr, y, x, ch);

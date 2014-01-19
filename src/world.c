@@ -160,17 +160,14 @@ void init_world(void)
 	load_forms();
 
 	*world.zones = zone_new(80, 25);
-	world.plyr.f = form_new(CREATURE, '@' | A_BOLD);
-	world.plyr.inv = inv_new(500);
-	world.plyr.f->weight = TILE_MAX_WEIGHT / 2;
-	world.plyr.f->max_health = 10;
-	world.plyr.health = 10;
-	world.plyr.flags |= FL_NOFREE;
+	world.plyr.obj = obj_new(form_new(CREATURE, '@' | A_BOLD));
+	world.plyr.obj->f->weight = TILE_MAX_WEIGHT / 2;
+	world.plyr.obj->f->max_health = 10;
+	world.plyr.obj->health = 10;
+	world.plyr.obj->flags |= FL_NOFREE;
 
 	do {
 		x = rand() % world.zones[0]->width;
 		y = rand() % world.zones[0]->height;
-	} while (!inv_try(world.zones[0]->tiles[x][y], &world.plyr));
-
-	obj_tele(&world.plyr, x, y, *world.zones);
+	} while (!crtr_tele(&world.plyr, x, y, *world.zones));
 }

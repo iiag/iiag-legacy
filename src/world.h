@@ -9,7 +9,7 @@
 #include "object.h"
 
 typedef struct {//world states
-	object plyr;//player object
+	creature plyr;//player creature
 	zone ** zones;//list of zones that exist
 	form ** forms;//list of monster and creatures and generic items that exit
 	int form_count;//number of forms
