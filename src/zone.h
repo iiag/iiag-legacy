@@ -2,18 +2,16 @@
 // zone.h
 //
 
+struct tile;
+struct zone;
+
 #ifndef ZONE_H
 #define ZONE_H
 
 #define TILE_MAX_WEIGHT 1000
 
-#include "object.h"
 #include "creature.h"
 #include "inventory.h"
-
-struct object;
-struct creature;
-struct inventory;
 
 typedef struct tile {
 	int impassible;

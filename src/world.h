@@ -6,16 +6,16 @@
 #define WORLD_H
 
 #include "zone.h"
-#include "object.h"
+#include "creature.h"
+#include "form/item.h"
 
 typedef struct {//world states
 	creature plyr;//player creature
 	zone ** zones;//list of zones that exist
-	form ** forms;//list of monster and creatures and generic items that exit
-	int form_count;//number of forms
+	iform ** iforms;//list of different types of items that exist
+	int iform_cnt;//number of iforms
 } world_st;
 
-extern int width, height;//protoype variables
 extern world_st world;//prototype world
 
 void init_world(void);//initializes the world

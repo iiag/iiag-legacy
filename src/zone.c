@@ -4,10 +4,9 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include "form.h"
+#include "item.h"
 #include "zone.h"
 #include "world.h"
-#include "object.h"
 #include "display.h"
 #include "inventory.h"
 
@@ -38,7 +37,7 @@ enum {
 	MAX_FORMS
 };
 
-static form * adjforms[MAX_FORMS];
+static iform * adjforms[MAX_FORMS];
 
 // 1 indicates presence of wall, -1 for not, 0 for either
 static struct {
@@ -187,7 +186,7 @@ static struct {
 	}, HLN },
 };
 
-static form * defform = NULL;
+static iform * defform = NULL;
 
 typedef struct {
 	int x, y, w, h;
@@ -208,7 +207,7 @@ static int on(int ** walls, int x, int y, zone * z)
 	return walls[x][y];
 }
 
-static form * get_form(int ** walls, int x, int y, zone * z)
+static iform * get_form(int ** walls, int x, int y, zone * z)
 {
 	int want;
 	int i, j;
@@ -238,27 +237,27 @@ static void generate(zone * z)
 	int rc;
 	int ** walls;
 	room * rv;
-	object * o;
+	item * it;
 
 	if (defform == NULL) {
-		adjforms[LLC] = form_new(USELESS, ACS_LLCORNER);
-		adjforms[LRC] = form_new(USELESS, ACS_LRCORNER);
-		adjforms[ULC] = form_new(USELESS, ACS_ULCORNER);
-		adjforms[URC] = form_new(USELESS, ACS_URCORNER);
-		adjforms[VLN] = form_new(USELESS, ACS_VLINE);
-		adjforms[HLN] = form_new(USELESS, ACS_HLINE);
-		adjforms[LTE] = form_new(USELESS, ACS_LTEE);
-		adjforms[RTE] = form_new(USELESS, ACS_RTEE);
-		adjforms[TTE] = form_new(USELESS, ACS_TTEE);
-		adjforms[BTE] = form_new(USELESS, ACS_BTEE);
-		adjforms[CRS] = form_new(USELESS, ACS_PLUS);
-		adjforms[BLN] = form_new(USELESS, ' ');
+		adjforms[LLC] = iform_new(USELESS, ACS_LLCORNER);
+		adjforms[LRC] = iform_new(USELESS, ACS_LRCORNER);
+		adjforms[ULC] = iform_new(USELESS, ACS_ULCORNER);
+		adjforms[URC] = iform_new(USELESS, ACS_URCORNER);
+		adjforms[VLN] = iform_new(USELESS, ACS_VLINE);
+		adjforms[HLN] = iform_new(USELESS, ACS_HLINE);
+		adjforms[LTE] = iform_new(USELESS, ACS_LTEE);
+		adjforms[RTE] = iform_new(USELESS, ACS_RTEE);
+		adjforms[TTE] = iform_new(USELESS, ACS_TTEE);
+		adjforms[BTE] = iform_new(USELESS, ACS_BTEE);
+		adjforms[CRS] = iform_new(USELESS, ACS_PLUS);
+		adjforms[BLN] = iform_new(USELESS, ' ');
 
 		for (i = 0; i < countof(adjforms); i++) {
 			adjforms[i]->weight = TILE_MAX_WEIGHT;
 		}
 
-		defform = form_new(USELESS, '#');
+		defform = iform_new(USELESS, '#');
 		defform->weight = TILE_MAX_WEIGHT;
 	}
 
@@ -291,27 +290,24 @@ static void generate(zone * z)
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
 			if (walls[x][y]) {
-				o = obj_new(get_form(walls, x, y, z));
-				o->x = x;
-				o->y = y;
-				o->z = z;
-				inv_add(z->tiles[x][y].inv, o);
+				it = item_new(get_form(walls, x, y, z));
+				inv_add(z->tiles[x][y].inv, it);
 				z->tiles[x][y].impassible = 1;
 			}
 		}
 	}
 
 	// place some random junk
-	if (world.form_count != 0) {
+	if (world.iform_cnt != 0) {
 		for (i = rand() % 10 + 5; i >= 0; i--) {
-			o = obj_new(world.forms[rand() % world.form_count]);
+			it = item_new(world.iforms[rand() % world.iform_cnt]);
 
 			do {
 				x = rand() % z->width;
 				y = rand() % z->height;
-			} while (!inv_try(z->tiles[x][y].inv, o));
+			} while (!inv_try(z->tiles[x][y].inv, it));
 
-			item_tele(o, x, y, z);
+			item_tele(it, x, y, z);
 		}
 	}
 }
@@ -346,7 +342,7 @@ void zone_free(zone * z)
 
 	for (i = 0; i < z->width; i++) {
 		for (j = 0; j < z->height; j++) {
-			// TODO free creature
+			// TODO free creature?
 			inv_free(z->tiles[i][j].inv);
 		}
 		free(z->tiles[i]);
@@ -359,20 +355,21 @@ void zone_free(zone * z)
 void zone_update(zone * z, int x, int y)
 {
 	int i;
-	object * ob;
+	int weight = -1;
+	item * it;
 	chtype ch = '.';
-	obj_type ty = NONE;
 
 	if (z->tiles[x][y].crtr == NULL) {
 		for (i = 0; i < z->tiles[x][y].inv->size; i++) {
-			ob = z->tiles[x][y].inv->objs[i];
-			if (ob != NULL && ob->f->type > ty) {
-				ty = ob->f->type;
-				ch = ob->f->ch;
+			it = z->tiles[x][y].inv->itms[i];
+
+			if (it != NULL && it->f->weight > weight) {
+				weight = it->f->weight;
+				ch = it->f->ch;
 			}
 		}
 	} else {
-		ch = z->tiles[x][y].crtr->obj->f->ch;
+		ch = z->tiles[x][y].crtr->f->ch;
 	}
 
 	mvwaddch(dispscr, y, x, ch);

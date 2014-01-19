@@ -6,26 +6,13 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include "item.h"
 #include "world.h"
-#include "object.h"
 #include "display.h"
 #include "creature.h"
 #include "inventory.h"
 
-#define PLYRT (PLYR.obj->z->tiles[PLYR.obj->x][PLYR.obj->y])
-
-static void show_inv_h(inventory * inv)
-{
-	int i;
-
-	for (i = 0; i < inv->size; i++) {
-		if (inv->objs[i] != NULL) {
-			wprintw(dispscr, " %c) %s\n", ind2ch(i), inv->objs[i]->f->name);
-		}
-	}
-
-	wrefresh(dispscr);
-}
+#define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])
 
 static void pickup(void)
 {
@@ -34,71 +21,61 @@ static void pickup(void)
 	if (PLYRT.inv->weight == 0) {
 		memo("There is nothing here to pick up.");
 	} else {
-		wmove(dispscr, 0, 0);
-		wprintw(dispscr, "Pick up what?\n");
+		i = inv_prompt("Pick up what?", PLYRT.inv);
 
-		show_inv_h(PLYRT.inv);
-		i = ch2ind(wgetch(dispscr));
-
-		if (PLYRT.inv->size > i && PLYRT.inv->objs[i] != NULL) {
-			if ((j = inv_add(PLYR.obj->inv, PLYRT.inv->objs[i])) != INVALID) {
-				PLYRT.inv->objs[i]->i = j;
+		if (PLYRT.inv->size > i && PLYRT.inv->itms[i] != NULL) {
+			if ((j = inv_add(PLYR.inv, PLYRT.inv->itms[i])) != INVALID) {
+				PLYRT.inv->itms[i]->i = j;
 				inv_rm(PLYRT.inv, i);
-				memo("You pick up the %s", PLYR.obj->inv->objs[j]->f->name);
+				memo("You pick up the %s", PLYR.inv->itms[j]->f->name);
 			} else {
-				memo("You cannot pick up the %s.", PLYRT.inv->objs[i]->f->name);
+				memo("You cannot pick up the %s.", PLYRT.inv->itms[i]->f->name);
 			}
 		} else {
 			memo("There is no such item.");
 		}
 
 		wclear(dispscr);
-		zone_draw(PLYR.obj->z);
+		zone_draw(PLYR.z);
 		wrefresh(dispscr);
 	}
 }
 
-static void drop(void){
+static void drop(void)
+{
 	int i,j;
 
-	wmove(dispscr,0,0);
-	wprintw(dispscr, "You Dropped what?\n");
-	show_inv_h(PLYR.obj->inv);
-	i = ch2ind(wgetch(dispscr));
+	i = inv_prompt("You dropped what?", PLYR.inv);
 
-	if(PLYR.obj->inv->size > i && PLYR.obj->inv->objs[i]!=NULL){
-		if((j=inv_add(PLYRT.inv,PLYR.obj->inv->objs[i]))!=INVALID){
-			PLYR.obj->inv->objs[i]->i=j;
-			inv_rm(PLYR.obj->inv,i);
-			memo("You Dropped %s",PLYRT.inv->objs[j]->f->name);
+	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
+		if((j=inv_add(PLYRT.inv,PLYR.inv->itms[i]))!=INVALID){
+			PLYR.inv->itms[i]->i=j;
+			inv_rm(PLYR.inv,i);
+			memo("You Dropped %s",PLYRT.inv->itms[j]->f->name);
 		}else{
-			memo("You cannot drop the %s.",PLYR.obj->inv->objs[i]->f->name);
+			memo("You cannot drop the %s.",PLYR.inv->itms[i]->f->name);
 		}
 	}else{
 		memo("There is no such item.");
 	}
 
 	wclear(dispscr);
-	zone_draw(PLYR.obj->z);
+	zone_draw(PLYR.z);
 	wrefresh(dispscr);
 }
 
 static void show_inv(void)
 {
-	wmove(dispscr, 0, 0);
-	wprintw(dispscr, "Weight: %d/%d\n", PLYR.obj->inv->weight, PLYR.obj->inv->max_weight);
-
-	show_inv_h(PLYR.obj->inv);
-	wgetch(dispscr);
+	inv_prompt("Your inventory:", PLYR.inv);
 
 	wclear(dispscr);
-	zone_draw(PLYR.obj->z);
+	zone_draw(PLYR.z);
 	wrefresh(dispscr);
 }
 
 static void step(void)
 {
-	if (PLYR.obj->health <= 0) {
+	if (PLYR.health <= 0) {
 		memo("You are dead.");
 		wgetch(memoscr);
 		end_disp();
@@ -115,7 +92,7 @@ int main(int argc, char ** argv)
 	init_disp();
 	init_world();
 
-	zone_draw(PLYR.obj->z);
+	zone_draw(PLYR.z);
 
 	for (;;) {
 		c = wgetch(memoscr);

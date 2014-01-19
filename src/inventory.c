@@ -4,11 +4,8 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include "log.h"
-#include "object.h"
+#include "display.h"
 #include "inventory.h"
-
-#define REALLOC_SIZE 8
 
 inventory * inv_new(int max)
 {
@@ -16,7 +13,7 @@ inventory * inv_new(int max)
 	inv->max_weight = max;
 	inv->size = 0;
 	inv->weight = 0;
-	inv->objs = NULL;
+	inv->itms = NULL;
 	return inv;
 }
 
@@ -25,52 +22,81 @@ void inv_free(inventory * inv)
 	int i;
 
 	for (i = 0; i < inv->size; i++) {
-		if (inv->objs[i] != NULL && ~inv->objs[i]->flags & FL_NOFREE) {
-			obj_free(inv->objs[i]);
+		if (inv->itms[i] != NULL) {
+			item_free(inv->itms[i]);
 		}
 	}
 
-	free(inv->objs);
+	free(inv->itms);
 	free(inv);
 }
 
-int inv_add(inventory * inv, object * o)
+int inv_add(inventory * inv, item * it)
 {
+#define REALLOC_SIZE 8
+
 	int i;
 
-	if (!inv_try(inv, o)) return INVALID;
-	inv->weight += o->f->weight;
+	if (!inv_try(inv, it)) return INVALID;
+	inv->weight += it->f->weight;
 
 	for (i = 0; i < inv->size; i++) {
-		if (inv->objs[i] == NULL) {
-			inv->objs[i] = o;
+		if (inv->itms[i] == NULL) {
+			inv->itms[i] = it;
 			return i;
 		}
 	}
 
-	inv->objs = realloc(inv->objs, REALLOC_SIZE * sizeof(object *));
-	inv->objs[inv->size] = o;
+	if (inv->size % REALLOC_SIZE == 0) {
+		inv->itms = realloc(inv->itms,
+				(inv->size + REALLOC_SIZE) * sizeof(item *)
+		);
+	}
+	inv->itms[inv->size] = it;
 
 	for (i = 1; i < REALLOC_SIZE; i++) {
-		inv->objs[i + inv->size] = NULL;
+		inv->itms[i + inv->size] = NULL;
 	}
 
 	inv->size += REALLOC_SIZE;
 	return inv->size - REALLOC_SIZE;
 }
 
-int inv_try(inventory * inv, object * o)
+int inv_try(inventory * inv, item * it)
 {
 	if (inv->max_weight == INFINITE) return 1;
-	return o->f->weight + inv->weight <= inv->max_weight;
+	return it->f->weight + inv->weight <= inv->max_weight;
 }
 
-int inv_rm(inventory * inv, int i)
+item * inv_rm(inventory * inv, int i)
 {
-	if (inv->objs[i] == NULL) return 0;
-	inv->weight -= inv->objs[i]->f->weight;
-	inv->objs[i] = NULL;
-	return 1;
+	if (inv->itms[i] == NULL) return NULL;
+	
+	item * ret = inv->itms[i];
+	inv->weight -= inv->itms[i]->f->weight;
+	inv->itms[i] = NULL;
+
+	return ret;
+}
+
+int inv_prompt(const char * prompt, inventory * inv)
+{
+	int i;
+	
+	wmove(dispscr, 0, 0);
+	wprintw(dispscr, "%s\n", prompt);
+
+	for (i = 0; i < inv->size; i++) {
+		if (inv->itms[i] != NULL) {
+			wprintw(dispscr, " %c) %s\n",
+				ind2ch(i),
+				inv->itms[i]->f->name
+			);
+		}
+	}
+
+	wrefresh(dispscr);
+	return ch2ind(wgetch(dispscr));
 }
 
 char ind2ch(int i)
