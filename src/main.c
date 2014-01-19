@@ -60,30 +60,27 @@ static void pickup(void)
 
 static void drop(void){
 	int i,j;
-	
-	if(PLYRT.inv->weight!=0){
-		memo("There is something already here");
-	}else{
-		wmove(dispscr,0,0);
-		wprintw(dispscr, "You Dropped what?\n");
-		show_inv_h(PLYRT.inv);
-		i = ch2ind(wgetch(dispscr));
-		
-		if(PLYRT.inv->size > i && PLYRT.inv->objs[i]!=NULL){
-			if((j=inv_add(PLYRT.inv,PLYR.obj->inv->objs[i]))!=INVALID){
-				PLYR.obj->inv->objs[i]->i=j;
-				inv_rm(PLYR.obj->inv,i);
-				memo("You Dropped %s",PLYRT.inv->objs[j]->f->name);
-			}else{
-				memo("You cannot drop the %s.",PLYR.obj->inv->objs[i]->f->name);
-			}
+
+	wmove(dispscr,0,0);
+	wprintw(dispscr, "You Dropped what?\n");
+	show_inv_h(PLYR.obj->inv);
+	i = ch2ind(wgetch(dispscr));
+
+	if(PLYR.obj->inv->size > i && PLYR.obj->inv->objs[i]!=NULL){
+		if((j=inv_add(PLYRT.inv,PLYR.obj->inv->objs[i]))!=INVALID){
+			PLYR.obj->inv->objs[i]->i=j;
+			inv_rm(PLYR.obj->inv,i);
+			memo("You Dropped %s",PLYRT.inv->objs[j]->f->name);
 		}else{
-			memo("There is no such item.");
+			memo("You cannot drop the %s.",PLYR.obj->inv->objs[i]->f->name);
 		}
-		wclear(dispscr);
-		zone_draw(PLYR.obj->z);
-		wrefresh(dispscr);
+	}else{
+		memo("There is no such item.");
 	}
+
+	wclear(dispscr);
+	zone_draw(PLYR.obj->z);
+	wrefresh(dispscr);
 }
 
 static void show_inv(void)

@@ -68,7 +68,6 @@ int inv_try(inventory * inv, object * o)
 int inv_rm(inventory * inv, int i)
 {
 	if (inv->objs[i] == NULL) return 0;
-	obj_free(inv->objs[i]);
 	inv->weight -= inv->objs[i]->f->weight;
 	inv->objs[i] = NULL;
 	return 1;
