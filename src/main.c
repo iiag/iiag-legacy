@@ -62,6 +62,34 @@ static void pickup(void)
 	}
 }
 
+static void drop(void){
+	int i,j;
+	
+	if(PLYRT.weight!=0){
+		memo("There is something already here");
+	}else{
+		wmove(dispscr,0,0);
+		wprintw(dispscr, "You Dropped what?\n");
+		show_inv_h(&PLYRT);
+		i = ch2ind(wgetch(dispscr));
+		
+		if(PLYRT.size > i && PYRT.objs[i]!=NULL && PLYRT.objs[i]!=&PLYR){
+			if((j=inv_drop(PLYR.inv,PLYRT.objs[i]))!=INVALID)){
+				PLYRT.objs[i]->i=j;
+				inv_rm(&PLYRT,i);
+				memo("You Dropped %s",PLYRT.inv->objs->f->name);
+			}else{
+				memo("YOu cannot drop the %s.",PLYRT.objs[i]->f->name);
+			}
+		}else{
+			memo)"Ther is no such item.");
+		}
+		wclear(dispscr);
+		zone_draw(PLYR.z);
+		wrefresh(dispscr);
+	}
+}
+
 static void show_inv(void)
 {
 	wmove(dispscr, 0, 0);
@@ -111,6 +139,7 @@ int main(int argc, char ** argv)
 		case 'n': moveplyr( 1,  1); break;
 		case 'i': show_inv(); break;
 		case ',': pickup(); break;
+		case '.': drop(); break;
 		case 'q': goto cleanup;
 		default:
 			memo("Unknown key press: %c (%d)", c, c);

@@ -22,7 +22,7 @@ typedef struct object{//generic object
 }object;
 
 object * obj_new(form *);//pointer to a new object of a specific form pointer
-void obj_free(object *);//
+void obj_free(object *);
 int  obj_move(object *, int, int);
 void obj_tele(object *, int, int, struct zone *);
 
