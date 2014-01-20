@@ -10,7 +10,7 @@ item * item_new(iform * f)
 	item * it = malloc(sizeof(item));
 	it->of = NULL;
 	it->i = 0;
-	it->f = f;
+	it->f = form_copy(f);
 	return it;
 }
 

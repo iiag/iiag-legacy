@@ -28,6 +28,7 @@ zone * zone_new(int, int);//pointer to a new zone struct
 void zone_free(zone *);
 void zone_update(zone *, int, int);
 void zone_draw(zone *);
+tile * zone_at(zone *, int, int);
 
 #define tileof(O) (&(O)->z->tiles[(O)->x][(O)->y])
 

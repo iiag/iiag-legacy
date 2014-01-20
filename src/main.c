@@ -93,6 +93,36 @@ static void step(void)
 	}
 }
 
+static void moveplyr(int dx, int dy)
+{
+	int dam;
+	tile * t;
+
+	if (!crtr_move(&PLYR, dx, dy)) {
+		t = zone_at(PLYR.z, PLYR.x + dx, PLYR.y + dy);
+
+		// auto attack
+		if (t != NULL && t->crtr != NULL) {
+			switch (dam = crtr_attack(&PLYR, t->crtr)) {
+			case DEAD:
+				memo("You kill the %s", t->crtr->f->name);
+				crtr_free(t->crtr);
+				t->crtr = NULL;
+
+				zone_update(PLYR.z, PLYR.x + dx, PLYR.y + dy);
+				wrefresh(dispscr);
+				break;
+			case 0:
+				memo("You miss");
+				break;
+			default:
+				memo("You hit for %d damage", dam);
+				break;
+			}
+		}
+	}
+}
+
 int main(int argc, char ** argv)
 {
 	int c;
@@ -110,14 +140,14 @@ int main(int argc, char ** argv)
 		memo("");
 
 		switch (c) {
-		case 'h': crtr_move(&PLYR, -1,  0); break;
-		case 'j': crtr_move(&PLYR,  0,  1); break;
-		case 'k': crtr_move(&PLYR,  0, -1); break;
-		case 'l': crtr_move(&PLYR,  1,  0); break;
-		case 'y': crtr_move(&PLYR, -1, -1); break;
-		case 'u': crtr_move(&PLYR,  1, -1); break;
-		case 'b': crtr_move(&PLYR, -1,  1); break;
-		case 'n': crtr_move(&PLYR,  1,  1); break;
+		case 'h': moveplyr(-1,  0); break;
+		case 'j': moveplyr( 0,  1); break;
+		case 'k': moveplyr( 0, -1); break;
+		case 'l': moveplyr( 1,  0); break;
+		case 'y': moveplyr(-1, -1); break;
+		case 'u': moveplyr( 1, -1); break;
+		case 'b': moveplyr(-1,  1); break;
+		case 'n': moveplyr( 1,  1); break;
 		case 'i': show_inv(); break;
 		case ',': pickup(); break;
 		case '.': drop(); break;

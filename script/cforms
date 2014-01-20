@@ -1,0 +1,3 @@
+# script/cforms
+
+gnat { max_health = 20, char = g }

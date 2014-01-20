@@ -1,0 +1,3 @@
+# script/iforms
+
+rock { type = useless, char = *, weight = 10 }

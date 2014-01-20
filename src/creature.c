@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include "log.h"
 #include "zone.h"
 #include "world.h"
 #include "display.h"
@@ -13,11 +14,14 @@ creature * crtr_new(cform * f)
 	creature * c = malloc(sizeof(creature));
 
 	c->nofree = 0;
-	c->f = f;
+	c->f = form_copy(f);
 	c->health = f->max_health;
 	c->x = c->y = 0;
 	c->z = NULL;
 	c->ability = NULL;
+	c->attack = 1;
+	c->ac = 1;
+	c->name = NULL;
 
 	return c;
 }
@@ -41,11 +45,9 @@ static void update2(zone * z, int x1, int y1, int x2, int y2)
 
 int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
-	if (x >= 0 && x < z->width 
-		&& y >= 0 && y < z->height
-		&& z->tiles[x][y].crtr == NULL
-		&& !z->tiles[x][y].impassible)
-	{
+	tile * t = zone_at(z, x, y);
+
+	if (t != NULL && t->crtr == NULL && !t->impassible) {
 		z->tiles[x][y].crtr = crtr;
 
 		if (crtr->z != NULL) {
@@ -72,4 +74,18 @@ int crtr_move(creature * crtr, int dx, int dy)
 	int ny = oy + dy;
 
 	return crtr_tele(crtr, nx, ny, crtr->z);
+}
+
+int crtr_attack(creature * attacker, creature * defender)
+{
+	int damage;
+
+	damage = rand() % (attacker->attack + 1);
+	damage -= rand() % (defender->ac + 1);
+	if (damage < 0) damage = 0;
+
+	defender->health -= damage;
+
+	if (defender->health <= 0) return DEAD;
+	return damage;
 }

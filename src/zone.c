@@ -238,6 +238,7 @@ static void generate(zone * z)
 	int ** walls;
 	room * rv;
 	item * it;
+	creature * cr;
 
 	if (defform == NULL) {
 		adjforms[LLC] = iform_new(USELESS, ACS_LLCORNER);
@@ -308,6 +309,20 @@ static void generate(zone * z)
 			} while (!inv_try(z->tiles[x][y].inv, it));
 
 			item_tele(it, x, y, z);
+		}
+	}
+
+	// place some more random junk
+	if (world.cform_cnt != 0) {
+		for (i = rand() % 10 + 5; i >= 0; i--) {
+			cr = crtr_new(world.cforms[rand() % world.cform_cnt]);
+
+			do {
+				x = rand() % z->width;
+				y = rand() % z->height;
+			} while (z->tiles[x][y].crtr != NULL);
+
+			crtr_tele(cr, x, y, z);
 		}
 	}
 }
@@ -386,4 +401,12 @@ void zone_draw(zone * z)
 	}
 
 	wrefresh(dispscr);
+}
+
+tile * zone_at(zone * z, int x, int y)
+{
+	if (x < 0 || y < 0 || x >= z->width || y >= z->height) {
+		return NULL;
+	}
+	return &z->tiles[x][y];
 }

@@ -1,4 +1,0 @@
-# script/forms
-
-rock { type = useless, char = *, weight = 10 }
-gnat { type = useless, char = g, weight = 700 }

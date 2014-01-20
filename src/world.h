@@ -14,6 +14,8 @@ typedef struct {//world states
 	zone ** zones;//list of zones that exist
 	iform ** iforms;//list of different types of items that exist
 	int iform_cnt;//number of iforms
+	cform ** cforms;
+	int cform_cnt;
 } world_st;
 
 extern world_st world;//prototype world

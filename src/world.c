@@ -17,7 +17,8 @@
 #include "form/form.h"
 
 world_st world;
-const char * form_file = "script/forms";
+const char * iform_file = "script/iforms";
+const char * cform_file = "script/cforms";
 
 static char * type_names[] = {
 	"useless",
@@ -33,7 +34,7 @@ void load_iforms(void)
 	iml_lang_add(lang, IML_STRING, "name", iform, name);
 	iml_lang_add_enum(lang, "type", iform, type, type_names);
 
-	world.iforms = iml_read(form_file, lang);
+	world.iforms = iml_read(iform_file, lang);
 
 	world.iform_cnt = 0;
 	while (world.iforms[world.iform_cnt] != NULL) {
@@ -43,12 +44,33 @@ void load_iforms(void)
 	iform_free(def);
 }
 
+void load_cforms(void)
+{
+	cform * def = cform_new('?');
+	iml_lang * lang = iml_lang_new(cform, def);
+
+	iml_lang_add(lang, IML_CHAR, "char", cform, ch);
+	iml_lang_add(lang, IML_STRING, "name", cform, name);
+	iml_lang_add(lang, IML_INT, "max_health", cform, max_health);
+
+	world.cforms = iml_read(cform_file, lang);
+
+	world.cform_cnt = 0;
+	while (world.cforms[world.cform_cnt] != NULL) {
+		world.cform_cnt++;
+	}
+
+	cform_free(def);
+}
+
 void init_world(void)
 {
 	int x, y;
 
 	world.zones = malloc(sizeof(zone *));
+
 	load_iforms();
+	load_cforms();
 
 	*world.zones = zone_new(80, 25);
 	
@@ -58,6 +80,8 @@ void init_world(void)
 	world.plyr.health = 10;
 	world.plyr.nofree = 1;
 	world.plyr.inv = inv_new(500);
+	world.plyr.attack = 5;
+	world.plyr.ac = 4;
 
 	do {
 		x = rand() % world.zones[0]->width;
