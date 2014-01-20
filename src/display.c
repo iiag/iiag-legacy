@@ -47,3 +47,15 @@ void memo(const char * fmt, ...)
 	va_end(vl);
 }
 
+void statline(int ln, const char * fmt, ...)
+{
+	va_list vl;
+	va_start(vl, fmt);
+
+	wmove(statscr, ln, 0);
+	wclrtoeol(statscr);
+	vw_printw(statscr, fmt, vl);
+	wrefresh(statscr);
+
+	va_end(vl);
+}

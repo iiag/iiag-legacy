@@ -10,6 +10,7 @@
 void init_disp(void);
 void end_disp(void);
 void memo(const char *, ...);
+void statline(int, const char *, ...);
 
 extern WINDOW * memoscr;
 extern WINDOW * dispscr;

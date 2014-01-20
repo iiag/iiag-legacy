@@ -73,8 +73,18 @@ static void show_inv(void)
 	wrefresh(dispscr);
 }
 
+static void update_status(void)
+{
+	statline(0, " Health: %d/%d | Weight: %d/%d",
+		PLYR.health, PLYR.f->max_health,
+		PLYR.inv->weight, PLYR.inv->max_weight
+	);
+}
+
 static void step(void)
 {
+	update_status();
+
 	if (PLYR.health <= 0) {
 		memo("You are dead.");
 		wgetch(memoscr);
@@ -93,6 +103,7 @@ int main(int argc, char ** argv)
 	init_world();
 
 	zone_draw(PLYR.z);
+	update_status();
 
 	for (;;) {
 		c = wgetch(memoscr);
