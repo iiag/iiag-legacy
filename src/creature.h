@@ -32,5 +32,6 @@ void crtr_free(creature *);
 int crtr_move(creature *, int, int);
 int crtr_tele(creature *, int, int, struct zone *);
 int crtr_attack(creature *, creature *);
+void crtr_step(creature *);
 
 #endif

@@ -9,6 +9,7 @@
 
 void init_disp(void);
 void end_disp(void);
+void reset_memos(void);
 void memo(const char *, ...);
 void statline(int, const char *, ...);
 

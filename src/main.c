@@ -91,6 +91,8 @@ static void step(void)
 		end_disp();
 		exit(0);
 	}
+
+	zone_step(PLYR.z);
 }
 
 static void moveplyr(int dx, int dy)
@@ -138,6 +140,7 @@ int main(int argc, char ** argv)
 	for (;;) {
 		c = wgetch(memoscr);
 		memo("");
+		reset_memos();
 
 		switch (c) {
 		case 'h': moveplyr(-1,  0); break;

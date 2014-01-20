@@ -81,7 +81,7 @@ void init_world(void)
 	world.plyr.nofree = 1;
 	world.plyr.inv = inv_new(500);
 	world.plyr.attack = 5;
-	world.plyr.ac = 4;
+	world.plyr.ac = 1;
 
 	do {
 		x = rand() % world.zones[0]->width;

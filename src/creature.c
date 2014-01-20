@@ -89,3 +89,35 @@ int crtr_attack(creature * attacker, creature * defender)
 	if (defender->health <= 0) return DEAD;
 	return damage;
 }
+
+void crtr_step(creature * c)
+{
+	int dam;
+	int dx = 0, dy = 0;
+
+	if (c != &world.plyr) {
+		// this is pretty ugly
+
+		if (c->x > world.plyr.x) dx = -1;
+		else if (c->x < world.plyr.x) dx = 1;
+
+		if (c->y > world.plyr.y) dy = -1;
+		else if (c->y < world.plyr.y) dy = 1;
+
+		if (PLYR.x == c->x + dx && PLYR.y == c->y + dy) {
+			dam = crtr_attack(c, &PLYR);
+
+			if (dam) {
+				memo("%s hits you for %d damage", c->f->name, dam);
+			} else {
+				memo("%s misses you", c->f->name);
+			}
+		} else {
+			if (!crtr_move(c, dx, dy) && dx && dy) {
+				if (!crtr_move(c, dx, 0)) {
+					crtr_move(c, 0, dy);
+				}
+			}
+		}
+	}
+}

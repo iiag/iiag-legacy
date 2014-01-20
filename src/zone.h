@@ -29,6 +29,7 @@ void zone_free(zone *);
 void zone_update(zone *, int, int);
 void zone_draw(zone *);
 tile * zone_at(zone *, int, int);
+void zone_step(zone *);
 
 #define tileof(O) (&(O)->z->tiles[(O)->x][(O)->y])
 

@@ -2,12 +2,14 @@
 // display.c
 //
 
+#include <ctype.h>
 #include <stdarg.h>
 #include "world.h"
 #include "display.h"
 
 static int max_width;
 static int max_height;
+static int need_wait = 0;
 
 WINDOW * memoscr;
 WINDOW * dispscr;
@@ -34,10 +36,32 @@ void end_disp(void)
 	endwin();
 }
 
+void reset_memos(void)
+{
+	need_wait = 0;
+}
+#include "log.h"
 void memo(const char * fmt, ...)
 {
+	int i, j;
+	chtype ch;
 	va_list vl;
 	va_start(vl, fmt);
+
+	if (need_wait) {
+		// this is a little hacky
+		for (i = max_width - 1; i >= 0; i++) {
+			ch = mvwinch(memoscr, 0, i);
+			if (!isspace(ch & 0xff)) break;
+		}
+
+		for (j = 0; j < 3 && j < max_width; j++) {
+			wrlog("i + j = %d\n", i + j);
+			mvwaddch(memoscr, 0, i + j, '.');
+		}
+
+		wgetch(memoscr);
+	}
 
 	wmove(memoscr, 0, 0);
 	wclrtoeol(memoscr);
@@ -45,6 +69,7 @@ void memo(const char * fmt, ...)
 	wrefresh(memoscr);
 
 	va_end(vl);
+	need_wait = 1;
 }
 
 void statline(int ln, const char * fmt, ...)
