@@ -22,6 +22,7 @@ typedef struct creature{
 	int ac;
 	int nofree;
 	int x, y;
+	int step;
 	struct zone * z;
 	struct inventory * inv;
 }creature;
@@ -32,6 +33,6 @@ void crtr_free(creature *);
 int crtr_move(creature *, int, int);
 int crtr_tele(creature *, int, int, struct zone *);
 int crtr_attack(creature *, creature *);
-void crtr_step(creature *);
+void crtr_step(creature *, int);
 
 #endif

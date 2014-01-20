@@ -83,6 +83,8 @@ static void update_status(void)
 
 static void step(void)
 {
+	static int step = 0;
+
 	update_status();
 
 	if (PLYR.health <= 0) {
@@ -92,7 +94,8 @@ static void step(void)
 		exit(0);
 	}
 
-	zone_step(PLYR.z);
+	zone_step(PLYR.z, step);
+	step = !step;
 }
 
 static void moveplyr(int dx, int dy)
@@ -139,7 +142,6 @@ int main(int argc, char ** argv)
 
 	for (;;) {
 		c = wgetch(memoscr);
-		memo("");
 		reset_memos();
 
 		switch (c) {

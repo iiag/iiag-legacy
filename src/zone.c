@@ -411,14 +411,14 @@ tile * zone_at(zone * z, int x, int y)
 	return &z->tiles[x][y];
 }
 
-void zone_step(zone * z)
+void zone_step(zone * z, int step)
 {
 	int x, y;
 
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
 			if (z->tiles[x][y].crtr != NULL) {
-				crtr_step(z->tiles[x][y].crtr);
+				crtr_step(z->tiles[x][y].crtr, step);
 			}
 		}
 	}

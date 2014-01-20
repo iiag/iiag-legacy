@@ -22,6 +22,7 @@ creature * crtr_new(cform * f)
 	c->attack = 1;
 	c->ac = 1;
 	c->name = NULL;
+	c->step = 1;
 
 	return c;
 }
@@ -90,12 +91,12 @@ int crtr_attack(creature * attacker, creature * defender)
 	return damage;
 }
 
-void crtr_step(creature * c)
+void crtr_step(creature * c, int step)
 {
 	int dam;
 	int dx = 0, dy = 0;
 
-	if (c != &world.plyr) {
+	if (c != &world.plyr && c->step != step) {
 		// this is pretty ugly
 
 		if (c->x > world.plyr.x) dx = -1;
@@ -119,5 +120,7 @@ void crtr_step(creature * c)
 				}
 			}
 		}
+
+		c->step = step;
 	}
 }

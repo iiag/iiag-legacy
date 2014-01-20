@@ -7,9 +7,11 @@
 #include "world.h"
 #include "display.h"
 
+#define NONE (-1)
+
 static int max_width;
 static int max_height;
-static int need_wait = 0;
+static int last_col = NONE;
 
 WINDOW * memoscr;
 WINDOW * dispscr;
@@ -38,38 +40,29 @@ void end_disp(void)
 
 void reset_memos(void)
 {
-	need_wait = 0;
+	wmove(memoscr, 0, 0);
+	wclrtoeol(memoscr);
+	last_col = NONE;
 }
-#include "log.h"
+
 void memo(const char * fmt, ...)
 {
-	int i, j;
-	chtype ch;
+	int dummy __attribute__((unused));;
 	va_list vl;
 	va_start(vl, fmt);
 
-	if (need_wait) {
-		// this is a little hacky
-		for (i = max_width - 1; i >= 0; i++) {
-			ch = mvwinch(memoscr, 0, i);
-			if (!isspace(ch & 0xff)) break;
-		}
-
-		for (j = 0; j < 3 && j < max_width; j++) {
-			wrlog("i + j = %d\n", i + j);
-			mvwaddch(memoscr, 0, i + j, '.');
-		}
-
+	if (last_col != NONE) {
+		mvwprintw(memoscr, 0, last_col, "...");
 		wgetch(memoscr);
 	}
 
 	wmove(memoscr, 0, 0);
 	wclrtoeol(memoscr);
 	vw_printw(memoscr, fmt, vl);
+	getyx(memoscr, dummy, last_col);
 	wrefresh(memoscr);
 
 	va_end(vl);
-	need_wait = 1;
 }
 
 void statline(int ln, const char * fmt, ...)
