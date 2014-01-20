@@ -188,7 +188,7 @@ static struct {
 
 static iform * defform = NULL;
 
-typedef struct {
+typedef struct {//specifies room with x and y coordinates adn w and h for width and height
 	int x, y, w, h;
 } room;
 
