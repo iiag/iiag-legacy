@@ -26,10 +26,10 @@ typedef struct zone {//creates azone with a width and height
 
 zone * zone_new(int, int);//pointer to a new zone struct 
 void zone_free(zone *);//deletes the zone
-void zone_update(zone *, int, int);//updates the zones: re-adjust where the creatures and items are
+void zone_update(zone *, int, int);//redraws a tile by x,y coords, to be called after that tile is modified
 void zone_draw(zone *);//redraws the updated zone
 tile * zone_at(zone *, int, int);//returns the the thing at a particular tile
-void zone_step(zone *, int);//moves creature to a different zone I think?
+void zone_step(zone *, int);//function that is called once every "step", i.e. once between user actions
 
 #define tileof(O) (&(O)->z->tiles[(O)->x][(O)->y])
 
