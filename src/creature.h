@@ -27,7 +27,7 @@ typedef struct creature{
 	struct inventory * inv;
 	char * name;
 	char * ability;
-	int health;
+	int health, stamina;
 	int level;
 	int xp, need_xp;
 	int attack;

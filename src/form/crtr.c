@@ -11,6 +11,7 @@ cform * cform_new(chtype ch)
 
 	form_initial(cf, ch);
 	cf->max_health = 10;
+	cf->max_stamina = 100;
 
 	return cf;
 }

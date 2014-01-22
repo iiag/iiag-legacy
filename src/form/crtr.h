@@ -12,6 +12,7 @@ struct cform;
 typedef struct cform {
 	is_form;
 	int max_health;
+	int max_stamina;
 } cform;
 
 cform * cform_new(chtype);

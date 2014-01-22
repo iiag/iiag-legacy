@@ -32,6 +32,7 @@ void crtr_init(creature * c, cform * f)
 	c->z = NULL;
 
 	c->health  = f->max_health;
+	c->stamina = f->max_stamina;
 	c->ability = NULL;
 	c->attack  = 1;
 	c->ac      = 1;
@@ -129,7 +130,7 @@ int crtr_attack(creature * attacker, creature * defender)
 		crtr_xp_up(attacker, xp);
 
 		if (plyr_is_me(defender)) {
-			plyr_ev_death();
+			plyr_ev_death("violence");
 		} else if (!plyr_is_me(attacker)) {
 			// the player wants the name of what he killed
 			tileof(defender)->crtr = NULL;
@@ -147,27 +148,44 @@ void crtr_step(creature * c, int step)
 	int dam;
 	int dx = 0, dy = 0;
 
-	if (c != &world.plyr && c->step != step) {
-		// this is pretty ugly
-
-		if (c->x > world.plyr.x) dx = -1;
-		else if (c->x < world.plyr.x) dx = 1;
-
-		if (c->y > world.plyr.y) dy = -1;
-		else if (c->y < world.plyr.y) dy = 1;
-
-		if (PLYR.x == c->x + dx && PLYR.y == c->y + dy) {
-			dam = crtr_attack(c, &PLYR);
-
-			if (dam) {
-				memo("%s hits you for %d damage", c->f->name, dam);
+	if (c->step != step) {
+		// stamina upkeep
+		c->stamina -= 1;
+		if (c->stamina <= 0) {
+			if (plyr_is_me(c)) {
+				plyr_ev_death("starvation");
 			} else {
-				memo("%s misses you", c->f->name);
+				memo("%s dies of starvation", c->f->name);
+				tileof(c)->crtr = NULL;
+				crtr_free(c);
 			}
-		} else {
-			if (!crtr_move(c, dx, dy) && dx && dy) {
-				if (!crtr_move(c, dx, 0)) {
-					crtr_move(c, 0, dy);
+
+			return;
+		}
+
+		// ai section
+		if (!plyr_is_me(c)) {
+			// this is pretty ugly
+
+			if (c->x > world.plyr.x) dx = -1;
+			else if (c->x < world.plyr.x) dx = 1;
+
+			if (c->y > world.plyr.y) dy = -1;
+			else if (c->y < world.plyr.y) dy = 1;
+
+			if (PLYR.x == c->x + dx && PLYR.y == c->y + dy) {
+				dam = crtr_attack(c, &PLYR);
+
+				if (dam) {
+					memo("%s hits you for %d damage", c->f->name, dam);
+				} else {
+					memo("%s misses you", c->f->name);
+				}
+			} else {
+				if (!crtr_move(c, dx, dy) && dx && dy) {
+					if (!crtr_move(c, dx, 0)) {
+						crtr_move(c, 0, dy);
+					}
 				}
 			}
 		}

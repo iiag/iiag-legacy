@@ -18,7 +18,7 @@ void plyr_act_inv(void);
 void plyr_act_move(int, int);
 
 // the inevitable
-void plyr_ev_death(void);
+void plyr_ev_death(const char *);
 void plyr_ev_lvlup(void);
 
 #endif

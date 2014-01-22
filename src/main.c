@@ -16,11 +16,12 @@
 
 static void update_status(void)
 {
-	statline(0, " Hp: %d/%d | Wt: %d/%d | Xp: %d/%d | Lvl: %d",
+	statline(0, " Hp: %d/%d | Wt: %d/%d | Xp: %d/%d | Lvl: %d | Stm: %d/%d",
 		PLYR.health, PLYR.f->max_health,
 		PLYR.inv->weight, PLYR.inv->max_weight,
 		PLYR.xp, PLYR.need_xp,
-		PLYR.level
+		PLYR.level,
+		PLYR.stamina, PLYR.f->max_stamina
 	);
 }
 

@@ -98,9 +98,9 @@ void plyr_act_move(int dx, int dy)
 	}
 }
 
-void plyr_ev_death(void)
+void plyr_ev_death(const char * reasons)
 {
-	memo("You are dead, how unfortunate.");
+	memo("You die of %s, how unfortunate.", reasons);
 	wgetch(memoscr);
 	end_disp();
 	exit(0);
