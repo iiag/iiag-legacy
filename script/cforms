@@ -1,3 +1,4 @@
 # script/cforms
 
-gnat { max_health = 20, char = g }
+gnat { max_health = 2, char = g }
+fbir { max_health = 6, char = f }

@@ -28,10 +28,13 @@ typedef struct creature{
 	char * name;
 	char * ability;
 	int health;
+	int level;
+	int xp, need_xp;
 	int attack;
 	int ac;
 }creature;
 
+void crtr_init(creature *, cform *);
 creature * crtr_new(cform *);
 void crtr_free(creature *);
 

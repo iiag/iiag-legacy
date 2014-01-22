@@ -2,6 +2,7 @@
 // creature.c
 //
 
+#include <math.h>
 #include <stdlib.h>
 #include "log.h"
 #include "zone.h"
@@ -9,21 +10,40 @@
 #include "display.h"
 #include "creature.h"
 
+// lower => levelup faster
+#define LEVELING_CONSTANT 4
+
+// player_level - XP_LEVEL_DIFF = minimum creature level for gaining xp
+#define XP_LEVEL_DIFF 5
+
+static int req_xp(creature * c)
+{
+	return (int) (ceil(exp(c->level)) * LEVELING_CONSTANT);
+}
+
+void crtr_init(creature * c, cform * f)
+{
+	c->f = form_copy(f);
+	c->nofree = 0;
+	c->step = 1;
+
+	c->x = c->y = 0;
+	c->z = NULL;
+
+	c->health  = f->max_health;
+	c->ability = NULL;
+	c->attack  = 1;
+	c->ac      = 1;
+	c->name    = NULL;
+	c->level   = 1;
+	c->need_xp = req_xp(c);
+	c->xp      = 0;
+}
+
 creature * crtr_new(cform * f)
 {
 	creature * c = malloc(sizeof(creature));
-
-	c->nofree = 0;
-	c->f = form_copy(f);
-	c->health = f->max_health;
-	c->x = c->y = 0;
-	c->z = NULL;
-	c->ability = NULL;
-	c->attack = 1;
-	c->ac = 1;
-	c->name = NULL;
-	c->step = 1;
-
+	crtr_init(c, f);
 	return c;
 }
 
@@ -77,9 +97,20 @@ int crtr_move(creature * crtr, int dx, int dy)
 	return crtr_tele(crtr, nx, ny, crtr->z);
 }
 
+void crtr_xp_up(creature * c, int xp)
+{
+	c->xp += xp;
+	if (c->xp > c->need_xp) {
+		// level up!
+		c->level++;
+		c->need_xp = req_xp(c);
+		crtr_xp_up(c, 0);
+	}
+}
+
 int crtr_attack(creature * attacker, creature * defender)
 {
-	int damage;
+	int damage, xp;
 
 	damage = rand() % (attacker->attack + 1);
 	damage -= rand() % (defender->ac + 1);
@@ -87,7 +118,15 @@ int crtr_attack(creature * attacker, creature * defender)
 
 	defender->health -= damage;
 
-	if (defender->health <= 0) return DEAD;
+	if (defender->health <= 0) {
+		// death comes to us all
+		xp = (defender->level + XP_LEVEL_DIFF) - attacker->level;
+		if (xp < 0) xp = 0;
+
+		crtr_xp_up(attacker, xp);
+		return DEAD;
+	}
+
 	return damage;
 }
 

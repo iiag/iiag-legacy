@@ -66,6 +66,7 @@ void load_cforms(void)
 void init_world(void)
 {
 	int x, y;
+	cform * f;
 
 	world.zones = malloc(sizeof(zone *));
 
@@ -73,15 +74,15 @@ void init_world(void)
 	load_cforms();
 
 	*world.zones = zone_new(80, 25);
-	
-	world.plyr.f = cform_new('@' | A_BOLD);
-	world.plyr.f->weight = TILE_MAX_WEIGHT / 2;
-	world.plyr.f->max_health = 10;
-	world.plyr.health = 10;
+
+	f = cform_new('@' | A_BOLD);
+	f->weight = TILE_MAX_WEIGHT / 2;
+	f->max_health = 10;
+
+	crtr_init(&world.plyr, f);
 	world.plyr.nofree = 1;
 	world.plyr.inv = inv_new(500);
 	world.plyr.attack = 5;
-	world.plyr.ac = 1;
 
 	do {
 		x = rand() % world.zones[0]->width;

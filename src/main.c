@@ -75,9 +75,11 @@ static void show_inv(void)
 
 static void update_status(void)
 {
-	statline(0, " Health: %d/%d | Weight: %d/%d",
+	statline(0, " Hp: %d/%d | Wt: %d/%d | Xp: %d/%d | Lvl: %d",
 		PLYR.health, PLYR.f->max_health,
-		PLYR.inv->weight, PLYR.inv->max_weight
+		PLYR.inv->weight, PLYR.inv->max_weight,
+		PLYR.xp, PLYR.need_xp,
+		PLYR.level
 	);
 }
 

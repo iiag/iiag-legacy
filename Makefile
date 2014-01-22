@@ -6,7 +6,7 @@ SHELL  = bash
 TARGET = iiag
 CC     = gcc
 CCFL   = -c -g -Wall
-LDFL   = -Wall -lncurses
+LDFL   = -Wall -lncurses -lm
 
 SRCS := main.c world.c zone.c display.c log.c inventory.c util.c item.c \
         creature.c \
