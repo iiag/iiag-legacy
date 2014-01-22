@@ -14,17 +14,22 @@ struct creature;
 #define DEAD (-1)
 
 typedef struct creature{
+	// iternalish stuff
 	cform * f;
+	int nofree;
+	int step;
+
+	// position in world
+	int x, y;
+	struct zone * z;
+
+	// pragmatic fields
+	struct inventory * inv;
 	char * name;
-	char *ability;
+	char * ability;
 	int health;
 	int attack;
 	int ac;
-	int nofree;
-	int x, y;
-	int step;
-	struct zone * z;
-	struct inventory * inv;
 }creature;
 
 creature * crtr_new(cform *);
