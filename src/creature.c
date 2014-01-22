@@ -128,7 +128,14 @@ int crtr_attack(creature * attacker, creature * defender)
 
 		crtr_xp_up(attacker, xp);
 
-		if (plyr_is_me(defender)) plyr_ev_death();
+		if (plyr_is_me(defender)) {
+			plyr_ev_death();
+		} else if (!plyr_is_me(attacker)) {
+			// the player wants the name of what he killed
+			tileof(defender)->crtr = NULL;
+			crtr_free(defender);
+		}
+
 		return DEAD;
 	}
 
