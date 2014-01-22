@@ -7,6 +7,7 @@
 #include "log.h"
 #include "zone.h"
 #include "world.h"
+#include "player.h"
 #include "display.h"
 #include "creature.h"
 
@@ -104,6 +105,8 @@ void crtr_xp_up(creature * c, int xp)
 		// level up!
 		c->level++;
 		c->need_xp = req_xp(c);
+
+		if (plyr_is_me(c)) plyr_ev_lvlup();
 		crtr_xp_up(c, 0);
 	}
 }
@@ -124,6 +127,8 @@ int crtr_attack(creature * attacker, creature * defender)
 		if (xp < 0) xp = 0;
 
 		crtr_xp_up(attacker, xp);
+
+		if (plyr_is_me(defender)) plyr_ev_death();
 		return DEAD;
 	}
 

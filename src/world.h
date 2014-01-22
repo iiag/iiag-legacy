@@ -22,6 +22,4 @@ extern world_st world;//prototype world
 
 void init_world(void);//initializes the world
 
-#define PLYR world.plyr
-
 #endif
