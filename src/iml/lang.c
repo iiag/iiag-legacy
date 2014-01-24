@@ -36,6 +36,7 @@ void iml_lang__add(iml_lang * l, iml_type type, char * name, int off)
 	l->fields[i].type = type;
 	l->fields[i].name = name;
 	l->fields[i].offset = off;
+#undef REALLOC_SIZE
 }
 
 void iml_lang__add_enum(iml_lang * l, char * name, int off, char ** ev, int ec)
