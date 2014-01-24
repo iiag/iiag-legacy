@@ -22,6 +22,11 @@ typedef struct {//specifies room with x and y coordinates adn w and h for width 
 	int x, y, w, h;
 } room;
 
+typedef struct {
+	int xmin,xmax,ymin,ymax;
+} partition;
+
+
 static int in_room(room * r, int x, int y)
 {
 	return x >= r->x && x < r->x + r->w
@@ -54,18 +59,49 @@ static void set_wall_char(int ** walls, zone * z, int x, int y)
 	z->tiles[x][y].ch = wall_chars[ch];
 }
 
+static void pick_random_subregion(zone * z,partition * p, int * ret)
+{
+	int x, y;
+	partition sqr = {0};
+
+	sqr.xmin = ~sqr.xmin;
+	sqr.ymin = ~sqr.ymin;
+
+	for (y = p->ymin; y < p->ymax; y++) {
+		for (x = p->xmin; x < p->xmax; x++) {
+			// TODO: Optimize this
+			if (z->tiles[x][y].type & TILE_WALL) {
+				if (x < sqr.xmin)
+					sqr.xmin = x;
+				else if (x > sqr.xmax)
+					sqr.xmax = x;
+
+				if (y < sqr.ymin)
+					sqr.ymin = y;
+				else if (y > sqr.ymax)
+					sqr.ymax = y;
+
+			}
+		}
+	}
+
+	// TODO: Check bounds
+	ret[0] = random() % (sqr.xmax - sqr.xmin) + sqr.xmin;
+	ret[1] = random() % (sqr.ymax - sqr.ymin) + sqr.ymin;
+
+}
 
 // Generate a random region in the given boundary
-static void generate_region(zone * z, int xmin, int xmax, int ymin, int ymax)
+static void generate_region(zone * z, partition * p)
 {
 	// Find the center of the partition
-	int cx = ((xmax - xmin) / 2) + xmin;
-	int cy = ((ymax - ymin) / 2) + ymin;
+	int cx = ((p->xmax - p->xmin) / 2) + p->xmin;
+	int cy = ((p->ymax - p->ymin) / 2) + p->ymin;
 	
 	// Number of subsquares to generate the room
 	int squares = rand() % 5 + 3;
 
-	int i,j;
+	int i,j,s,rad;
 	int r[2];
 
 
@@ -73,25 +109,81 @@ static void generate_region(zone * z, int xmin, int xmax, int ymin, int ymax)
 	for (i = -2; i <= 2; i++) {
 		for (j = -2; j <= 2; j++) {
 			z->tiles[cx+j][cy+i].type = TILE_FLOOR;
+			z->tiles[cx+j][cy+i].ch   = '.';
 		}
 	}
 
-
-	for(i = 0; i < squares; i++) {
-		gen_random_subregion(z,xmin,xmax,ymin,ymax,r); 
-		
-		// Select a point in the current region
-		// Expand from that point by a random radius (check bounds)
-
+	// TODO: check bounds
+	for(s = 0; s < squares; s++) {
+		pick_random_subregion(z,p,r); 
+		rad = random() % 3 + 1;
+	
+		// TODO: allow rectangles
+		for (i = -rad; i <= rad; i++) {
+			for (j = -rad; j <=rad; j++) {
+				z->tiles[r[0]+j][r[1]+i].type = TILE_FLOOR;
+				z->tiles[r[0]+j][r[1]+i].ch   = '.';
+			}
+		}
+	
 	}
-
 
 }
 
 
+static void generate(zone * z)
+{
+	int xparts,yparts;
+	int i,j;
+	int x,y;
+
+	// TODO: Randomly pick these numbers
+	xparts = yparts = 3;
+	int partnum = xparts*yparts;
+
+	partition * parts = (partition*) malloc(sizeof(partition)*xparts*yparts);
+
+	// TODO: randomly select partitions (non-deterministic)	
+	parts[0].xmin = parts[1].xmin = parts[2].xmin = 0;
+	parts[0].xmax = parts[1].xmax = parts[2].xmax = (z->width/3);
+	
+	parts[3].xmin = parts[4].xmin = parts[5].xmin = (z->width/3);
+	parts[3].xmax = parts[4].xmax = parts[5].xmax = ((2*z->width)/3);
+
+	parts[6].xmax = parts[7].xmax = parts[8].xmax = ((2*z->width)/3);
+	parts[6].xmax = parts[7].xmax = parts[8].xmax = 2*z->width-1;
+
+	parts[0].ymin = parts[3].ymin = parts[6].ymin = 0;
+	parts[0].ymax = parts[3].ymax = parts[6].ymax = (z->height/3);
+	
+	parts[1].ymin = parts[4].ymin = parts[7].ymin = (z->height/3);
+	parts[1].ymax = parts[4].ymax = parts[7].ymax = ((2*z->height)/3);
+
+	parts[2].ymax = parts[5].ymax = parts[8].ymax = ((2*z->height)/3);
+	parts[2].ymax = parts[5].ymax = parts[8].ymax = 2*z->height-1;
+
+
+	for (i = 0; i < partnum; i++) {
+		printf(
+		generate_region(z,&parts[i]);
+	}
+
+	// Set wall character
+	for (x = 0; x < z->width; x++) {
+		for (y = 0; y < z->height; y++) {
+			if (z->tiles[x][y].type & TILE_WALL) {
+				z->tiles[x][y].ch = ACS_TTEE;
+			}
+		}
+	}
+}
+
+
+
+
 
 // this function is really ugly
-static void generate(zone * z)
+static void generate2(zone * z)
 {
 	static int first = 1;
 
