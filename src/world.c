@@ -73,7 +73,7 @@ void init_world(void)
 	load_iforms();
 	load_cforms();
 
-	*world.zones = zone_new(80, 25);
+	*world.zones = zone_new(get_dispw(), get_disph());
 
 	f = cform_new('@' | A_BOLD);
 	f->weight = TILE_MAX_WEIGHT / 2;

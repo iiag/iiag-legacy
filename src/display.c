@@ -77,3 +77,13 @@ void statline(int ln, const char * fmt, ...)
 
 	va_end(vl);
 }
+
+int get_dispw(void)
+{
+	return max_width;
+}
+
+int get_disph(void)
+{
+	return max_height - 4;
+}

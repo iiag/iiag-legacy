@@ -11,6 +11,13 @@
 #include "inventory.h"
 #include "walls.h"
 
+#define ROOM_INFREQ 60
+#define ITEM_INFREQ 80
+#define CRTR_INFREQ 80
+#define ROOM_MIN 60
+#define ITEM_MIN 40
+#define CRTR_MIN 40
+
 typedef struct {//specifies room with x and y coordinates adn w and h for width and height
 	int x, y, w, h;
 } room;
@@ -53,7 +60,7 @@ static void generate(zone * z)
 {
 	static int first = 1;
 
-	int i, x, y;
+	int i, x, y, max;
 	int rc;
 	int ** walls;
 	room * rv;
@@ -66,7 +73,7 @@ static void generate(zone * z)
 	}
 
 	// generate rooms
-	rc = rand() % 10 + 10;
+	rc = rand() % ((z->width * z->height) / ROOM_INFREQ) + ROOM_MIN;
 	rv = malloc(sizeof(room) * rc);
 
 	for (i = 0; i < rc; i++) {
@@ -104,7 +111,8 @@ static void generate(zone * z)
 
 	// place some random junk
 	if (world.iform_cnt != 0) {
-		for (i = rand() % 10 + 5; i >= 0; i--) {
+		max = rand() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
+		for (i = max; i >= 0; i--) {
 			it = item_new(world.iforms[rand() % world.iform_cnt]);
 
 			do {
@@ -119,7 +127,8 @@ static void generate(zone * z)
 
 	// place some more random junk
 	if (world.cform_cnt != 0) {
-		for (i = rand() % 10 + 5; i >= 0; i--) {
+		max = rand() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
+		for (i = max; i >= 0; i--) {
 			cr = crtr_new(world.cforms[rand() % world.cform_cnt]);
 
 			do {

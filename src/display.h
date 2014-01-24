@@ -13,6 +13,9 @@ void reset_memos(void);
 void memo(const char *, ...);
 void statline(int, const char *, ...);
 
+int get_dispw(void);
+int get_disph(void);
+
 extern WINDOW * memoscr;
 extern WINDOW * dispscr;
 extern WINDOW * statscr;
