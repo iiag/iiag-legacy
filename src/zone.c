@@ -112,9 +112,10 @@ static void generate(zone * z)
 			do {
 				x = rand() % z->width;
 				y = rand() % z->height;
-			} while (!inv_try(z->tiles[x][y].inv, it));
+			} while (z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it));
 
 			item_tele(it, x, y, z);
+			zone_update(z, x, y);
 		}
 	}
 
@@ -126,9 +127,10 @@ static void generate(zone * z)
 			do {
 				x = rand() % z->width;
 				y = rand() % z->height;
-			} while (z->tiles[x][y].crtr != NULL);
+			} while (z->tiles[x][y].impassible || z->tiles[x][y].crtr != NULL);
 
 			crtr_tele(cr, x, y, z);
+			zone_update(z, x, y);
 		}
 	}
 }

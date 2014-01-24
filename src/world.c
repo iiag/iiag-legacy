@@ -88,4 +88,6 @@ void init_world(void)
 		x = rand() % world.zones[0]->width;
 		y = rand() % world.zones[0]->height;
 	} while (!crtr_tele(&world.plyr, x, y, *world.zones));
+
+	zone_update(world.plyr.z, x, y);
 }
