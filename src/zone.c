@@ -96,8 +96,6 @@ static void generate(zone * z)
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
 			if (walls[x][y]) {
-				//it = item_new(get_form(walls, x, y, z));
-				//inv_add(z->tiles[x][y].inv, it);
 				z->tiles[x][y].impassible = 1;
 				set_wall_char(walls,z,x,y);
 			}
