@@ -14,6 +14,7 @@ struct zone;
 #include "inventory.h"
 
 typedef struct tile {
+	chtype ch;
 	int impassible;//whether the tile is pasible or not
 	struct creature * crtr;//creture that may be on the tile
 	struct inventory * inv;//inventory of the tile

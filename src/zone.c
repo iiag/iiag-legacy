@@ -9,184 +9,7 @@
 #include "world.h"
 #include "display.h"
 #include "inventory.h"
-
-#define countof(X) (sizeof(X) / sizeof(*X))
-
-static struct {
-	int dx, dy;
-} adjind[] = {
-	{ -1, -1 }, // upper left
-	{  0, -1 }, // upper middle
-	{  1, -1 }, // upper right
-	{ -1,  0 }, // middle left
-	{  1,  0 }, // middle right
-	{ -1,  1 }, // lower left
-	{  0,  1 }, // lower middle
-	{  1,  1 }, // lower right
-};
-
-enum {
-	// for indexing adjforms
-	LLC, LRC,
-	ULC, URC,
-	VLN, HLN,
-	LTE, RTE,
-	TTE, BTE,
-	CRS,
-	BLN,
-	MAX_FORMS
-};
-
-static iform * adjforms[MAX_FORMS];
-
-// 1 indicates presence of wall, -1 for not, 0 for either
-static struct {
-	int on[8];
-	int fi;
-} adjsty[] = {
-	// blank
-	{ {
-		1, 1, 1,
-		1,    1,
-		1, 1, 1,
-	}, BLN },
-
-	// corners
-	{ {
-		0, 1, 1,
-		1,    1,
-		1, 1, 1,
-	}, LRC },
-
-	{ {
-		1, 1, 0,
-		1,    1,
-		1, 1, 1,
-	}, LLC },
-
-	{ {
-		1, 1, 1,
-		1,    1,
-		0, 1, 1,
-	}, URC },
-
-	{ {
-		1, 1, 1,
-		1,    1,
-		1, 1, 0,
-	}, ULC },
-
-	// vline overriding left/right tees
-	{ {
-		1, 1, 0,
-		1,   -1,
-		1, 1, 0,
-	}, VLN },
-
-	{ {
-		 0, 1, 1,
-		-1,    1,
-		 0, 1, 1,
-	}, VLN },
-
-	// left/right tees
-	{ {
-		0, 1, 0,
-		1,    0,
-		0, 1, 0,
-	}, RTE },
-
-	{ {
-		0, 1, 0,
-		0,    1,
-		0, 1, 0,
-	}, LTE },
-
-	// hline overriding bot/top tees
-	{ {
-		1,  1, 1,
-		1,     1,
-		0, -1, 0,
-	}, HLN },
-
-	{ {
-		0, -1, 0,
-		1,     1,
-		1,  1, 1,
-	}, HLN },
-
-	// top/bot tees
-	{ {
-		0, 1, 0,
-		1,    1,
-		0, 0, 0,
-	}, BTE },
-
-	{ {
-		0, 0, 0,
-		1,    1,
-		0, 1, 0,
-	}, TTE },
-
-	// more corners
-	{ {
-		0, 1, 0,
-		1,    0,
-		0, 0, 0,
-	}, LRC },
-
-	{ {
-		0, 1, 0,
-		0,    1,
-		0, 0, 0,
-	}, LLC },
-
-	{ {
-		0, 0, 0,
-		1,    0,
-		0, 1, 0,
-	}, URC },
-
-	{ {
-		0, 0, 0,
-		0,    1,
-		0, 1, 0,
-	}, ULC },
-
-	// cross
-	{ {
-		0, 1, 0,
-		1,    1,
-		0, 1, 0,
-	}, CRS },
-
-	// vline/hline
-	{ {
-		0, 0, 0,
-		0,    0,
-		0, 1, 0,
-	}, VLN },
-
-	{ {
-		0, 1, 0,
-		0,    0,
-		0, 0, 0,
-	}, VLN },
-
-	{ {
-		0, 0, 0,
-		1,    0,
-		0, 0, 0,
-	}, HLN },
-
-	{ {
-		0, 0, 0,
-		0,    1,
-		0, 0, 0,
-	}, HLN },
-};
-
-static iform * defform = NULL;
+#include "walls.h"
 
 typedef struct {//specifies room with x and y coordinates adn w and h for width and height
 	int x, y, w, h;
@@ -207,32 +30,29 @@ static int on(int ** walls, int x, int y, zone * z)
 	return walls[x][y];
 }
 
-static iform * get_form(int ** walls, int x, int y, zone * z)
+static void set_wall_char(int ** walls, zone * z, int x, int y)
 {
-	int want;
 	int i, j;
-	int tx, ty;
+	unsigned char ch = 0;
 
-	for (i = 0; i < countof(adjsty); i++) {
-		for (j = 0; j < 8; j++) {
-			if (adjsty[i].on[j]) {
-				tx = x + adjind[j].dx;
-				ty = y + adjind[j].dy;
-
-				want = !!(adjsty[i].on[j] + 1);
-				if (on(walls, tx, ty, z) != want) break;
+	for (j = 1; j >= -1; j--) {
+		for (i = 1; i >= -1; i--) {
+			if (i != 0 || j != 0) {
+				ch <<= 1;
+				ch |= !!on(walls, x + i, y + j, z);
 			}
 		}
-
-		if (j == 8) return adjforms[adjsty[i].fi];
 	}
 
-	return defform;
+	z->tiles[x][y].ch = wall_chars[ch];
 }
+
 
 // this function is really ugly
 static void generate(zone * z)
 {
+	static int first = 1;
+
 	int i, x, y;
 	int rc;
 	int ** walls;
@@ -240,26 +60,9 @@ static void generate(zone * z)
 	item * it;
 	creature * cr;
 
-	if (defform == NULL) {
-		adjforms[LLC] = iform_new(USELESS, ACS_LLCORNER);
-		adjforms[LRC] = iform_new(USELESS, ACS_LRCORNER);
-		adjforms[ULC] = iform_new(USELESS, ACS_ULCORNER);
-		adjforms[URC] = iform_new(USELESS, ACS_URCORNER);
-		adjforms[VLN] = iform_new(USELESS, ACS_VLINE);
-		adjforms[HLN] = iform_new(USELESS, ACS_HLINE);
-		adjforms[LTE] = iform_new(USELESS, ACS_LTEE);
-		adjforms[RTE] = iform_new(USELESS, ACS_RTEE);
-		adjforms[TTE] = iform_new(USELESS, ACS_TTEE);
-		adjforms[BTE] = iform_new(USELESS, ACS_BTEE);
-		adjforms[CRS] = iform_new(USELESS, ACS_PLUS);
-		adjforms[BLN] = iform_new(USELESS, ' ');
-
-		for (i = 0; i < countof(adjforms); i++) {
-			adjforms[i]->weight = TILE_MAX_WEIGHT;
-		}
-
-		defform = iform_new(USELESS, '#');
-		defform->weight = TILE_MAX_WEIGHT;
+	if (first) {
+		fill_walls();
+		first = 0;
 	}
 
 	// generate rooms
@@ -273,6 +76,14 @@ static void generate(zone * z)
 		rv[i].y = rand() % (z->height - rv[i].h);
 	}
 
+	// Initialize all tiles to " "
+	for (x = 0; x < z->width; x++) {
+		for (y = 0; y < z->height; y++) {
+			z->tiles[x][y].ch = ' ';
+		}
+	}
+
+
 	// cut out rooms
 	walls = malloc(sizeof(int *) * z->width);
 	for (x = 0; x < z->width; x++) {
@@ -282,18 +93,20 @@ static void generate(zone * z)
 			for (i = 0; i < rc; i++) {
 				if (in_room(rv + i, x, y)) break;
 			}
-
+			z->tiles[x][y].ch = '.';
 			walls[x][y] = (i == rc);
 		}
 	}
+
 
 	// draw walls
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
 			if (walls[x][y]) {
-				it = item_new(get_form(walls, x, y, z));
-				inv_add(z->tiles[x][y].inv, it);
+				//it = item_new(get_form(walls, x, y, z));
+				//inv_add(z->tiles[x][y].inv, it);
 				z->tiles[x][y].impassible = 1;
+				set_wall_char(walls,z,x,y);
 			}
 		}
 	}
@@ -387,6 +200,7 @@ void zone_update(zone * z, int x, int y)
 		ch = z->tiles[x][y].crtr->f->ch;
 	}
 
+	z->tiles[x][y].ch = ch;
 	mvwaddch(dispscr, y, x, ch);
 }
 
@@ -396,7 +210,8 @@ void zone_draw(zone * z)
 
 	for (i = 0; i < z->width; i++) {
 		for (j = 0; j < z->height; j++) {
-			zone_update(z, i, j);
+			mvwaddch(dispscr, j, i, z->tiles[i][j].ch);
+//			zone_update(z, i, j);
 		}
 	}
 
