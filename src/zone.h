@@ -9,12 +9,15 @@ struct zone;
 #define ZONE_H
 
 #define TILE_MAX_WEIGHT 1000
+#define TILE_WALL 0x0
+#define TILE_FLOOR 0x1
 
 #include "creature.h"
 #include "inventory.h"
 
 typedef struct tile {
 	chtype ch;
+	int type;
 	int impassible;//whether the tile is pasible or not
 	struct creature * crtr;//creture that may be on the tile
 	struct inventory * inv;//inventory of the tile

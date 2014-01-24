@@ -55,6 +55,41 @@ static void set_wall_char(int ** walls, zone * z, int x, int y)
 }
 
 
+// Generate a random region in the given boundary
+static void generate_region(zone * z, int xmin, int xmax, int ymin, int ymax)
+{
+	// Find the center of the partition
+	int cx = ((xmax - xmin) / 2) + xmin;
+	int cy = ((ymax - ymin) / 2) + ymin;
+	
+	// Number of subsquares to generate the room
+	int squares = rand() % 5 + 3;
+
+	int i,j;
+	int r[2];
+
+
+	// Do the initial starting square	
+	for (i = -2; i <= 2; i++) {
+		for (j = -2; j <= 2; j++) {
+			z->tiles[cx+j][cy+i].type = TILE_FLOOR;
+		}
+	}
+
+
+	for(i = 0; i < squares; i++) {
+		gen_random_subregion(z,xmin,xmax,ymin,ymax,r); 
+		
+		// Select a point in the current region
+		// Expand from that point by a random radius (check bounds)
+
+	}
+
+
+}
+
+
+
 // this function is really ugly
 static void generate(zone * z)
 {
