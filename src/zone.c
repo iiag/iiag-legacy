@@ -72,15 +72,8 @@ static void generate(zone * z)
 	for (i = 0; i < rc; i++) {
 		rv[i].w = rand() % 12 + 5;
 		rv[i].h = rand() % 8 + 3;
-		rv[i].x = rand() % (z->width  - rv[i].w);
-		rv[i].y = rand() % (z->height - rv[i].h);
-	}
-
-	// Initialize all tiles to " "
-	for (x = 0; x < z->width; x++) {
-		for (y = 0; y < z->height; y++) {
-			z->tiles[x][y].ch = ' ';
-		}
+		rv[i].x = rand() % (z->width  - rv[i].w - 1) + 1;
+		rv[i].y = rand() % (z->height - rv[i].h - 1) + 1;
 	}
 
 
