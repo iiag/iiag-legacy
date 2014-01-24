@@ -61,9 +61,10 @@ int main(int argc, char ** argv)
 		case 'u': plyr_act_move( 1, -1); break;
 		case 'b': plyr_act_move(-1,  1); break;
 		case 'n': plyr_act_move( 1,  1); break;
-		case 'i': plyr_act_inv();    break;
-		case ',': plyr_act_pickup(); break;
-		case '.': plyr_act_drop();   break;
+		case 'i': plyr_act_inv();     break;
+		case ',': plyr_act_pickup();  break;
+		case '.': plyr_act_drop();    break;
+		case 'c': plyr_act_consume(); break;
 		case ' ': break;
 		case 'q': goto cleanup;
 		default:

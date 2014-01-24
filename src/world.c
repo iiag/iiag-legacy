@@ -22,6 +22,7 @@ const char * cform_file = "script/cforms";
 
 static char * type_names[] = {
 	"useless",
+	"consumable"
 };
 
 void load_iforms(void)
@@ -32,6 +33,8 @@ void load_iforms(void)
 	iml_lang_add(lang, IML_INT, "weight", iform, weight);
 	iml_lang_add(lang, IML_CHAR, "char", iform, ch);
 	iml_lang_add(lang, IML_STRING, "name", iform, name);
+	iml_lang_add(lang, IML_INT, "restore_health", iform, restore_health);
+	iml_lang_add(lang, IML_INT, "restore_stamina", iform, restore_stamina);
 	iml_lang_add_enum(lang, "type", iform, type, type_names);
 
 	world.iforms = iml_read(iform_file, lang);
@@ -52,6 +55,7 @@ void load_cforms(void)
 	iml_lang_add(lang, IML_CHAR, "char", cform, ch);
 	iml_lang_add(lang, IML_STRING, "name", cform, name);
 	iml_lang_add(lang, IML_INT, "max_health", cform, max_health);
+	iml_lang_add(lang, IML_INT, "max_stamina", cform, max_stamina);
 
 	world.cforms = iml_read(cform_file, lang);
 

@@ -1,3 +1,6 @@
 # script/iforms
 
 rock { type = useless, char = *, weight = 10 }
+muffin { type = consumable, char = %, weight = 1, restore_stamina = 40 }
+health-potion { type = consumable, char = &, weight = 1, restore_health = 10 }
+

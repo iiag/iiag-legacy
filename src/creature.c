@@ -147,6 +147,8 @@ void crtr_step(creature * c, int step)
 {
 	int dam;
 	int dx = 0, dy = 0;
+	int x, y;
+	zone * z;
 
 	if (c->step != step) {
 		// stamina upkeep
@@ -156,8 +158,15 @@ void crtr_step(creature * c, int step)
 				plyr_ev_death("starvation");
 			} else {
 				memo("%s dies of starvation", c->f->name);
+
+				x = c->x;
+				y = c->y;
+				z = c->z;
+
 				tileof(c)->crtr = NULL;
 				crtr_free(c);
+				zone_update(z, x, y);
+				wrefresh(dispscr);
 			}
 
 			return;

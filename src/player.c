@@ -98,10 +98,36 @@ void plyr_act_move(int dx, int dy)
 	}
 }
 
+void plyr_act_consume(void)
+{
+	int i;
+	item * it;
+
+	i = inv_prompt("What dost thy consume?", PLYR.inv);
+
+	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
+		it = PLYR.inv->itms[i];
+		inv_rm(PLYR.inv,i);
+
+		PLYR.health  += it->f->restore_health;
+		PLYR.stamina += it->f->restore_stamina;
+
+		if (PLYR.health  > PLYR.f->max_health ) PLYR.health  = PLYR.f->max_health;
+		if (PLYR.stamina > PLYR.f->max_stamina) PLYR.stamina = PLYR.f->max_stamina;
+
+		memo("Thy dost consume the %s.", it->f->name);
+		item_free(it);
+	}else{
+		memo("Such an item existeth not.");
+	}
+
+	redraw();
+}
+
 void plyr_ev_death(const char * reasons)
 {
-	memo("You die of %s, how unfortunate.", reasons);
-	wgetch(memoscr);
+	memo("You die of %s, how unfortunate. Press q to exit.", reasons);
+	while (wgetch(memoscr) != 'q');
 	end_disp();
 	exit(0);
 }
