@@ -8,6 +8,7 @@ struct item;
 #define ITEM_H
 
 #include "zone.h"
+#include "creature.h"
 #include "inventory.h"
 #include "form/item.h"
 
@@ -21,5 +22,6 @@ item * item_new(iform *);
 void item_free(item *); // does not remove it from its inventory
 
 int item_tele(item *, int, int, struct zone *);
+int item_equipped(item *, struct creature *);
 
 #endif

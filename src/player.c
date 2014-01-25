@@ -23,7 +23,7 @@ void plyr_act_pickup(void)
 	if (PLYRT.inv->weight == 0) {
 		memo("There is nothing here to pick up.");
 	} else {
-		i = inv_prompt("Pick up what?", PLYRT.inv);
+		i = inv_prompt("Pick up what?", PLYRT.inv, NULL);
 
 		if (PLYRT.inv->size > i && PLYRT.inv->itms[i] != NULL) {
 			if ((j = inv_add(PLYR.inv, PLYRT.inv->itms[i])) != INVALID) {
@@ -45,7 +45,7 @@ void plyr_act_drop(void)
 {
 	int i,j;
 
-	i = inv_prompt("You dropped what?", PLYR.inv);
+	i = inv_prompt("You dropped what?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
 		if((j=inv_add(PLYRT.inv,PLYR.inv->itms[i]))!=INVALID){
@@ -64,7 +64,7 @@ void plyr_act_drop(void)
 
 void plyr_act_inv(void)
 {
-	inv_prompt("Your inventory:", PLYR.inv);
+	inv_prompt("Your inventory:", PLYR.inv, &PLYR);
 	redraw();
 }
 
@@ -103,20 +103,39 @@ void plyr_act_consume(void)
 	int i;
 	item * it;
 
-	i = inv_prompt("What dost thy consume?", PLYR.inv);
+	i = inv_prompt("What dost thy consume?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
 		it = PLYR.inv->itms[i];
 		inv_rm(PLYR.inv,i);
 
-		PLYR.health  += it->f->restore_health;
-		PLYR.stamina += it->f->restore_stamina;
+		PLYR.health  += it->f->u.cn.restore_health;
+		PLYR.stamina += it->f->u.cn.restore_stamina;
 
 		if (PLYR.health  > PLYR.f->max_health ) PLYR.health  = PLYR.f->max_health;
 		if (PLYR.stamina > PLYR.f->max_stamina) PLYR.stamina = PLYR.f->max_stamina;
 
 		memo("Thy dost consume the %s.", it->f->name);
 		item_free(it);
+	}else{
+		memo("Such an item existeth not.");
+	}
+
+	redraw();
+}
+
+void plyr_act_equip(void)
+{
+	int i;
+	item * it;
+
+	i = inv_prompt("What dost thy equip?", PLYR.inv, &PLYR);
+
+	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL && PLYR.inv->itms[i]->f->type == EQUIPABLE){
+		it = PLYR.inv->itms[i];
+		crtr_equip(&PLYR, it, it->f->u.eq.slot);
+
+		memo("Thy dost equip the %s.", it->f->name);
 	}else{
 		memo("Such an item existeth not.");
 	}

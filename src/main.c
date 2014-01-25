@@ -65,6 +65,7 @@ int main(int argc, char ** argv)
 		case ',': plyr_act_pickup();  break;
 		case '.': plyr_act_drop();    break;
 		case 'c': plyr_act_consume(); break;
+		case 'w': plyr_act_equip();   break;
 		case ' ': break;
 		case 'q': goto cleanup;
 		default:

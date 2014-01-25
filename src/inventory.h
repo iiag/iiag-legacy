@@ -8,6 +8,7 @@ struct inventory;
 #define INVENTORY_H
 
 #include "item.h"
+#include "creature.h"
 
 #define INFINITE (-1)
 #define INVALID  (-1)
@@ -25,7 +26,7 @@ void inv_free(inventory *);
 int inv_add(inventory *, struct item *);
 int inv_try(inventory *, struct item *);
 struct item * inv_rm(inventory *, int);
-int inv_prompt(const char *, inventory *);
+int inv_prompt(const char *, inventory *, struct creature *);
 
 char ind2ch(int);
 int  ch2ind(char);

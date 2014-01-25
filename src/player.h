@@ -17,6 +17,7 @@ void plyr_act_drop(void);
 void plyr_act_inv(void);
 void plyr_act_move(int, int);
 void plyr_act_consume(void);
+void plyr_act_equip(void);
 
 // the inevitable
 void plyr_ev_death(const char *);

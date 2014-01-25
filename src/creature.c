@@ -24,6 +24,8 @@ static int req_xp(creature * c)
 
 void crtr_init(creature * c, cform * f)
 {
+	int i;
+
 	c->f = form_copy(f);
 	c->nofree = 0;
 	c->step = 1;
@@ -40,6 +42,8 @@ void crtr_init(creature * c, cform * f)
 	c->level   = 1;
 	c->need_xp = req_xp(c);
 	c->xp      = 0;
+
+	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
 }
 
 creature * crtr_new(cform * f)
@@ -110,6 +114,28 @@ void crtr_xp_up(creature * c, int xp)
 		if (plyr_is_me(c)) plyr_ev_lvlup();
 		crtr_xp_up(c, 0);
 	}
+}
+
+void crtr_unequip(creature * c, slot sl)
+{
+	c->attack -= c->slots[sl]->f->u.eq.modify_attack;
+	c->ac     -= c->slots[sl]->f->u.eq.modify_ac;
+	c->slots[sl] = NULL;
+}
+
+int crtr_equip(creature * c, item * it, slot sl)
+{
+	if (it->f->type == EQUIPABLE) {
+		if (c->slots[sl] != NULL) crtr_unequip(c, sl);
+
+		c->attack += it->f->u.eq.modify_attack;
+		c->ac     += it->f->u.eq.modify_ac;
+		c->slots[sl] = it;
+
+		return 1;
+	}
+
+	return 0;
 }
 
 int crtr_attack(creature * attacker, creature * defender)

@@ -12,13 +12,27 @@ struct iform;
 typedef enum {
 	USELESS,
 	CONSUMABLE,
+	EQUIPABLE,
 } item_type;
 
 typedef struct iform {
 	is_form;
 	item_type type;
-	int restore_health;
-	int restore_stamina;
+
+	union {
+		// consumable-specific data
+		struct {
+			int restore_health;
+			int restore_stamina;
+		} cn;
+
+		// equipable-specific data
+		struct {
+			int modify_attack;
+			int modify_ac;
+			int slot;
+		} eq;
+	} u;
 } iform;
 
 iform * iform_new(item_type, chtype);

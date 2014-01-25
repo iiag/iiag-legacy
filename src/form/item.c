@@ -11,8 +11,10 @@ iform * iform_new(item_type type, chtype ch)
 
 	form_initial(f, ch);
 	f->type = type;
-	f->restore_health = 0;
-	f->restore_stamina = 0;
+	f->u.cn.restore_health = 0;
+	f->u.cn.restore_stamina = 0;
+	f->u.eq.modify_attack = 0;
+	f->u.eq.modify_ac = 0;
 
 	return f;
 }

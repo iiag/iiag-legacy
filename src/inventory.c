@@ -79,7 +79,7 @@ item * inv_rm(inventory * inv, int i)
 	return ret;
 }
 
-int inv_prompt(const char * prompt, inventory * inv)
+int inv_prompt(const char * prompt, inventory * inv, creature * c)
 {
 	int i;
 	
@@ -88,10 +88,16 @@ int inv_prompt(const char * prompt, inventory * inv)
 
 	for (i = 0; i < inv->size; i++) {
 		if (inv->itms[i] != NULL) {
-			wprintw(dispscr, " %c) %s\n",
+			wprintw(dispscr, " %c) %s",
 				ind2ch(i),
 				inv->itms[i]->f->name
 			);
+
+			if (c != NULL && item_equipped(inv->itms[i], c)) {
+				wprintw(dispscr, " (equipped)");
+			}
+
+			wprintw(dispscr, "\n");
 		}
 	}
 

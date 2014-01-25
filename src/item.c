@@ -36,3 +36,8 @@ int item_tele(item * it, int x, int y, zone * z)
 
 	return 0;
 }
+
+int item_equipped(item * it, creature * c)
+{
+	return it->f->type == EQUIPABLE && c->slots[it->f->u.eq.slot] == it;
+}
