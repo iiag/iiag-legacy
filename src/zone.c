@@ -90,7 +90,8 @@ static void pick_random_subregion(zone * z,partition * p, int * ret)
 
 	edge = random() % 4;
 
-	fprintf(stderr,"Random edge is: %d vs %d, which is %d\n",edge % 2, ((edge % 2) + 1) % 2, ((int*) &sqr)[edge]);
+	fprintf(stderr,"Partition is (%d,%d) to (%d,%d)\n",sqr.xmin,sqr.ymin,sqr.xmax,sqr.ymax);
+	fprintf(stderr,"Random edge is: %d, which is %d\n",edge, ((int*) &sqr)[edge]);
 	fprintf(stderr,"Picking a random center value between %d <-> %d\n",
 		((int*) &sqr)[((edge % 2) + 1) % 4],
 		((int*) &sqr)[((edge % 2) + 3) % 4]);
@@ -98,8 +99,10 @@ static void pick_random_subregion(zone * z,partition * p, int * ret)
 
 
 	ret[edge % 2] = ((int*) &sqr)[edge];
-	ret[((edge % 2) + 1) % 2] = (rand() % abs( ((int*) &sqr)[((edge % 2) + 3) % 4] - ((int*) &sqr)[((edge % 2) + 1) % 4]) ) + ((int*) &sqr)[((edge % 2) + 1) % 2]; 
-	
+	ret[(edge + 1) % 2] = (rand() % abs( ((int*) &sqr)[((edge % 2) + 3) % 4] - ((int*) &sqr)[((edge % 2) + 1) % 4]) ) + ((int*) &sqr)[(edge + 1) % 2]; 
+
+	fprintf(stderr,"New Region center is: (%d,%d)\n\n",ret[0],ret[1]);
+
 }
 
 
