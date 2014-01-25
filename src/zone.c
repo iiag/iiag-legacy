@@ -13,10 +13,10 @@
 
 #define ROOM_INFREQ 60
 #define ITEM_INFREQ 80
-#define CRTR_INFREQ 80
+#define CRTR_INFREQ 100
 #define ROOM_MIN 60
 #define ITEM_MIN 40
-#define CRTR_MIN 40
+#define CRTR_MIN 15
 
 typedef struct {//specifies room with x and y coordinates adn w and h for width and height
 	int x, y, w, h;

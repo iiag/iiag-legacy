@@ -1,6 +1,37 @@
 # script/iforms
 
-rock { type = useless, char = *, weight = 10 }
-muffin { type = consumable, char = %, weight = 1, restore_stamina = 40 }
-health-potion { type = consumable, char = &, weight = 1, restore_health = 10 }
+rock {
+	type = useless,
+	char = *,
+	weight = 10
+}
 
+muffin {
+	type = consumable,
+	char = %,
+	weight = 1,
+	restore_stamina = 40
+}
+
+health-potion {
+	type = consumable,
+	char = &,
+	weight = 1,
+	restore_health = 10
+}
+
+sword {
+	type = equipable,
+	char = /,
+	weight = 8,
+	modify_attack = 12,
+	slot = right-hand
+}
+
+helm {
+	type = equipable,
+	char = ^,
+	weight = 6,
+	modify_ac = 4,
+	slot = head
+}
