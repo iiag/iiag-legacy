@@ -39,7 +39,6 @@ static int on(zone * z, int x, int y)
 	if (y < 0) return 1;
 	if (x >= z->width)  return 1;
 	if (y >= z->height) return 1;
-	fprintf(stderr,"Return is %d\n",z->tiles[x][y].type);
 	return z->tiles[x][y].type & TILE_WALL;
 }
 
@@ -57,7 +56,6 @@ static void set_wall_char(zone * z, int x, int y)
 		}
 	}
 
-	fprintf(stderr,"Setting wall char: %d\n",ch);
 	z->tiles[x][y].ch = wall_chars[ch];
 }
 
@@ -92,22 +90,34 @@ static void pick_random_subregion(zone * z,partition * p, int * ret)
 
 	edge = random() % 4;
 
-	fprintf(stderr,"Random edge is: %d, which is %d\n",edge, ((int*) &sqr)[edge]);
+	fprintf(stderr,"Random edge is: %d vs %d, which is %d\n",edge % 2, ((edge % 2) + 1) % 2, ((int*) &sqr)[edge]);
 	fprintf(stderr,"Picking a random center value between %d <-> %d\n",
 		((int*) &sqr)[((edge % 2) + 1) % 4],
 		((int*) &sqr)[((edge % 2) + 3) % 4]);
 
 
 
-	ret[edge % 2] = ((int*) &sqr)[edge % 2];
-	ret[(edge % 2) + 1] = rand() % abs( ((int*) &sqr)[((edge % 2) + 3) % 4] - ((int*) &sqr)[((edge % 2) + 1) % 4]) + ((int*) &sqr)[(edge % 2) + 1]; 
+	ret[edge % 2] = ((int*) &sqr)[edge];
+	ret[((edge % 2) + 1) % 2] = (rand() % abs( ((int*) &sqr)[((edge % 2) + 3) % 4] - ((int*) &sqr)[((edge % 2) + 1) % 4]) ) + ((int*) &sqr)[((edge % 2) + 1) % 2]; 
 	
-
-	// TODO: Check bounds, prefer spots further from the center
-	//ret[0] = random() % (sqr.xmax - sqr.xmin) + sqr.xmin;
-	//ret[1] = random() % (sqr.ymax - sqr.ymin) + sqr.ymin;
-
 }
+
+
+// Get the distance to the nearest edge
+// TODO: Optimize this
+static int nearest_edge(zone * z, int * pos)
+{
+	int ret;
+	ret = pos[0];
+	if (pos[1] < ret)
+		ret = pos[1];
+	if ((z->width - pos[0]) < ret)
+		ret = (z->width - pos[0]);
+	if ((z->height - pos[1]) < ret)
+		ret = (z->height - pos[1]);
+	return ret;
+}
+
 
 // Generate a random region in the given boundary
 static void generate_region(zone * z, partition * p)
@@ -117,15 +127,18 @@ static void generate_region(zone * z, partition * p)
 	
 
 	// Find the center of the partition
-	int cx = ((p->xmax - p->xmin) / 2) + p->xmin;
-	int cy = ((p->ymax - p->ymin) / 2) + p->ymin;
+	//int cx = ((p->xmax - p->xmin) / 2) + p->xmin;
+	//int cy = ((p->ymax - p->ymin) / 2) + p->ymin;
+	
+	int cx = (rand() % (p->xmax - p->xmin - 6)) + p->xmin + 3;
+	int cy = (rand() % (p->ymax - p->ymin - 6)) + p->ymin + 3;
 	
 	fprintf(stderr,"center: (%d,%d)\n\n",cx,cy);
 
 	// Number of subsquares to generate the room
-	int squares = 10;//rand() % 5 + 3;
+	int squares = 20;//rand() % 5 + 3;
 
-	int i,j,s,rad;
+	int i,j,s,rad,temp;
 	int r[2];
 
 
@@ -133,15 +146,18 @@ static void generate_region(zone * z, partition * p)
 	for (i = -2; i <= 2; i++) {
 		for (j = -2; j <= 2; j++) {
 			z->tiles[cx+j][cy+i].type = TILE_FLOOR;
-			z->tiles[cx+j][cy+i].ch   = '.';
+			z->tiles[cx+j][cy+i].ch   = 'X';
 		}
 	}
 
-	// TODO: check bounds
 	for(s = 0; s < squares; s++) {
 		pick_random_subregion(z,p,r); 
 		fprintf(stderr,"Random Subregion center: (%d,%d)\n",r[0],r[1]);
-		rad = random() % 2 + 1;
+		// Picks a random radius for the square from (currently) 0->3, unless an edge is closer
+		temp = nearest_edge(z,r);
+		if (temp < 3) continue; // Too close to an edge, bailing.
+
+		rad = random() % ((temp < 3) ? temp-1 : 3) + 1;
 	
 		// TODO: allow rectangles
 		for (i = -rad; i <= rad; i++) {
