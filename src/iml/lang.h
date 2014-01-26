@@ -12,6 +12,7 @@ typedef enum {
 	IML_INT,
 	IML_CHAR,
 	IML_ENUM,
+	IML_BOOL,
 } iml_type;
 
 typedef struct {
@@ -20,6 +21,7 @@ typedef struct {
 	int offset;
 	char ** enum_strv;
 	int enum_strc;
+	int bool_bit;
 } iml_field;
 
 typedef struct {
@@ -59,12 +61,23 @@ typedef struct {
 		ENUMS, sizeof(ENUMS)/sizeof(*ENUMS) \
 	)
 
+//
+// LANG is the iml_lang *
+// STR is a char *, the name of the field
+// STRCT should be the same as w/ iml_lang_new
+// FLD is a field name in the struct
+// BIT is the bit in the field to set/clear
+//
+#define iml_lang_add_bool(LANG, STR, STRCT, FLD, BIT) \
+	iml_lang__add_bool(LANG, STR, offsetof(STRCT, FLD), BIT)
+
 void iml_lang_free(iml_lang *);
 
 // very secret
 iml_lang * iml_lang__new(int, void *);
 void iml_lang__add(iml_lang *, iml_type, char *, int);
 void iml_lang__add_enum(iml_lang *, char *, int, char **, int);
+void iml_lang__add_bool(iml_lang *, char *, int, int);
 
 // for use in other iml functions
 #define IML_NOT_FOUND (-1)

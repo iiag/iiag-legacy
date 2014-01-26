@@ -3,6 +3,7 @@
 //
 
 #include <ctype.h>
+#include <assert.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -113,6 +114,10 @@ static int set(iml_lang * l, void * thing, const char * fld, char * val)
 
 		free(val);
 		break;
+
+	default:
+		// bools are handled seperatly
+		assert(0);
 	}
 
 	return 1;
@@ -148,22 +153,41 @@ void * iml_read(const char * fn, iml_lang * lang)
 
 		if (*name) set(lang, thing, "name", name);
 
+		// inside brackets
 		do {
 			fld = next_token(&buf, ",=}");
-			expect(&buf, '=');
 
-			val = next_token(&buf, ",}");
-
-			if (!set(lang, thing, fld, val)) {
-				iml_error("Unknown field '%s'.", fld);
+			// look for a bool
+			int j = iml_lang__find(lang, fld);
+			if (j == IML_NOT_FOUND && *fld == '!') {
+				j = iml_lang__find(lang, fld + 1);
 			}
 
-			free(fld);
+			if (j != IML_NOT_FOUND && lang->fields[j].type == IML_BOOL) {
+				// found a bool type
+				expect(&buf, ',');
 
-			if (*buf) buf++;
-			else break;
+				unsigned * to = iml_lang__get_ptr(lang, thing, j);
+				if (*fld == '!') *to &= ~lang->fields[j].bool_bit;
+				else *to |= lang->fields[j].bool_bit;
+			} else {
+				// found a non-bool
+				expect(&buf, '=');
+
+				val = next_token(&buf, ",}");
+
+				if (!set(lang, thing, fld, val)) {
+					iml_error("Unknown field '%s'.", fld);
+				}
+
+				free(fld);
+
+				if (*buf) buf++;
+				else break;
+			}
 		} while (buf[-1] != '}');
 
+		// add thing to list of things
 		if (i % REALLOC_SIZE == 0) {
 			things = realloc(things, (i + REALLOC_SIZE + 1) * sizeof(void *));
 		}

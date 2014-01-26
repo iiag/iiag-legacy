@@ -36,6 +36,7 @@ void iml_lang__add(iml_lang * l, iml_type type, char * name, int off)
 	l->fields[i].type = type;
 	l->fields[i].name = name;
 	l->fields[i].offset = off;
+
 #undef REALLOC_SIZE
 }
 
@@ -46,6 +47,12 @@ void iml_lang__add_enum(iml_lang * l, char * name, int off, char ** ev, int ec)
 	int i = l->field_cnt - 1;
 	l->fields[i].enum_strv = ev;
 	l->fields[i].enum_strc = ec;
+}
+
+void iml_lang__add_bool(iml_lang * l, char * name, int off, int bit)
+{
+	iml_lang__add(l, IML_BOOL, name, off);
+	l->fields[l->field_cnt - 1].bool_bit = bit;
 }
 
 int iml_lang__find(iml_lang * l, const char * name)
