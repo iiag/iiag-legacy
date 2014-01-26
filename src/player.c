@@ -49,8 +49,7 @@ void plyr_act_drop(void)
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
 		if((j=inv_add(PLYRT.inv,PLYR.inv->itms[i]))!=INVALID){
-			PLYR.inv->itms[i]->i=j;
-			inv_rm(PLYR.inv,i);
+			crtr_rm_item(&PLYR, i)->i = j;
 			memo("You dropped the %s",PLYRT.inv->itms[j]->f->name);
 		}else{
 			memo("You cannot drop the %s.",PLYR.inv->itms[i]->f->name);
@@ -107,8 +106,7 @@ void plyr_act_consume(void)
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
 		if (PLYR.inv->itms[i]->f->type & ITEM_CONSUMABLE){
-			it = PLYR.inv->itms[i];
-			inv_rm(PLYR.inv,i);
+			it = crtr_rm_item(&PLYR, i);
 
 			PLYR.health  += it->f->restore_health;
 			PLYR.stamina += it->f->restore_stamina;

@@ -228,3 +228,15 @@ void crtr_step(creature * c, int step)
 		c->step = step;
 	}
 }
+
+item * crtr_rm_item(creature * c, int i)
+{
+	item * it = c->inv->itms[i];
+
+	if (item_equipped(it, c)) {
+		crtr_unequip(c, it->f->slot);
+	}
+
+	inv_rm(c->inv, i);
+	return it;
+}

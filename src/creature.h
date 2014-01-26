@@ -57,5 +57,6 @@ int crtr_tele(creature *, int, int, struct zone *);
 int crtr_attack(creature *, creature *);
 int crtr_equip(creature *, struct item *, slot);
 void crtr_step(creature *, int);
+struct item * crtr_rm_item(creature *, int);
 
 #endif
