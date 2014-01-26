@@ -106,17 +106,21 @@ void plyr_act_consume(void)
 	i = inv_prompt("What dost thou consume?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
-		it = PLYR.inv->itms[i];
-		inv_rm(PLYR.inv,i);
+		if (PLYR.inv->itms[i]->f->type == CONSUMABLE){
+			it = PLYR.inv->itms[i];
+			inv_rm(PLYR.inv,i);
 
-		PLYR.health  += it->f->u.cn.restore_health;
-		PLYR.stamina += it->f->u.cn.restore_stamina;
+			PLYR.health  += it->f->u.cn.restore_health;
+			PLYR.stamina += it->f->u.cn.restore_stamina;
 
-		if (PLYR.health  > PLYR.f->max_health ) PLYR.health  = PLYR.f->max_health;
-		if (PLYR.stamina > PLYR.f->max_stamina) PLYR.stamina = PLYR.f->max_stamina;
+			if (PLYR.health  > PLYR.f->max_health ) PLYR.health  = PLYR.f->max_health;
+			if (PLYR.stamina > PLYR.f->max_stamina) PLYR.stamina = PLYR.f->max_stamina;
 
-		memo("Thou dost consume the %s.", it->f->name);
-		item_free(it);
+			memo("Thou dost consume the %s.", it->f->name);
+			item_free(it);
+		}else{
+			memo("That would upset thy stomach.");
+		}
 	}else{
 		memo("Such an item existeth not.");
 	}
@@ -131,11 +135,15 @@ void plyr_act_equip(void)
 
 	i = inv_prompt("What dost thou equip?", PLYR.inv, &PLYR);
 
-	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL && PLYR.inv->itms[i]->f->type == EQUIPABLE){
-		it = PLYR.inv->itms[i];
-		crtr_equip(&PLYR, it, it->f->u.eq.slot);
+	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL){
+		if (PLYR.inv->itms[i]->f->type == EQUIPABLE){
+			it = PLYR.inv->itms[i];
+			crtr_equip(&PLYR, it, it->f->u.eq.slot);
 
-		memo("Thou dost equip the %s.", it->f->name);
+			memo("Thou dost equip the %s.", it->f->name);
+		} else {
+			memo("It seems trying to equip that would prove fruitless.");
+		}
 	}else{
 		memo("Such an item existeth not.");
 	}
