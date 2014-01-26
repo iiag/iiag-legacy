@@ -19,6 +19,10 @@ typedef enum slot {
 	LEFT_HAND = 0,
 	RIGHT_HAND,
 	HEAD,
+	TORSO,
+	CAPE,
+	LEGS,
+	FEET,
 	MAX_SLOTS
 } slot;
 
