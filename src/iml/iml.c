@@ -73,6 +73,7 @@ static char * next_token(char ** buf, char * dlms)
 
 	while (!is_delim(**buf, dlms)) {
 		if (!isspace(**buf)) end = *buf + 1;
+		else if (**buf == '\n') line++;
 		++*buf;
 	}
 
