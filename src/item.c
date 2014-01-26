@@ -39,5 +39,5 @@ int item_tele(item * it, int x, int y, zone * z)
 
 int item_equipped(item * it, creature * c)
 {
-	return it->f->type == EQUIPABLE && c->slots[it->f->u.eq.slot] == it;
+	return it->f->type & ITEM_EQUIPABLE && c->slots[it->f->slot] == it;
 }

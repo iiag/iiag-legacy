@@ -20,12 +20,6 @@ world_st world;
 const char * iform_file = "script/iforms";
 const char * cform_file = "script/cforms";
 
-static char * type_names[] = {
-	"useless",
-	"consumable",
-	"equipable",
-};
-
 static char * slot_names[] = {
 	"left-hand",
 	"right-hand",
@@ -34,18 +28,19 @@ static char * slot_names[] = {
 
 void load_iforms(void)
 {
-	iform * def = iform_new(USELESS, '?');
+	iform * def = iform_new(0, '?');
 	iml_lang * lang = iml_lang_new(iform, def);
 
 	iml_lang_add(lang, IML_INT,    "weight",          iform, weight);
 	iml_lang_add(lang, IML_CHAR,   "char",            iform, ch);
 	iml_lang_add(lang, IML_STRING, "name",            iform, name);
-	iml_lang_add(lang, IML_INT,    "restore_health",  iform, u.cn.restore_health);
-	iml_lang_add(lang, IML_INT,    "restore_stamina", iform, u.cn.restore_stamina);
-	iml_lang_add(lang, IML_INT,    "modify_attack",   iform, u.eq.modify_attack);
-	iml_lang_add(lang, IML_INT,    "modify_ac",       iform, u.eq.modify_ac);
-	iml_lang_add_enum(lang, "type", iform, type, type_names);
-	iml_lang_add_enum(lang, "slot", iform, u.eq.slot, slot_names);
+	iml_lang_add(lang, IML_INT,    "restore_health",  iform, restore_health);
+	iml_lang_add(lang, IML_INT,    "restore_stamina", iform, restore_stamina);
+	iml_lang_add(lang, IML_INT,    "modify_attack",   iform, modify_attack);
+	iml_lang_add(lang, IML_INT,    "modify_ac",       iform, modify_ac);
+	iml_lang_add_bool(lang, "consumable", iform, type, ITEM_CONSUMABLE);
+	iml_lang_add_bool(lang, "equipable",  iform, type, ITEM_EQUIPABLE);
+	iml_lang_add_enum(lang, "slot", iform, slot, slot_names);
 
 	world.iforms = iml_read(iform_file, lang);
 

@@ -9,33 +9,24 @@ struct iform;
 
 #include "form.h"
 
-typedef enum {
-	USELESS,
-	CONSUMABLE,
-	EQUIPABLE,
-} item_type;
+#define ITEM_CONSUMABLE 1
+#define ITEM_EQUIPABLE  2
 
 typedef struct iform {
 	is_form;
-	item_type type;
+	unsigned type;
 
-	union {
-		// consumable-specific data
-		struct {
-			int restore_health;
-			int restore_stamina;
-		} cn;
+	// consumable-specific data
+	int restore_health;
+	int restore_stamina;
 
-		// equipable-specific data
-		struct {
-			int modify_attack;
-			int modify_ac;
-			int slot;
-		} eq;
-	} u;
+	// equipable-specific data
+	int modify_attack;
+	int modify_ac;
+	int slot;
 } iform;
 
-iform * iform_new(item_type, chtype);
+iform * iform_new(unsigned, chtype);
 void iform_free(iform *);
 
 #endif

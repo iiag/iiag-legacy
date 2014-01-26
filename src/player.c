@@ -106,12 +106,12 @@ void plyr_act_consume(void)
 	i = inv_prompt("What dost thou consume?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
-		if (PLYR.inv->itms[i]->f->type == CONSUMABLE){
+		if (PLYR.inv->itms[i]->f->type & ITEM_CONSUMABLE){
 			it = PLYR.inv->itms[i];
 			inv_rm(PLYR.inv,i);
 
-			PLYR.health  += it->f->u.cn.restore_health;
-			PLYR.stamina += it->f->u.cn.restore_stamina;
+			PLYR.health  += it->f->restore_health;
+			PLYR.stamina += it->f->restore_stamina;
 
 			if (PLYR.health  > PLYR.f->max_health ) PLYR.health  = PLYR.f->max_health;
 			if (PLYR.stamina > PLYR.f->max_stamina) PLYR.stamina = PLYR.f->max_stamina;
@@ -136,9 +136,9 @@ void plyr_act_equip(void)
 	i = inv_prompt("What dost thou equip?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL){
-		if (PLYR.inv->itms[i]->f->type == EQUIPABLE){
+		if (PLYR.inv->itms[i]->f->type & ITEM_EQUIPABLE){
 			it = PLYR.inv->itms[i];
-			crtr_equip(&PLYR, it, it->f->u.eq.slot);
+			crtr_equip(&PLYR, it, it->f->slot);
 
 			memo("Thou dost equip the %s.", it->f->name);
 		} else {

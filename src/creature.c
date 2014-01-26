@@ -118,18 +118,18 @@ void crtr_xp_up(creature * c, int xp)
 
 void crtr_unequip(creature * c, slot sl)
 {
-	c->attack -= c->slots[sl]->f->u.eq.modify_attack;
-	c->ac     -= c->slots[sl]->f->u.eq.modify_ac;
+	c->attack -= c->slots[sl]->f->modify_attack;
+	c->ac     -= c->slots[sl]->f->modify_ac;
 	c->slots[sl] = NULL;
 }
 
 int crtr_equip(creature * c, item * it, slot sl)
 {
-	if (it->f->type == EQUIPABLE) {
+	if (it->f->type & ITEM_EQUIPABLE) {
 		if (c->slots[sl] != NULL) crtr_unequip(c, sl);
 
-		c->attack += it->f->u.eq.modify_attack;
-		c->ac     += it->f->u.eq.modify_ac;
+		c->attack += it->f->modify_attack;
+		c->ac     += it->f->modify_ac;
 		c->slots[sl] = it;
 
 		return 1;
