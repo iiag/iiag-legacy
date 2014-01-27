@@ -4,6 +4,8 @@
 
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "world.h"
 #include "display.h"
 
@@ -34,6 +36,12 @@ void init_disp(void)
 	memoscr = newwin(1, max_width, 0, 0);
 	dispscr = newwin(max_height - 4, max_width, 1, 0);
 	statscr = newwin(3, max_width, max_height - 3, 0);
+
+    if ( memoscr == NULL || dispscr == NULL
+            || statscr == NULL ) {
+        fprintf(stderr, "Failed to initialize ncurses!\n");
+        exit(EXIT_FAILURE);
+    }
 
 	keypad(stdscr, TRUE);
 	keypad(dispscr, TRUE);
