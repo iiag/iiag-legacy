@@ -10,6 +10,7 @@
 #include "world.h"
 #include "display.h"
 #include "inventory.h"
+#include "log.h"
 #include "walls.h"
 
 #define ROOM_INFREQ 40
@@ -18,6 +19,8 @@
 #define ROOM_MIN 100
 #define ITEM_MIN 40
 #define CRTR_MIN 15
+
+#define PI 3.14159265
 
 typedef struct {//specifies room with x and y coordinates adn w and h for width and height
 	int x, y, w, h;
@@ -39,6 +42,9 @@ typedef struct {
 	polar_t polar;
 	point_t cart;
 } ptpair_t;
+
+point_t avg;
+
 
 /* Deprecated
 static int in_room(room * r, int x, int y)
@@ -142,7 +148,10 @@ static polar_t cart_to_polar(point_t *cart)
 	polar_t ret;
 	
 	ret.radius = sqrt((cart->x * cart->x) + (cart->y * cart->y));
-	ret.angle = tan( ((float) cart->y) / ((float) cart->x));
+	ret.angle = atan2( cart->y, cart->x);
+
+//	if (cart->x < 0) ret.angle += PI;
+//	else if (cart->y < 0) ret.angle = (2*PI) + ret.angle;
 
 	return ret;
 }
@@ -166,7 +175,7 @@ static void do_sort(point_t *pts, int num)
 	for (i = 0; i < num; i++) {
 		c = 0;
 		for (j = 0; j < num; j++) {
-			if (pairs[i].polar.radius > pairs[j].polar.radius)
+			if (pairs[i].polar.angle > pairs[j].polar.angle)
 				c++;
 		}
 		sorted_pairs[c] = pairs[i];
@@ -175,6 +184,12 @@ static void do_sort(point_t *pts, int num)
 	for (i = 0; i < num; i++) {
 		pts[i] = sorted_pairs[i].cart;
 	}
+
+	for (i = 0; i < num; i++) {
+		wrlog("(%f, %f) : (%d,%d)",sorted_pairs[i].polar.radius,sorted_pairs[i].polar.angle,sorted_pairs[i].cart.x,sorted_pairs[i].cart.y);
+	}
+
+
 
 	free(pairs);
 	free(sorted_pairs);
@@ -185,7 +200,7 @@ static void radial_sort(point_t * pts, int num)
 {
 	int i;
 	point_t sum = {0};
-	point_t avg;
+	//point_t avg;
 
 
 	for (i = 0; i < num; i++) {
@@ -195,7 +210,26 @@ static void radial_sort(point_t * pts, int num)
 
 	// Centerpoint for the radial sort
 	avg.x = sum.x / num;	
-	avg.y = sum.y / num;	
+	avg.y = sum.y / num;		
+	/*sum.x = 99999;
+	sum.y = 99999;
+
+	for (i = 0; i < num; i++) {
+		if (sum.x > pts[i].x)
+			sum.x = pts[i].x;
+		if (sum.y > pts[i].y)
+			sum.y = pts[i].y;
+		if (avg.x < pts[i].x)
+			avg.x = pts[i].x;
+		if (avg.y < pts[i].y)
+			avg.y = pts[i].y;
+	}
+
+	avg.x = (avg.x + sum.x) / 2;
+	avg.y = (avg.y + sum.y) / 2;
+	*/
+
+
 
 	// Change to the new center
 	for (i = 0; i < num; i++) {
@@ -217,37 +251,62 @@ static void radial_sort(point_t * pts, int num)
 static void dig_room(zone * z, partition * p, point_t *pts, int num)
 {
 	int i,j;	
-	int d;
+	int d,del,tar;
 	int dig = 0;
 	int dir; // Toggles between x and y (0 and 1)
 
-	dir = rand() % 2;
+	dir = 0;
 	for (i = 0; i < num; i++) {
 		// Walk to the next point
-		for (d = ((int*) &pts[i])[dir]; d < ((int*) &pts[i+1 % num])[dir]; d++) {
+
+		del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
+		tar = abs( ((int*) &pts[(i+1) % num])[dir] - ((int*) &pts[i])[dir] );
+	
+		//wrlog("Going from point (%d,%d) to (%d,%d)", pts[i].x,pts[i].y,pts[(i+1) % num].x,pts[(i+1) % num].y);
+		//wrlog(" del is %d, tar is %d, dir is %d",del,tar,dir);
+		//wrlog(" %d -> %d",((int*) &pts[i])[dir],((int*) &pts[(i+1) % num])[dir]);
+
+		for (d = 0; abs(d) < tar; d += del) {
 			// Set each of these zone tiles to floor
-			z->tiles[pts->x][pts->y].type = TILE_FLOOR;
+			//z->tiles[pts[i].x + (d * !dir)][pts[i].y + (d * dir)].type = TILE_FLOOR;
+			//z->tiles[pts[i].x + (d * !dir)][pts[i].y + (d * dir)].ch = c++;
+			//wrlog(" moving to (%d,%d)", pts[i].x + (d * !dir),pts[i].y + (d * dir));
+			z->tiles[pts[i].x + (d * !dir)][pts[i].y + (d * dir)].type = TILE_FLOOR;
+
 		}
 
+		//wrlog("Switching directions");
 		dir = !dir;
 		
-		for (d = ((int*) &pts[i])[dir]; d < ((int*) &pts[i+1 % num])[dir]; d++) {
-			z->tiles[pts->x][pts->y].type = TILE_FLOOR;
+		del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
+		tar = abs(((int*) &pts[(i+1) % num])[dir] - ((int*) &pts[i])[dir]);
+		
+		//wrlog(" del is %d, tar is %d, dir is %d",del,tar,dir);
+		//wrlog(" %d -> %d",((int*) &pts[i])[dir],((int*) &pts[(i+1) % num])[dir]);
+
+		for (d = 0; abs(d) < tar; d += del) {
+			//wrlog(" othering to (%d,%d)", ((!dir * pts[i].x) + (dir * pts[(i+1) % num].x)) + (d * !dir),pts[i].y + (d * dir), ((dir * pts[i].y) + (!dir * pts[(i+1) % num].y)) + (d * !dir));
+			z->tiles[((!dir * pts[i].x) + (dir * pts[(i+1) % num].x)) + (d * !dir)][((dir * pts[i].y) + (!dir * pts[(i+1) % num].y)) + (d * dir)].type = TILE_FLOOR;
 		}
 	}
 
-	/*
+/*
 	// Scan partition from xmin->xmax, digging floor from wall->wall
 	for (j = p->ymin; j < p->ymax; j++) {
+		dig = 0;
 		for (i = p->xmin; i < p->xmax; i++) {
 			if (z->tiles[i][j].type == TILE_FLOOR)
 				dig = !dig;
 			
 			if (dig) 
 				z->tiles[i][j].type = TILE_FLOOR;				
+				z->tiles[i][j].ch = '.';
+				
 		}
-	}*/
+	}
+*/
 }
+
 
 
 // Generate a random region in the given boundary
@@ -255,7 +314,7 @@ static void generate_region(zone * z, partition * p)
 {
 	int i;
 	// Number of pairs of points
-	int num_pts = 4;
+	int num_pts = 8;
 	int dir;
 
 	point_t diff;
@@ -263,7 +322,7 @@ static void generate_region(zone * z, partition * p)
 	diff.x = p->xmax - p->xmin;
 	diff.y = p->ymax - p->ymin;
 
-	point_t *pts = (point_t*) malloc(sizeof(point_t) * num_pts * 2);
+	point_t *pts = (point_t*) malloc(sizeof(point_t) * num_pts);
 
 	// Generate a list of "paired" points
 	for (i = 0; i < num_pts; i+=2) {
@@ -272,23 +331,36 @@ static void generate_region(zone * z, partition * p)
 		pts[i].y = rand() % diff.y;
 	
 		// Keep one axis constant	
-		((int*) &pts[i+1])[(dir + 1) % 2] = ((int*) &pts[i])[(dir + 1) % 2];
+		((int*) &pts[i+1])[!dir] = ((int*) &pts[i])[!dir];
 		// Vary the other
-		((int*) &pts[i+1])[dir] = (((int*) &pts[i])[dir]) + rand() % ((int*) &diff)[dir];
+		((int*) &pts[i+1])[dir] = ((((int*) &pts[i])[dir]) + rand()) % ((int*) &diff)[dir];
 	}
+
+
+	wrlog("Before sort");
 
 	for (i = 0; i < num_pts; i++) {
-		z->tiles[pts[i].x+p->xmin][pts[i].y+p->ymin].ch = 'x';
+		wrlog("%d: (%d,%d)",i,pts[i].x,pts[i].y);	
 	}
-
-
 
 	radial_sort(pts,num_pts);
-	
+	wrlog("After sort:");
+
 	for (i = 0; i < num_pts; i++) {
+		wrlog("%d: (%d,%d)",i,pts[i].x,pts[i].y);	
 		pts[i].x += p->xmin;
 		pts[i].y += p->ymin;
 	}
+
+	for (i = 0; i < num_pts; i++) {
+		z->tiles[pts[i].x][pts[i].y].ch = '0'+i;
+		z->tiles[pts[i].x][pts[i].y].type = TILE_FLOOR;
+	}
+
+	z->tiles[avg.x + p->xmin][avg.y + p->ymin].type = 0x0;
+	z->tiles[avg.x + p->xmin][avg.y + p->ymin].ch = '?';
+
+	
 
 
 	dig_room(z,p,pts,num_pts);
@@ -360,7 +432,7 @@ static void generate(zone * z)
 	fprintf(stderr,"Bounds: %dx%d\n",z->width,z->height);
 
 	// TODO: Randomly pick these numbers
-	xparts = yparts = 3;
+	//xparts = yparts = 3;
 
 	// TODO: randomly select partitions (non-deterministic)	
 	partition ** parts = malloc(sizeof(partition) * xparts);
@@ -374,18 +446,27 @@ static void generate(zone * z)
 		}
 	}
 
+	
+
 	for (y = 0; y < z->height; y++) {
 		for (x = 0; x < z->width; x++) {
 			z->tiles[x][y].type = TILE_WALL;
 		}
 	}
 
-	for (i = 0; i < xparts; i++) {
+	partition part;
+	part.xmin = part.ymin = 0;	
+	part.xmax = z->width;
+	part.ymax = z->height;
+
+
+/*	for (i = 0; i < xparts; i++) {
 		for (j = 0; j < yparts; j++) {
 			generate_region(z,&parts[i][j]);
 		}
-	}
+	}*/
 
+	generate_region(z,&part);
 	// Set wall character
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
