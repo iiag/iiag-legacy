@@ -11,6 +11,10 @@
 
 static int max_width;
 static int max_height;
+
+static int scroll_x = 0;
+static int scroll_y = 0;
+
 static int last_col = NONE;
 
 WINDOW * memoscr;
@@ -22,7 +26,6 @@ void init_disp(void)
 	initscr();
 	raw();
 	noecho();
-	keypad(stdscr, TRUE);
 	getmaxyx(stdscr, max_height, max_width);
 
 	// just hide the cursor for now
@@ -31,11 +34,30 @@ void init_disp(void)
 	memoscr = newwin(1, max_width, 0, 0);
 	dispscr = newwin(max_height - 4, max_width, 1, 0);
 	statscr = newwin(3, max_width, max_height - 3, 0);
+
+	keypad(stdscr, TRUE);
+	keypad(dispscr, TRUE);
+	keypad(memoscr, TRUE);
+	keypad(statscr, TRUE);
 }
 
 void end_disp(void)
 {
 	endwin();
+}
+
+void disp_put(int x, int y, chtype ch)
+{
+	int w, h;
+
+	getmaxyx(dispscr, h, w);
+
+	x -= scroll_x;
+	y -= scroll_y;
+
+	if (x >= 0 && y >= 0 && x < w && y < h) {
+		mvwaddch(dispscr, y, x, ch);
+	}
 }
 
 void reset_memos(void)
@@ -76,6 +98,15 @@ void statline(int ln, const char * fmt, ...)
 	wrefresh(statscr);
 
 	va_end(vl);
+}
+
+void scroll_disp(int dx, int dy)
+{
+	scroll_x += dx;
+	scroll_y += dy;
+
+	if (scroll_x < 0) scroll_x = 0;
+	if (scroll_y < 0) scroll_y = 0;
 }
 
 int get_dispw(void)

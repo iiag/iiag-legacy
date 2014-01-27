@@ -82,7 +82,7 @@ void init_world(void)
 	load_iforms();
 	load_cforms();
 
-	*world.zones = zone_new(get_dispw(), get_disph());
+	*world.zones = zone_new(500, 300);
 
 	f = cform_new('@' | A_BOLD);
 	f->weight = TILE_MAX_WEIGHT / 2;
@@ -94,8 +94,8 @@ void init_world(void)
 	world.plyr.attack = 5;
 
 	do {
-		x = rand() % world.zones[0]->width;
-		y = rand() % world.zones[0]->height;
+		x = rand() % get_dispw();
+		y = rand() % get_disph();
 	} while (!crtr_tele(&world.plyr, x, y, *world.zones));
 
 	zone_update(world.plyr.z, x, y);

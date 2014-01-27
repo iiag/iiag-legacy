@@ -11,10 +11,10 @@
 #include "inventory.h"
 #include "walls.h"
 
-#define ROOM_INFREQ 60
+#define ROOM_INFREQ 45
 #define ITEM_INFREQ 80
 #define CRTR_INFREQ 100
-#define ROOM_MIN 60
+#define ROOM_MIN 1
 #define ITEM_MIN 40
 #define CRTR_MIN 15
 
@@ -203,17 +203,18 @@ void zone_update(zone * z, int x, int y)
 	}
 
 	z->tiles[x][y].ch = ch;
-	mvwaddch(dispscr, y, x, ch);
+	disp_put(x, y, ch);
 }
 
 void zone_draw(zone * z)
 {
 	int i, j;
 
+	wclear(dispscr);
+
 	for (i = 0; i < z->width; i++) {
 		for (j = 0; j < z->height; j++) {
-			mvwaddch(dispscr, j, i, z->tiles[i][j].ch);
-//			zone_update(z, i, j);
+			disp_put(i, j, z->tiles[i][j].ch);
 		}
 	}
 

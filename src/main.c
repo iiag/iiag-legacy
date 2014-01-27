@@ -54,6 +54,7 @@ int main(int argc, char ** argv)
 	update_status();
 
 	for (;;) {
+continue_loop:
 		c = wgetch(memoscr);
 		reset_memos();
 
@@ -71,10 +72,15 @@ int main(int argc, char ** argv)
 		case '.': plyr_act_drop();    break;
 		case 'c': plyr_act_consume(); break;
 		case 'w': plyr_act_equip();   break;
+		case KEY_LEFT:  scroll_disp(-1,  0); zone_draw(PLYR.z); goto continue_loop;
+		case KEY_RIGHT: scroll_disp( 1,  0); zone_draw(PLYR.z); goto continue_loop;
+		case KEY_UP:    scroll_disp( 0, -1); zone_draw(PLYR.z); goto continue_loop;
+		case KEY_DOWN:  scroll_disp( 0,  1); zone_draw(PLYR.z); goto continue_loop;
 		case ' ': break;
 		case 'q': goto cleanup;
 		default:
 			memo("Unknown key press: %c (%d)", c, c);
+			goto continue_loop;
 		}
 
 		step();
