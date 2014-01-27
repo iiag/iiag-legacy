@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <math.h>
 #include "item.h"
 #include "zone.h"
 #include "world.h"
@@ -26,13 +27,26 @@ typedef struct {
 	int xmin,ymin,xmax,ymax;
 } partition;
 
+typedef struct {
+	int x,y;
+} point_t;
 
+typedef struct {
+	double radius, angle;
+} polar_t;
+
+typedef struct {
+	polar_t polar;
+	point_t cart;
+} ptpair_t;
+
+/* Deprecated
 static int in_room(room * r, int x, int y)
 {
 	return x >= r->x && x < r->x + r->w
 		&& y >= r->y && y < r->y + r->h;
 }
-
+*/
 static int on(zone * z, int x, int y)
 {
 	if (x < 0) return 1;
@@ -59,6 +73,7 @@ static void set_wall_char(zone * z, int x, int y)
 	z->tiles[x][y].ch = wall_chars[ch];
 }
 
+/* Deprecated
 static void pick_random_subregion(zone * z,partition * p, int * ret)
 {
 	int x, y;
@@ -103,11 +118,12 @@ static void pick_random_subregion(zone * z,partition * p, int * ret)
 
 	fprintf(stderr,"New Region center is: (%d,%d)\n\n",ret[0],ret[1]);
 
-}
+}*/
 
 
 // Get the distance to the nearest edge
 // TODO: Optimize this
+/* Deprecated
 static int nearest_edge(zone * z, int * pos)
 {
 	int ret;
@@ -119,11 +135,168 @@ static int nearest_edge(zone * z, int * pos)
 	if ((z->height - pos[1]) < ret)
 		ret = (z->height - pos[1]);
 	return ret;
+} */
+
+static polar_t cart_to_polar(point_t *cart)
+{
+	polar_t ret;
+	
+	ret.radius = sqrt((cart->x * cart->x) + (cart->y * cart->y));
+	ret.angle = tan( ((float) cart->y) / ((float) cart->x));
+
+	return ret;
+}
+
+// OPTIMIZE: Please. Unecessarily memory intensive
+static void do_sort(point_t *pts, int num)
+{
+	int i,j;
+	int c;
+
+	ptpair_t *pairs = (ptpair_t*) malloc(sizeof(ptpair_t) * num);
+	ptpair_t *sorted_pairs = (ptpair_t*) malloc(sizeof(ptpair_t) * num);
+
+	// Generate pair array
+	for (i = 0; i < num; i++) {
+		pairs[i].cart = pts[i];
+		pairs[i].polar = cart_to_polar(&pts[i]);
+	}
+	
+	
+	for (i = 0; i < num; i++) {
+		c = 0;
+		for (j = 0; j < num; j++) {
+			if (pairs[i].polar.radius > pairs[j].polar.radius)
+				c++;
+		}
+		sorted_pairs[c] = pairs[i];
+	}
+
+	for (i = 0; i < num; i++) {
+		pts[i] = sorted_pairs[i].cart;
+	}
+
+	free(pairs);
+	free(sorted_pairs);
+}
+
+
+static void radial_sort(point_t * pts, int num)
+{
+	int i;
+	point_t sum = {0};
+	point_t avg;
+
+
+	for (i = 0; i < num; i++) {
+		sum.x += pts[i].x;
+		sum.y += pts[i].y;
+	}
+
+	// Centerpoint for the radial sort
+	avg.x = sum.x / num;	
+	avg.y = sum.y / num;	
+
+	// Change to the new center
+	for (i = 0; i < num; i++) {
+		pts[i].x -= avg.x;
+		pts[i].y -= avg.y;
+	}
+
+	// Sort by angle now
+	do_sort(pts,num);
+
+	// Reset the points back to being relative to partition
+	for (i = 0; i < num; i++) {
+		pts[i].x += avg.x;
+		pts[i].y += avg.y;
+	}
+
+}
+
+static void dig_room(zone * z, partition * p, point_t *pts, int num)
+{
+	int i,j;	
+	int d;
+	int dig = 0;
+	int dir; // Toggles between x and y (0 and 1)
+
+	dir = rand() % 2;
+	for (i = 0; i < num; i++) {
+		// Walk to the next point
+		for (d = ((int*) &pts[i])[dir]; d < ((int*) &pts[i+1 % num])[dir]; d++) {
+			// Set each of these zone tiles to floor
+			z->tiles[pts->x][pts->y].type = TILE_FLOOR;
+		}
+
+		dir = !dir;
+		
+		for (d = ((int*) &pts[i])[dir]; d < ((int*) &pts[i+1 % num])[dir]; d++) {
+			z->tiles[pts->x][pts->y].type = TILE_FLOOR;
+		}
+	}
+
+	/*
+	// Scan partition from xmin->xmax, digging floor from wall->wall
+	for (j = p->ymin; j < p->ymax; j++) {
+		for (i = p->xmin; i < p->xmax; i++) {
+			if (z->tiles[i][j].type == TILE_FLOOR)
+				dig = !dig;
+			
+			if (dig) 
+				z->tiles[i][j].type = TILE_FLOOR;				
+		}
+	}*/
 }
 
 
 // Generate a random region in the given boundary
 static void generate_region(zone * z, partition * p)
+{
+	int i;
+	// Number of pairs of points
+	int num_pts = 4;
+	int dir;
+
+	point_t diff;
+
+	diff.x = p->xmax - p->xmin;
+	diff.y = p->ymax - p->ymin;
+
+	point_t *pts = (point_t*) malloc(sizeof(point_t) * num_pts * 2);
+
+	// Generate a list of "paired" points
+	for (i = 0; i < num_pts; i+=2) {
+		dir = rand() % 2;
+		pts[i].x = rand() % diff.x;
+		pts[i].y = rand() % diff.y;
+	
+		// Keep one axis constant	
+		((int*) &pts[i+1])[(dir + 1) % 2] = ((int*) &pts[i])[(dir + 1) % 2];
+		// Vary the other
+		((int*) &pts[i+1])[dir] = (((int*) &pts[i])[dir]) + rand() % ((int*) &diff)[dir];
+	}
+
+	for (i = 0; i < num_pts; i++) {
+		z->tiles[pts[i].x+p->xmin][pts[i].y+p->ymin].ch = 'x';
+	}
+
+
+
+	radial_sort(pts,num_pts);
+	
+	for (i = 0; i < num_pts; i++) {
+		pts[i].x += p->xmin;
+		pts[i].y += p->ymin;
+	}
+
+
+	dig_room(z,p,pts,num_pts);
+	free(pts);
+}
+
+
+/*static void generate_region(zone * z, partition * p)
 {
 	fprintf(stderr,"x: %d -> %d\n",p->xmin,p->xmax);
 	fprintf(stderr,"y: %d -> %d\n",p->ymin,p->ymax);
@@ -172,7 +345,7 @@ static void generate_region(zone * z, partition * p)
 	
 	}
 
-}
+}*/
 
 
 static void generate(zone * z)
@@ -180,7 +353,8 @@ static void generate(zone * z)
 	int xparts,yparts;
 	int i,j;
 	int x,y;
-	
+
+	// WTF?
 	fill_walls();
 
 	fprintf(stderr,"Bounds: %dx%d\n",z->width,z->height);
