@@ -61,6 +61,8 @@ void load_cforms(void)
 	iml_lang_add(lang, IML_STRING, "name", cform, name);
 	iml_lang_add(lang, IML_INT, "max_health", cform, max_health);
 	iml_lang_add(lang, IML_INT, "max_stamina", cform, max_stamina);
+	iml_lang_add(lang, IML_INT, "attack", cform, def_attack);
+	iml_lang_add(lang, IML_INT, "ac", cform, def_ac);
 
 	world.cforms = iml_read(cform_file, lang);
 

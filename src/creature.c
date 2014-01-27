@@ -36,8 +36,8 @@ void crtr_init(creature * c, cform * f)
 	c->health  = f->max_health;
 	c->stamina = f->max_stamina;
 	c->ability = NULL;
-	c->attack  = 1;
-	c->ac      = 1;
+	c->attack  = f->def_attack;
+	c->ac      = f->def_ac;
 	c->name    = NULL;
 	c->level   = 1;
 	c->need_xp = req_xp(c);
