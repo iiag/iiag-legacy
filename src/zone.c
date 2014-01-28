@@ -248,63 +248,91 @@ static void radial_sort(point_t * pts, int num)
 
 }
 
+static int find_next_wall(zone * z, partition * p, int x, int y)
+{
+	int i = x;
+
+	if (z->tiles[x+1][y].type == TILE_FLOOR) return 0;
+
+	// Go until yer not on a floor
+	// TODO: Check bounds
+	while (z->tiles[i++][y].type == TILE_FLOOR) {
+		if (i >= p->xmax) return 0;
+	}
+	x = i;
+
+	for (; i < p->xmax; i++) {
+		if (z->tiles[i][y].type == TILE_FLOOR) return 1;
+	}
+
+	return 0;
+}
+
+static void dig_line(zone * z, partition * p, int y)
+{
+	int i,x;	
+	int dig = 0;
+
+	for (x = 0; x < p->xmax; x++) {
+		// TODO: handle horizontal borders
+
+		if (z->tiles[x][y].type == TILE_FLOOR) {
+
+			if (z->tiles[x+1][y].type == TILE_FLOOR) {
+				while (x < p->xmax) {
+					if (z->tiles[x][y].type != TILE_FLOOR) break;
+					x++;
+				}				
+				continue;
+			}
+
+			i = x+1;
+			while (i < p->xmax) {
+				if (z->tiles[i][y].type == TILE_FLOOR) break;
+				i++;
+			}
+
+			for (; x < i; x++)
+				z->tiles[x][y].type = TILE_FLOOR;
+		}
+
+	}
+}
+
+
 static void dig_room(zone * z, partition * p, point_t *pts, int num)
 {
 	int i,j;	
-	int d,del,tar;
+	int del;
 	int dig = 0;
 	int dir; // Toggles between x and y (0 and 1)
 
-	dir = 0;
+	int cur[2];
+
+	dir = rand() % 2;
 	for (i = 0; i < num; i++) {
-		// Walk to the next point
+		// Walk to the next point	
+		memcpy(cur,&pts[i],sizeof(int) * 2);
+		for (j = 0; j < 2; j++) {
 
-		del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
-		tar = abs( ((int*) &pts[(i+1) % num])[dir] - ((int*) &pts[i])[dir] );
-	
-		//wrlog("Going from point (%d,%d) to (%d,%d)", pts[i].x,pts[i].y,pts[(i+1) % num].x,pts[(i+1) % num].y);
-		//wrlog(" del is %d, tar is %d, dir is %d",del,tar,dir);
-		//wrlog(" %d -> %d",((int*) &pts[i])[dir],((int*) &pts[(i+1) % num])[dir]);
-
-		for (d = 0; abs(d) < tar; d += del) {
-			// Set each of these zone tiles to floor
-			//z->tiles[pts[i].x + (d * !dir)][pts[i].y + (d * dir)].type = TILE_FLOOR;
-			//z->tiles[pts[i].x + (d * !dir)][pts[i].y + (d * dir)].ch = c++;
-			//wrlog(" moving to (%d,%d)", pts[i].x + (d * !dir),pts[i].y + (d * dir));
-			z->tiles[pts[i].x + (d * !dir)][pts[i].y + (d * dir)].type = TILE_FLOOR;
-
-		}
-
-		//wrlog("Switching directions");
-		dir = !dir;
+			del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
+//			tar = abs( ((int*) &pts[(i+1) % num])[dir] - ((int*) &pts[i])[dir] );
 		
-		del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
-		tar = abs(((int*) &pts[(i+1) % num])[dir] - ((int*) &pts[i])[dir]);
-		
-		//wrlog(" del is %d, tar is %d, dir is %d",del,tar,dir);
-		//wrlog(" %d -> %d",((int*) &pts[i])[dir],((int*) &pts[(i+1) % num])[dir]);
+			for (; cur[dir] - ((int*) &pts[(i+1) % num])[dir] != 0; cur[dir] += del) {
+				// Set each of these zone tiles to floor
+				z->tiles[cur[0]][cur[1]].type = TILE_FLOOR;
+			}
 
-		for (d = 0; abs(d) < tar; d += del) {
-			//wrlog(" othering to (%d,%d)", ((!dir * pts[i].x) + (dir * pts[(i+1) % num].x)) + (d * !dir),pts[i].y + (d * dir), ((dir * pts[i].y) + (!dir * pts[(i+1) % num].y)) + (d * !dir));
-			z->tiles[((!dir * pts[i].x) + (dir * pts[(i+1) % num].x)) + (d * !dir)][((dir * pts[i].y) + (!dir * pts[(i+1) % num].y)) + (d * dir)].type = TILE_FLOOR;
+			dir = !dir;
 		}
 	}
 
-/*
+
 	// Scan partition from xmin->xmax, digging floor from wall->wall
 	for (j = p->ymin; j < p->ymax; j++) {
-		dig = 0;
-		for (i = p->xmin; i < p->xmax; i++) {
-			if (z->tiles[i][j].type == TILE_FLOOR)
-				dig = !dig;
-			
-			if (dig) 
-				z->tiles[i][j].type = TILE_FLOOR;				
-				z->tiles[i][j].ch = '.';
-				
-		}
+//		dig_line(z,p,j);
 	}
-*/
+
 }
 
 
@@ -432,7 +460,7 @@ static void generate(zone * z)
 	fprintf(stderr,"Bounds: %dx%d\n",z->width,z->height);
 
 	// TODO: Randomly pick these numbers
-	//xparts = yparts = 3;
+	xparts = yparts = 3;
 
 	// TODO: randomly select partitions (non-deterministic)	
 	partition ** parts = malloc(sizeof(partition) * xparts);
@@ -454,19 +482,19 @@ static void generate(zone * z)
 		}
 	}
 
-	partition part;
-	part.xmin = part.ymin = 0;	
-	part.xmax = z->width;
-	part.ymax = z->height;
+	//partition part;
+	//part.xmin = part.ymin = 0;	
+	//part.xmax = z->width;
+	//part.ymax = z->height;
 
 
-/*	for (i = 0; i < xparts; i++) {
+	for (i = 0; i < xparts; i++) {
 		for (j = 0; j < yparts; j++) {
 			generate_region(z,&parts[i][j]);
 		}
-	}*/
+	}
 
-	generate_region(z,&part);
+	//generate_region(z,&part);
 	// Set wall character
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
