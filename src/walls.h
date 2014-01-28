@@ -1,4 +1,4 @@
-chtype wall_chars[0xFF];
+chtype wall_chars[256];
 
 void fill_walls(void) {
 	int i = 0;
