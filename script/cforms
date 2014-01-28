@@ -26,3 +26,4 @@ fbR  { max_health = 10, attack = 2, char = F }
 fbR  { max_health = 10, attack = 2, char = F }
 fbR  { max_health = 10, attack = 2, char = F }
 gnat lord { max_health = 100, attack = 10, char = G }
+cosi brickette { max_health = 1337, attack = 1337, char = ! }
