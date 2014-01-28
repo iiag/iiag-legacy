@@ -31,7 +31,7 @@ void plyr_act_pickup(void)
 				inv_rm(PLYRT.inv, i);
 				memo("You pick up the %s", PLYR.inv->itms[j]->f->name);
 			} else {
-				memo("The %s is to heavy to pick up.", PLYRT.inv->itms[i]->f->name);
+				memo("The %s is too heavy to pick up.", PLYRT.inv->itms[i]->f->name);
 			}
 		} else {
 			memo("You try to pick it up, but then you realize it does not exist.");
