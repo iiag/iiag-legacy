@@ -73,6 +73,25 @@ static void set_wall_char(zone * z, int x, int y)
 	z->tiles[x][y].ch = wall_chars[ch];
 }
 
+static point_t get_center(point_t *pts, int num)
+{
+	int i;
+	point_t ret;
+	point_t sum = {0};
+	
+
+	for (i = 0; i < num; i++) {
+		sum.x += pts[i].x;
+		sum.y += pts[i].y;
+	}
+
+	// Centerpoint for the radial sort
+	ret.x = sum.x / num;	
+	ret.y = sum.y / num;		
+
+	return ret;
+}
+
 static polar_t cart_to_polar(point_t *cart)
 {
 	polar_t ret;
@@ -162,26 +181,6 @@ static void radial_sort(point_t * pts, int num)
 
 }
 
-static int find_next_wall(zone * z, partition * p, int x, int y)
-{
-	int i = x;
-
-	if (z->tiles[x+1][y].type == TILE_FLOOR) return 0;
-
-	// Go until yer not on a floor
-	// TODO: Check bounds
-	while (z->tiles[i++][y].type == TILE_FLOOR) {
-		if (i >= p->xmax) return 0;
-	}
-	x = i;
-
-	for (; i < p->xmax; i++) {
-		if (z->tiles[i][y].type == TILE_FLOOR) return 1;
-	}
-
-	return 0;
-}
-
 static void dig_tile(zone * z, partition * p, int x, int y)
 {
 	wrlog("entered on tile (%d,%d)",x,y);
@@ -193,6 +192,8 @@ static void dig_tile(zone * z, partition * p, int x, int y)
 		
 	wrlog("Landed on non-floor! digging...");
 	z->tiles[x][y].type = TILE_FLOOR;
+	z->tiles[x][y].ch = '.';
+
 	
 	for (i = -1; i <= 1; i++) {
 		for (j = -1; j <= 1; j++) {
@@ -208,11 +209,11 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 {
 	int i,j;	
 	int del = -2, prev_del = 2;
-	int dig = 0;
 	int dir, prev_dir = 2; // Toggles between x and y (0 and 1)
 
 	int cur[2];
 
+	// Dig the border
 	dir = rand() % 2;
 	for (i = 0; i < num; i++) {
 		// Walk to the next point	
@@ -229,6 +230,7 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 			for (; cur[dir] - ((int*) &pts[(i+1) % num])[dir] != 0; cur[dir] += del) {
 				// Set each of these zone tiles to floor
 				z->tiles[cur[0]][cur[1]].type = TILE_FLOOR;
+				z->tiles[cur[0]][cur[1]].ch = '.';
 			}
 
 			prev_dir = dir;	
@@ -238,13 +240,11 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 		}
 	}
 
-	// Scan partition from xmin->xmax, digging floor from wall->wall
-	//for (j = p->ymin; j < p->ymax; j++) {
-		//dig_line(z,p,j);
-	//}
-	dig_tile(z,p,
-	((p->xmax - p->xmin)/2) + p->xmin,
-	((p->ymax - p->ymin)/2) + p->ymin);
+	// Fill the room
+	point_t center = get_center(pts,num);
+
+	wrlog("starting to dig room in (%d,%d)",center.x,center.y);
+	dig_tile(z,p,center.x,center.y);
 }
 
 
