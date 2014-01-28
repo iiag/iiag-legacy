@@ -160,4 +160,7 @@ void plyr_ev_death(const char * reasons)
 void plyr_ev_lvlup(void)
 {
 	memo("Level up!");
+	PLYR.f->max_health += 5;
+	PLYR.health += 5;
+	PLYR.attack += 1;
 }
