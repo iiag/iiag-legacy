@@ -14,6 +14,8 @@ struct creature;
 
 #define DEAD (-1)
 
+extern const char * slot_names[];
+
 typedef enum slot {
 	NO_SLOT = -1,
 	LEFT_HAND = 0,

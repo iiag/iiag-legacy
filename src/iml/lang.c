@@ -40,7 +40,7 @@ void iml_lang__add(iml_lang * l, iml_type type, char * name, int off)
 #undef REALLOC_SIZE
 }
 
-void iml_lang__add_enum(iml_lang * l, char * name, int off, char ** ev, int ec)
+void iml_lang__add_enum(iml_lang * l, char * name, int off, const char ** ev, int ec)
 {
 	iml_lang__add(l, IML_ENUM, name, off);
 

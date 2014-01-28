@@ -77,11 +77,12 @@ continue_loop:
 		case 'u': plyr_act_move( 1, -1); break;
 		case 'b': plyr_act_move(-1,  1); break;
 		case 'n': plyr_act_move( 1,  1); break;
-		case 'i': plyr_act_inv();     break;
-		case ',': plyr_act_pickup();  break;
-		case '.': plyr_act_drop();    break;
-		case 'c': plyr_act_consume(); break;
-		case 'w': plyr_act_equip();   break;
+		case 'i': plyr_act_inv();      break;
+		case 'E': plyr_act_equipped(); break;
+		case ',': plyr_act_pickup();   break;
+		case '.': plyr_act_drop();     break;
+		case 'c': plyr_act_consume();  break;
+		case 'w': plyr_act_equip();    break;
 		case KEY_LEFT:  scroll_disp(-1,  0); zone_draw(PLYR.z); goto continue_loop;
 		case KEY_RIGHT: scroll_disp( 1,  0); zone_draw(PLYR.z); goto continue_loop;
 		case KEY_UP:    scroll_disp( 0, -1); zone_draw(PLYR.z); goto continue_loop;

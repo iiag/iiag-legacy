@@ -15,6 +15,7 @@
 void plyr_act_pickup(void);
 void plyr_act_drop(void);
 void plyr_act_inv(void);
+void plyr_act_equipped(void);
 void plyr_act_move(int, int);
 void plyr_act_consume(void);
 void plyr_act_equip(void);

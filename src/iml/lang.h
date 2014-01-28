@@ -19,7 +19,7 @@ typedef struct {
 	iml_type type;
 	char * name;
 	int offset;
-	char ** enum_strv;
+	const char ** enum_strv;
 	int enum_strc;
 	int bool_bit;
 } iml_field;
@@ -76,7 +76,7 @@ void iml_lang_free(iml_lang *);
 // very secret
 iml_lang * iml_lang__new(int, void *);
 void iml_lang__add(iml_lang *, iml_type, char *, int);
-void iml_lang__add_enum(iml_lang *, char *, int, char **, int);
+void iml_lang__add_enum(iml_lang *, char *, int, const char **, int);
 void iml_lang__add_bool(iml_lang *, char *, int, int);
 
 // for use in other iml functions

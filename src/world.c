@@ -20,7 +20,7 @@ world_st world;
 const char * iform_file = "script/iforms";
 const char * cform_file = "script/cforms";
 
-static char * slot_names[] = {
+const char * slot_names[] = {
 	"left-hand",
 	"right-hand",
 	"head",

@@ -67,6 +67,25 @@ void plyr_act_inv(void)
 	redraw();
 }
 
+void plyr_act_equipped(void)
+{
+	int i;
+
+	wmove(dispscr, 0, 0);
+	wprintw(dispscr, "Your equipment:\n");
+
+	for (i = 0; i < MAX_SLOTS; i++) {
+		wprintw(dispscr, " %s: ", slot_names[i]);
+
+		if (PLYR.slots[i] == NULL) wprintw(dispscr, "nothing\n");
+		else wprintw(dispscr, "%s\n", PLYR.slots[i]->f->name);
+	}
+
+	wgetch(dispscr);
+	zone_draw(PLYR.z);
+	wrefresh(dispscr); 
+}
+
 void plyr_act_move(int dx, int dy)
 {
 	int dam;
