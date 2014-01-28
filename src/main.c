@@ -52,7 +52,7 @@ int main(int argc, char ** argv)
 {
 	int c;
 
-	srand(time(NULL));
+	srandom(time(NULL));
 
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);

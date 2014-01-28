@@ -142,8 +142,8 @@ int crtr_attack(creature * attacker, creature * defender)
 {
 	int damage, xp;
 
-	damage = rand() % (attacker->attack + 1);
-	damage -= rand() % (defender->ac + 1);
+	damage = random() % (attacker->attack + 1);
+	damage -= random() % (defender->ac + 1);
 	if (damage < 0) damage = 0;
 
 	defender->health -= damage;

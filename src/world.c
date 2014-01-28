@@ -100,8 +100,8 @@ void init_world(void)
 	world.plyr.attack = 5;
 
 	do {
-		x = rand() % get_dispw();
-		y = rand() % get_disph();
+		x = random() % get_dispw();
+		y = random() % get_disph();
 	} while (!crtr_tele(&world.plyr, x, y, *world.zones));
 
 	zone_update(world.plyr.z, x, y);

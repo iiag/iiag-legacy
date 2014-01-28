@@ -73,14 +73,14 @@ static void generate(zone * z)
 	}
 
 	// generate rooms
-	rc = rand() % ((z->width * z->height) / ROOM_INFREQ) + ROOM_MIN;
+	rc = random() % ((z->width * z->height) / ROOM_INFREQ) + ROOM_MIN;
 	rv = malloc(sizeof(room) * rc);
 
 	for (i = 0; i < rc; i++) {
-		rv[i].w = rand() % 12 + 5;
-		rv[i].h = rand() % 8 + 3;
-		rv[i].x = rand() % (z->width  - rv[i].w - 1) + 1;
-		rv[i].y = rand() % (z->height - rv[i].h - 1) + 1;
+		rv[i].w = random() % 12 + 5;
+		rv[i].h = random() % 8 + 3;
+		rv[i].x = random() % (z->width  - rv[i].w - 1) + 1;
+		rv[i].y = random() % (z->height - rv[i].h - 1) + 1;
 	}
 
 
@@ -111,13 +111,13 @@ static void generate(zone * z)
 
 	// place some random junk
 	if (world.iform_cnt != 0) {
-		max = rand() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
+		max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
 		for (i = max; i >= 0; i--) {
-			it = item_new(world.iforms[rand() % world.iform_cnt]);
+			it = item_new(world.iforms[random() % world.iform_cnt]);
 
 			do {
-				x = rand() % z->width;
-				y = rand() % z->height;
+				x = random() % z->width;
+				y = random() % z->height;
 			} while (z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it));
 
 			item_tele(it, x, y, z);
@@ -127,13 +127,13 @@ static void generate(zone * z)
 
 	// place some more random junk
 	if (world.cform_cnt != 0) {
-		max = rand() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
+		max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
 		for (i = max; i >= 0; i--) {
-			cr = crtr_new(world.cforms[rand() % world.cform_cnt]);
+			cr = crtr_new(world.cforms[random() % world.cform_cnt]);
 
 			do {
-				x = rand() % z->width;
-				y = rand() % z->height;
+				x = random() % z->width;
+				y = random() % z->height;
 			} while (z->tiles[x][y].impassible || z->tiles[x][y].crtr != NULL);
 
 			crtr_tele(cr, x, y, z);
