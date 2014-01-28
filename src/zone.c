@@ -43,16 +43,10 @@ typedef struct {
 	point_t cart;
 } ptpair_t;
 
+// Unglobal this
 point_t avg;
 
 
-/* Deprecated
-static int in_room(room * r, int x, int y)
-{
-	return x >= r->x && x < r->x + r->w
-		&& y >= r->y && y < r->y + r->h;
-}
-*/
 static int on(zone * z, int x, int y)
 {
 	if (x < 0) return 1;
@@ -78,70 +72,6 @@ static void set_wall_char(zone * z, int x, int y)
 
 	z->tiles[x][y].ch = wall_chars[ch];
 }
-
-/* Deprecated
-static void pick_random_subregion(zone * z,partition * p, int * ret)
-{
-	int x, y;
-	partition sqr = {0};
-
-	int edge;
-
-	// Approximately Big
-	sqr.xmin = 1000;
-	sqr.ymin = 1000;
-
-	for (y = p->ymin; y < p->ymax; y++) {
-		for (x = p->xmin; x < p->xmax; x++) {
-			// TODO: Optimize this
-			if (z->tiles[x][y].type & TILE_FLOOR) {
-				if (x < sqr.xmin)
-					sqr.xmin = x;
-				else if (x > sqr.xmax)
-					sqr.xmax = x;
-
-				if (y < sqr.ymin)
-					sqr.ymin = y;
-				else if (y > sqr.ymax)
-					sqr.ymax = y;
-
-			}
-		}
-	}
-
-	edge = random() % 4;
-
-	fprintf(stderr,"Partition is (%d,%d) to (%d,%d)\n",sqr.xmin,sqr.ymin,sqr.xmax,sqr.ymax);
-	fprintf(stderr,"Random edge is: %d, which is %d\n",edge, ((int*) &sqr)[edge]);
-	fprintf(stderr,"Picking a random center value between %d <-> %d\n",
-		((int*) &sqr)[((edge % 2) + 1) % 4],
-		((int*) &sqr)[((edge % 2) + 3) % 4]);
-
-
-
-	ret[edge % 2] = ((int*) &sqr)[edge];
-	ret[(edge + 1) % 2] = (rand() % abs( ((int*) &sqr)[((edge % 2) + 3) % 4] - ((int*) &sqr)[((edge % 2) + 1) % 4]) ) + ((int*) &sqr)[(edge + 1) % 2]; 
-
-	fprintf(stderr,"New Region center is: (%d,%d)\n\n",ret[0],ret[1]);
-
-}*/
-
-
-// Get the distance to the nearest edge
-// TODO: Optimize this
-/* Deprecated
-static int nearest_edge(zone * z, int * pos)
-{
-	int ret;
-	ret = pos[0];
-	if (pos[1] < ret)
-		ret = pos[1];
-	if ((z->width - pos[0]) < ret)
-		ret = (z->width - pos[0]);
-	if ((z->height - pos[1]) < ret)
-		ret = (z->height - pos[1]);
-	return ret;
-} */
 
 static polar_t cart_to_polar(point_t *cart)
 {
@@ -200,6 +130,8 @@ static void radial_sort(point_t * pts, int num)
 {
 	int i;
 	point_t sum = {0};
+
+	// NOTE: Temporarily global
 	//point_t avg;
 
 
@@ -211,24 +143,6 @@ static void radial_sort(point_t * pts, int num)
 	// Centerpoint for the radial sort
 	avg.x = sum.x / num;	
 	avg.y = sum.y / num;		
-	/*sum.x = 99999;
-	sum.y = 99999;
-
-	for (i = 0; i < num; i++) {
-		if (sum.x > pts[i].x)
-			sum.x = pts[i].x;
-		if (sum.y > pts[i].y)
-			sum.y = pts[i].y;
-		if (avg.x < pts[i].x)
-			avg.x = pts[i].x;
-		if (avg.y < pts[i].y)
-			avg.y = pts[i].y;
-	}
-
-	avg.x = (avg.x + sum.x) / 2;
-	avg.y = (avg.y + sum.y) / 2;
-	*/
-
 
 
 	// Change to the new center
@@ -268,37 +182,27 @@ static int find_next_wall(zone * z, partition * p, int x, int y)
 	return 0;
 }
 
-static void dig_line(zone * z, partition * p, int y)
+static void dig_tile(zone * z, partition * p, int x, int y)
 {
-	int i,x;	
-	int dig = 0;
-
-	for (x = 0; x < p->xmax; x++) {
-		// TODO: handle horizontal borders
-
-		if (z->tiles[x][y].type == TILE_FLOOR) {
-
-			if (z->tiles[x+1][y].type == TILE_FLOOR) {
-				while (x < p->xmax) {
-					if (z->tiles[x][y].type != TILE_FLOOR) break;
-					x++;
-				}				
+	wrlog("entered on tile (%d,%d)",x,y);
+	int i,j;
+	// Base Cases
+	if ((x >= p->xmax) || ( x < p->xmin)) { wrlog("...nope, x not in range");return;}
+	if ((y >= p->ymax) || ( y < p->ymin)) { wrlog("...nope, x not in range");return;}
+	if (z->tiles[x][y].type == TILE_FLOOR) { wrlog("...hit floor, done here");return;}
+		
+	wrlog("Landed on non-floor! digging...");
+	z->tiles[x][y].type = TILE_FLOOR;
+	
+	for (i = -1; i <= 1; i++) {
+		for (j = -1; j <= 1; j++) {
+			if ((!i) && (!j))
 				continue;
-			}
-
-			i = x+1;
-			while (i < p->xmax) {
-				if (z->tiles[i][y].type == TILE_FLOOR) break;
-				i++;
-			}
-
-			for (; x < i; x++)
-				z->tiles[x][y].type = TILE_FLOOR;
+			dig_tile(z,p,x+j,y+i);
 		}
-
 	}
-}
 
+}
 
 static void dig_room(zone * z, partition * p, point_t *pts, int num)
 {
@@ -335,10 +239,12 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 	}
 
 	// Scan partition from xmin->xmax, digging floor from wall->wall
-	for (j = p->ymin; j < p->ymax; j++) {
-//		dig_line(z,p,j);
-	}
-
+	//for (j = p->ymin; j < p->ymax; j++) {
+		//dig_line(z,p,j);
+	//}
+	dig_tile(z,p,
+	((p->xmax - p->xmin)/2) + p->xmin,
+	((p->ymax - p->ymin)/2) + p->ymin);
 }
 
 
@@ -401,57 +307,6 @@ static void generate_region(zone * z, partition * p)
 	free(pts);
 }
 
-
-/*static void generate_region(zone * z, partition * p)
-{
-	fprintf(stderr,"x: %d -> %d\n",p->xmin,p->xmax);
-	fprintf(stderr,"y: %d -> %d\n",p->ymin,p->ymax);
-	
-
-	// Find the center of the partition
-	//int cx = ((p->xmax - p->xmin) / 2) + p->xmin;
-	//int cy = ((p->ymax - p->ymin) / 2) + p->ymin;
-	
-	int cx = (rand() % (p->xmax - p->xmin - 6)) + p->xmin + 3;
-	int cy = (rand() % (p->ymax - p->ymin - 6)) + p->ymin + 3;
-	
-	fprintf(stderr,"center: (%d,%d)\n\n",cx,cy);
-
-	// Number of subsquares to generate the room
-	int squares = 20;//rand() % 5 + 3;
-
-	int i,j,s,rad,temp;
-	int r[2];
-
-
-	// Do the initial starting square	
-	for (i = -2; i <= 2; i++) {
-		for (j = -2; j <= 2; j++) {
-			z->tiles[cx+j][cy+i].type = TILE_FLOOR;
-			z->tiles[cx+j][cy+i].ch   = 'X';
-		}
-	}
-
-	for(s = 0; s < squares; s++) {
-		pick_random_subregion(z,p,r); 
-		fprintf(stderr,"Random Subregion center: (%d,%d)\n",r[0],r[1]);
-		// Picks a random radius for the square from (currently) 0->3, unless an edge is closer
-		temp = nearest_edge(z,r);
-		if (temp < 3) continue; // Too close to an edge, bailing.
-
-		rad = random() % ((temp < 3) ? temp-1 : 3) + 1;
-	
-		// TODO: allow rectangles
-		for (i = -rad; i <= rad; i++) {
-			for (j = -rad; j <=rad; j++) {
-				z->tiles[r[0]+j][r[1]+i].type = TILE_FLOOR;
-				z->tiles[r[0]+j][r[1]+i].ch   = '.';
-			}
-		}
-	
-	}
-
-}*/
 
 
 static void generate(zone * z)
