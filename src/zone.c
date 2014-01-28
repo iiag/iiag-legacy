@@ -186,7 +186,7 @@ static void do_sort(point_t *pts, int num)
 	}
 
 	for (i = 0; i < num; i++) {
-		wrlog("(%f, %f) : (%d,%d)",sorted_pairs[i].polar.radius,sorted_pairs[i].polar.angle,sorted_pairs[i].cart.x,sorted_pairs[i].cart.y);
+		//wrlog("(%f, %f) : (%d,%d)",sorted_pairs[i].polar.radius,sorted_pairs[i].polar.angle,sorted_pairs[i].cart.x,sorted_pairs[i].cart.y);
 	}
 
 
@@ -303,9 +303,9 @@ static void dig_line(zone * z, partition * p, int y)
 static void dig_room(zone * z, partition * p, point_t *pts, int num)
 {
 	int i,j;	
-	int del;
+	int del = -2, prev_del = 2;
 	int dig = 0;
-	int dir; // Toggles between x and y (0 and 1)
+	int dir, prev_dir = 2; // Toggles between x and y (0 and 1)
 
 	int cur[2];
 
@@ -314,19 +314,25 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 		// Walk to the next point	
 		memcpy(cur,&pts[i],sizeof(int) * 2);
 		for (j = 0; j < 2; j++) {
-
+			prev_del = del;
 			del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
 //			tar = abs( ((int*) &pts[(i+1) % num])[dir] - ((int*) &pts[i])[dir] );
-		
+
+			if ((prev_dir == dir) && (prev_del == -del)) {
+				dir = !dir;
+				del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
+			}
 			for (; cur[dir] - ((int*) &pts[(i+1) % num])[dir] != 0; cur[dir] += del) {
 				// Set each of these zone tiles to floor
 				z->tiles[cur[0]][cur[1]].type = TILE_FLOOR;
 			}
 
-			dir = !dir;
+			prev_dir = dir;	
+			if (!j) {
+				dir = !dir;
+			}
 		}
 	}
-
 
 	// Scan partition from xmin->xmax, digging floor from wall->wall
 	for (j = p->ymin; j < p->ymax; j++) {
@@ -365,17 +371,17 @@ static void generate_region(zone * z, partition * p)
 	}
 
 
-	wrlog("Before sort");
+	//wrlog("Before sort");
 
 	for (i = 0; i < num_pts; i++) {
-		wrlog("%d: (%d,%d)",i,pts[i].x,pts[i].y);	
+	//	wrlog("%d: (%d,%d)",i,pts[i].x,pts[i].y);	
 	}
 
 	radial_sort(pts,num_pts);
-	wrlog("After sort:");
+	//wrlog("After sort:");
 
 	for (i = 0; i < num_pts; i++) {
-		wrlog("%d: (%d,%d)",i,pts[i].x,pts[i].y);	
+		//wrlog("%d: (%d,%d)",i,pts[i].x,pts[i].y);	
 		pts[i].x += p->xmin;
 		pts[i].y += p->ymin;
 	}
