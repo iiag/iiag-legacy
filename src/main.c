@@ -5,6 +5,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <assert.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include "item.h"
@@ -41,11 +42,20 @@ static void step(void)
 	step = !step;
 }
 
+static void sig_handler(int rc)
+{
+	end_disp();
+	exit(rc);
+}
+
 int main(int argc, char ** argv)
 {
 	int c;
 
 	srand(time(NULL));
+
+	signal(SIGSEGV, sig_handler);
+	signal(SIGINT,  sig_handler);
 
 	init_disp();
 	init_world();
