@@ -145,7 +145,7 @@ void * iml_read(const char * fn, iml_lang * lang)
 		igspaces(&buf);
 		if (!*buf) break;
 
-		name = next_token(&buf, "{} \t\n\v\f\r");
+		name = next_token(&buf, "{}");
 		igspaces(&buf);
 		expect(&buf, '{');
 

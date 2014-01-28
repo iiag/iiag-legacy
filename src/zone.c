@@ -11,10 +11,10 @@
 #include "inventory.h"
 #include "walls.h"
 
-#define ROOM_INFREQ 45
+#define ROOM_INFREQ 40
 #define ITEM_INFREQ 80
 #define CRTR_INFREQ 100
-#define ROOM_MIN 1
+#define ROOM_MIN 100
 #define ITEM_MIN 40
 #define CRTR_MIN 15
 

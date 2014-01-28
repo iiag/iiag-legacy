@@ -1,6 +1,28 @@
 # script/cforms
 
 gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnat { max_health = 2, char = g }
+gnot { max_health = 2, attack = 4, char = g }
+gnot { max_health = 2, attack = 4, char = g }
+gnot { max_health = 2, attack = 4, char = g }
 gnot { max_health = 2, attack = 4, char = g }
 fbir { max_health = 6, char = f }
+fbir { max_health = 6, char = f }
+fbir { max_health = 6, char = f }
+fbir { max_health = 6, char = f }
+fbir { max_health = 6, char = f }
+fbir { max_health = 6, char = f }
 fbR  { max_health = 10, attack = 2, char = F }
+fbR  { max_health = 10, attack = 2, char = F }
+fbR  { max_health = 10, attack = 2, char = F }
+fbR  { max_health = 10, attack = 2, char = F }
+gnat lord { max_health = 100, attack = 10, char = G }

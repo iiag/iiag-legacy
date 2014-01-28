@@ -23,7 +23,11 @@ const char * cform_file = "script/cforms";
 static char * slot_names[] = {
 	"left-hand",
 	"right-hand",
-	"head"
+	"head",
+	"torso",
+	"cape",
+	"legs",
+	"feet"
 };
 
 void load_iforms(void)

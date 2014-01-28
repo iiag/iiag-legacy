@@ -45,3 +45,46 @@ breadstick {
 	modify_attack = 4,
 	slot = right-hand
 }
+
+magic cape {
+	equipable,
+	char = \,
+	weight = 4,
+	modify_ac = 5,
+	modify_attack = 10,
+	slot = cape
+}
+
+cloak of darkness {
+	equipable,
+	char = \,
+	weight = 80,
+	modify_ac = 2700,
+	modify_attack = -1000,
+	slot = cape
+}
+
+quaz boots {
+	equipable,
+	char = ",
+	weight = 120,
+	modify_ac = 14,
+	slot = feet
+}
+
+hiking boots {
+	equipable,
+	char = ",
+	weight = 70,
+	modify_ac = 1,
+	slot = feet
+}
+
+death stick {
+	equipable,
+	char = /,
+	weight = 499,
+	modify_ac = -100,
+	modify_attack = 9001,
+	slot = right-hand
+}
