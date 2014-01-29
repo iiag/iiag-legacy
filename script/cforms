@@ -1,5 +1,4 @@
 # script/cforms
-
 gnat { max_health = 2, char = g }
 gnat { max_health = 2, char = g }
 gnat { max_health = 2, char = g }
