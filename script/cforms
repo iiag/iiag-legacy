@@ -26,4 +26,16 @@ fbR  { max_health = 10, attack = 2, char = F }
 fbR  { max_health = 10, attack = 2, char = F }
 fbR  { max_health = 10, attack = 2, char = F }
 gnat lord { max_health = 100, attack = 10, char = G }
+derp {max_health = 5, attack = 10, char = p}
+derp {max_health = 5, attack = 10, char = p}
+derp {max_health = 5, attack = 10, char = p}
+derp {max_health = 5, attack = 10, char = p}
+derp {max_health = 5, attack = 10, char = p}
+derp {max_health = 5, attack = 10, char = p}
+gerp {max_health = 5, attack = 5, char = p}
+gerp {max_health = 5, attack = 5, char = p}
+gerp {max_health = 5, attack = 5, char = p}
+gerp {max_health = 5, attack = 5, char = p}
+glorp {max_health = 3 , attack = 3, char = p}
+glorp {max_health = 3 , attack = 3, char = p}
 cosi brickette { max_health = 1337, attack = 1337, char = ! }
