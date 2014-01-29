@@ -3,6 +3,7 @@
 //
 
 #include <assert.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #include "item.h"
@@ -20,7 +21,6 @@
 #define ITEM_MIN 40
 #define CRTR_MIN 15
 
-#define PI 3.14159265
 
 typedef struct {//specifies room with x and y coordinates adn w and h for width and height
 	int x, y, w, h;
@@ -99,8 +99,8 @@ static polar_t cart_to_polar(point_t *cart)
 	ret.radius = sqrt((cart->x * cart->x) + (cart->y * cart->y));
 	ret.angle = atan2( cart->y, cart->x);
 
-//	if (cart->x < 0) ret.angle += PI;
-//	else if (cart->y < 0) ret.angle = (2*PI) + ret.angle;
+//	if (cart->x < 0) ret.angle += M_PI;
+//	else if (cart->y < 0) ret.angle = (2*M_PI) + ret.angle;
 
 	return ret;
 }
@@ -133,11 +133,6 @@ static void do_sort(point_t *pts, int num)
 	for (i = 0; i < num; i++) {
 		pts[i] = sorted_pairs[i].cart;
 	}
-
-	for (i = 0; i < num; i++) {
-		//wrlog("(%f, %f) : (%d,%d)",sorted_pairs[i].polar.radius,sorted_pairs[i].polar.angle,sorted_pairs[i].cart.x,sorted_pairs[i].cart.y);
-	}
-
 
 
 	free(pairs);
@@ -181,27 +176,58 @@ static void radial_sort(point_t * pts, int num)
 
 }
 
+static int prospect_tile(zone * z, partition * p, int ** part_map, int x, int y)
+{
+	int i,j;
+	int ret = 1;
+
+	if ((x >= p->xmax) || ( x < p->xmin)) return 0;
+	if ((y >= p->ymax) || ( y < p->ymin)) return 0;
+
+	if (z->tiles[x][y].type != TILE_WALL) return 1;
+	if (part_map[x][y]) return 1;
+	
+	part_map[x][y] = 1;
+
+	for (j = -1; j <= 1; j++) {
+		for (i = -1; i <= 1; i++) {
+			if ((!i) && (!j))
+				continue;
+			ret = ret && prospect_tile(z,p,part_map,x+i,y+j);
+		}
+	}
+
+	return ret;
+}
+
+
+
 static void dig_tile(zone * z, partition * p, int x, int y)
 {
-	wrlog("entered on tile (%d,%d)",x,y);
-	int i,j;
+	//wrlog("entered on tile (%d,%d)",x,y);
+	int i,j,edge = 0;
 	// Base Cases
-	if ((x >= p->xmax) || ( x < p->xmin)) { wrlog("...nope, x not in range");return;}
-	if ((y >= p->ymax) || ( y < p->ymin)) { wrlog("...nope, x not in range");return;}
-	if (z->tiles[x][y].type == TILE_FLOOR) { wrlog("...hit floor, done here");return;}
+	if ((x >= p->xmax) || ( x < p->xmin)) return;
+	if ((y >= p->ymax) || ( y < p->ymin)) return;
+	if (z->tiles[x][y].type == TILE_FLOOR) return;
+	if (z->tiles[x][y].type == TILE_EDGE) edge = 1; //return;
 		
-	wrlog("Landed on non-floor! digging...");
+	//wrlog("Landed on non-floor! digging...");
 	z->tiles[x][y].type = TILE_FLOOR;
 	z->tiles[x][y].ch = '.';
 
 	
-	for (i = -1; i <= 1; i++) {
-		for (j = -1; j <= 1; j++) {
+	for (j = -1; j <= 1; j++) {
+		for (i = -1; i <= 1; i++) {
 			if ((!i) && (!j))
 				continue;
-			dig_tile(z,p,x+j,y+i);
+			if ((x+i < 0) || (x+i >= z->width)) continue;
+			if ((y+j < 0) || (y+j >= z->height)) continue;
+			if ((!edge) || (z->tiles[x+i][y+j].type == TILE_EDGE))
+				dig_tile(z,p,x+i,y+j);
 		}
 	}
+
 
 }
 
@@ -229,8 +255,8 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 			}
 			for (; cur[dir] - ((int*) &pts[(i+1) % num])[dir] != 0; cur[dir] += del) {
 				// Set each of these zone tiles to floor
-				z->tiles[cur[0]][cur[1]].type = TILE_FLOOR;
-				z->tiles[cur[0]][cur[1]].ch = '.';
+				z->tiles[cur[0]][cur[1]].type = TILE_EDGE;
+				z->tiles[cur[0]][cur[1]].ch = '^'; // DEBUG PORPOISES
 			}
 
 			prev_dir = dir;	
@@ -243,8 +269,27 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 	// Fill the room
 	point_t center = get_center(pts,num);
 
-	wrlog("starting to dig room in (%d,%d)",center.x,center.y);
-	dig_tile(z,p,center.x,center.y);
+
+	int ** room_map;
+
+	room_map = (int**) calloc(1,sizeof(int*) * z->width);
+	for (i = 0; i < z->width; i++)
+		room_map[i] = (int*) calloc(1,sizeof(int) * z->height);
+
+	int pros = prospect_tile(z,p,room_map,center.x,center.y);
+
+	for (i = 0; i < z->width; i++)
+		free(room_map[i]);
+	free(room_map);
+
+	wrlog("Prospect said: %d",pros);
+
+	if (pros) {
+		wrlog("starting to dig room in (%d,%d)",center.x,center.y);
+		dig_tile(z,p,center.x,center.y);
+	} else {
+		wrlog("Bad region detected, rejecting");
+	}
 }
 
 
@@ -259,49 +304,37 @@ static void generate_region(zone * z, partition * p)
 
 	point_t diff;
 
-	diff.x = p->xmax - p->xmin;
-	diff.y = p->ymax - p->ymin;
+	diff.x = p->xmax - p->xmin - 2;
+	diff.y = p->ymax - p->ymin - 2;
 
 	point_t *pts = (point_t*) malloc(sizeof(point_t) * num_pts);
 
 	// Generate a list of "paired" points
 	for (i = 0; i < num_pts; i+=2) {
 		dir = rand() % 2;
-		pts[i].x = rand() % diff.x;
-		pts[i].y = rand() % diff.y;
+		pts[i].x = (rand() % diff.x) + 1;
+		pts[i].y = (rand() % diff.y) + 1;
 	
 		// Keep one axis constant	
 		((int*) &pts[i+1])[!dir] = ((int*) &pts[i])[!dir];
 		// Vary the other
-		((int*) &pts[i+1])[dir] = ((((int*) &pts[i])[dir]) + rand()) % ((int*) &diff)[dir];
-	}
-
-
-	//wrlog("Before sort");
-
-	for (i = 0; i < num_pts; i++) {
-	//	wrlog("%d: (%d,%d)",i,pts[i].x,pts[i].y);	
+		((int*) &pts[i+1])[dir] = ((((int*) &pts[i])[dir]) + (rand() % ((int*) &diff)[dir])) % ((int*) &diff)[dir];
 	}
 
 	radial_sort(pts,num_pts);
-	//wrlog("After sort:");
 
 	for (i = 0; i < num_pts; i++) {
-		//wrlog("%d: (%d,%d)",i,pts[i].x,pts[i].y);	
 		pts[i].x += p->xmin;
 		pts[i].y += p->ymin;
 	}
 
 	for (i = 0; i < num_pts; i++) {
-		z->tiles[pts[i].x][pts[i].y].ch = '0'+i;
 		z->tiles[pts[i].x][pts[i].y].type = TILE_FLOOR;
+		z->tiles[pts[i].x][pts[i].y].ch = '.';
 	}
 
-	z->tiles[avg.x + p->xmin][avg.y + p->ymin].type = 0x0;
-	z->tiles[avg.x + p->xmin][avg.y + p->ymin].ch = '?';
-
-	
-
+//	z->tiles[avg.x + p->xmin][avg.y + p->ymin].type = 0x0;
+//	z->tiles[avg.x + p->xmin][avg.y + p->ymin].ch = '?';
 
 	dig_room(z,p,pts,num_pts);
 	free(pts);
@@ -309,13 +342,57 @@ static void generate_region(zone * z, partition * p)
 
 
 
+
+
+static void crawl_room(zone * z, int ** room_map, int value, int x, int y)
+{
+	int i,j;
+	if ((x < 0) || ( x >= z->width)) return;
+	if ((y < 0) || ( y >= z->height)) return;
+	if (z->tiles[x][y].type == TILE_WALL) return;
+	if (room_map[x][y]) return;
+
+	room_map[x][y] = value;
+
+	for (i = -1; i <= 1; i++) {
+		for (j = -1; j <= 1; j++) {
+			if ((!i) && (!j)) continue;
+			if ((x+i < 0) || (x+i >= z->width)) continue;
+			if ((y+j < 0) || (y+j >= z->height)) continue;
+			crawl_room(z,room_map,value,x+j,y+i);
+		}
+	}
+
+
+
+}
+
+static void detect_rooms(zone * z, int ** room_map, int *num_rooms)
+{
+	int x,y;	
+	*num_rooms = 1;
+
+	for (y = 0; y < z->height; y++) {
+		for (x = 0; x < z->width; x++) {
+			if ((z->tiles[x][y].type == TILE_FLOOR) && (room_map[x][y] == 0))
+				crawl_room(z,room_map, (*num_rooms)++, x, y);
+		}
+	}
+
+	// DEBUG PORPOISES
+	for (y = 0; y < z->height; y++) {
+		for (x = 0; x < z->width; x++) {
+			if (room_map[x][y] != 0) z->tiles[x][y].ch = '0'+ room_map[x][y];
+		}
+	}
+}
+
 static void generate(zone * z)
 {
 	int xparts,yparts;
 	int i,j;
 	int x,y;
 
-	// WTF?
 	fill_walls();
 
 	fprintf(stderr,"Bounds: %dx%d\n",z->width,z->height);
@@ -324,7 +401,7 @@ static void generate(zone * z)
 	xparts = yparts = 3;
 
 	// TODO: randomly select partitions (non-deterministic)	
-	partition ** parts = malloc(sizeof(partition) * xparts);
+	partition ** parts = malloc(sizeof(partition *) * xparts);
 	for (i = 0; i < xparts; i++) {
 		parts[i] = malloc(sizeof(partition) * yparts);
 		for (j = 0; j < yparts; j++) {
@@ -365,10 +442,21 @@ static void generate(zone * z)
 			}
 		}
 	}
+
+	int ** room_map;
+	int num_rooms;
+
+	room_map = (int**) calloc(1,sizeof(int*) * z->width);
+	for (i = 0; i < z->width; i++)
+		room_map[i] = (int*) calloc(1,sizeof(int) * z->height);
+
+	detect_rooms(z,room_map,&num_rooms);
+
+	for (i = 0; i < z->width; i++)
+		free(room_map[i]);
+	free(room_map);
+
 }
-
-
-
 
 
 // this function is really ugly
