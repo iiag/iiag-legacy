@@ -15,6 +15,7 @@ struct zone;
 
 typedef struct tile {
 	chtype ch;
+	int show;
 	int impassible;//whether the tile is pasible or not
 	struct creature * crtr;//creture that may be on the tile
 	struct inventory * inv;//inventory of the tile
@@ -27,10 +28,12 @@ typedef struct zone {//creates azone with a width and height
 
 zone * zone_new(int, int);//pointer to a new zone struct 
 void zone_free(zone *);//deletes the zone
+void zone_draw_tile(zone *, int, int);
 void zone_update(zone *, int, int);//redraws a tile by x,y coords, to be called after that tile is modified
 void zone_draw(zone *);//redraws the updated zone
 tile * zone_at(zone *, int, int);//returns the the thing at a particular tile
 void zone_step(zone *, int);//function that is called once every "step", i.e. once between user actions
+int zone_can_see(zone *, int, int, int, int, int);
 
 #define tileof(O) (&(O)->z->tiles[(O)->x][(O)->y])
 

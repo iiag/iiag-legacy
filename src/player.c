@@ -8,6 +8,21 @@
 
 #define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])
 
+static void update_vis(void)
+{
+	int x, y, show;
+
+	for (x = 0; x < PLYR.z->width; x++) {
+		for (y = 0; y < PLYR.z->height; y++) {
+			show = zone_can_see(PLYR.z, PLYR.x, PLYR.y, x, y, 20);
+			if (show != PLYR.z->tiles[x][y].show) {
+				PLYR.z->tiles[x][y].show = show;
+				zone_draw_tile(PLYR.z, x, y);
+			}
+		}
+	}
+}
+
 // this probably should not be here
 static void redraw(void)
 {
@@ -114,6 +129,8 @@ void plyr_act_move(int dx, int dy)
 			}
 		}
 	}
+
+	update_vis();
 }
 
 void plyr_act_consume(void)
@@ -166,6 +183,12 @@ void plyr_act_equip(void)
 	}
 
 	redraw();
+}
+
+void plyr_ev_birth(void)
+{
+	memo("Welcome to the world of iiag, you pathetic Guaren.");
+	update_vis();
 }
 
 void plyr_ev_death(const char * reasons)

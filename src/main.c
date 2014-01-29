@@ -60,6 +60,7 @@ int main(int argc, char ** argv)
 	init_disp();
 	init_world();
 
+	plyr_ev_birth();
 	zone_draw(PLYR.z);
 	update_status();
 

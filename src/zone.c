@@ -2,6 +2,7 @@
 // zone.c
 //
 
+#include <math.h>
 #include <assert.h>
 #include <stdlib.h>
 #include "item.h"
@@ -155,6 +156,7 @@ zone * zone_new(int w, int h)
 	for (i = 0; i < w; i++) {
 		z->tiles[i] = malloc(sizeof(tile) * h);
 		for (j = 0; j < h; j++) {
+			z->tiles[i][j].show = 0;
 			z->tiles[i][j].impassible = 0;
 			z->tiles[i][j].crtr = NULL;
 			z->tiles[i][j].inv = inv_new(TILE_MAX_WEIGHT);
@@ -182,6 +184,15 @@ void zone_free(zone * z)
 	free(z);
 }
 
+void zone_draw_tile(zone * z, int x, int y)
+{
+	if (zone_can_see(z, world.plyr.x, world.plyr.y, x, y, 20)) {
+		disp_put(x, y, z->tiles[x][y].ch);
+	} else {
+		disp_put(x, y, ' ');
+	}
+}
+
 void zone_update(zone * z, int x, int y)
 {
 	int i;
@@ -203,7 +214,7 @@ void zone_update(zone * z, int x, int y)
 	}
 
 	z->tiles[x][y].ch = ch;
-	disp_put(x, y, ch);
+	zone_draw_tile(z, x, y);
 }
 
 void zone_draw(zone * z)
@@ -214,7 +225,7 @@ void zone_draw(zone * z)
 
 	for (i = 0; i < z->width; i++) {
 		for (j = 0; j < z->height; j++) {
-			disp_put(i, j, z->tiles[i][j].ch);
+			zone_draw_tile(z, i, j);
 		}
 	}
 
@@ -240,4 +251,51 @@ void zone_step(zone * z, int step)
 			}
 		}
 	}
+}
+
+int zone_can_see(zone * z, int x0, int y0, int x1, int y1, int dist)
+{
+	if (x1 == x0 && y1 == y0) return 1;
+
+	int x, y;
+	float dx = (float) abs(x1 - x0);
+	float dy = (float) abs(y1 - y0);
+
+	if (sqrt(dx * dx + dy * dy) > (float) dist) return 0;
+
+	int mx = ((x0 < x1) << 1) - 1;
+	int my = ((y0 < y1) << 1) - 1;
+
+	float err = 0;
+	float derr;
+
+	if (dx > dy) {
+		assert(dx != 0);
+		derr = fabs(dy / dx);
+
+		for (x = x0, y = y0; x != x1; x += mx) {
+			if (x != x0 && z->tiles[x][y].impassible) return 0;
+			err += derr;
+
+			if (err >= 0.5) {
+				y += my;
+				err -= 1.0;
+			}
+		}
+	} else {
+		assert(dy != 0);
+		derr = fabs(dx / dy);
+
+		for (x = x0, y = y0; y != y1; y += my) {
+			if (y != y0 && z->tiles[x][y].impassible) return 0;
+			err += derr;
+
+			if (err >= 0.5) {
+				x += mx;
+				err -= 1.0;
+			}
+		}
+	}
+
+	return 1;
 }

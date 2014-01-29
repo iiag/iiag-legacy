@@ -21,6 +21,7 @@ void plyr_act_consume(void);
 void plyr_act_equip(void);
 
 // the inevitable
+void plyr_ev_birth(void);
 void plyr_ev_death(const char *);
 void plyr_ev_lvlup(void);
 
