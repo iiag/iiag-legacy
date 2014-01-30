@@ -7,10 +7,11 @@
 #include <stdlib.h>
 #include "item.h"
 #include "zone.h"
+#include "walls.h"
 #include "world.h"
 #include "display.h"
+#include "options.h"
 #include "inventory.h"
-#include "walls.h"
 
 #define ROOM_INFREQ 40
 #define ITEM_INFREQ 80
@@ -186,7 +187,8 @@ void zone_free(zone * z)
 
 void zone_draw_tile(zone * z, int x, int y)
 {
-	if (zone_can_see(z, world.plyr.x, world.plyr.y, x, y, 20)) {
+//	if (zone_can_see(z, world.plyr.x, world.plyr.y, x, y, 20)) {
+	if (z->tiles[x][y].show || OPT(OPT_SHOW_ALL)) {
 		disp_put(x, y, z->tiles[x][y].ch);
 	} else {
 		disp_put(x, y, ' ');

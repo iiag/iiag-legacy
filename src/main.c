@@ -12,6 +12,7 @@
 #include "world.h"
 #include "player.h"
 #include "display.h"
+#include "options.h"
 #include "creature.h"
 #include "inventory.h"
 
@@ -51,6 +52,8 @@ static void sig_handler(int rc)
 int main(int argc, char ** argv)
 {
 	int c;
+
+	parse_options(argc, argv);
 
 	srandom(time(NULL));
 
