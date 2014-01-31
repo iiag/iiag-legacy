@@ -21,6 +21,8 @@ static void update_vis(void)
 			}
 		}
 	}
+
+	wrefresh(dispscr);
 }
 
 // this probably should not be here
