@@ -5,12 +5,12 @@
 SHELL  = bash
 TARGET = iiag
 CC     = gcc
-CCFL   = -c -g -Wall
-LDFL   = -Wall -lncurses -lm
+CCFL   = -c -g -Wall `pkg-config --cflags lua5.1`
+LDFL   = -Wall -lncurses -lm `pkg-config --libs lua5.1`
 
 SRCS := main.c world.c zone.c display.c log.c inventory.c util.c item.c \
-        creature.c player.c options.c \
-        iml/iml.c iml/lang.c \
+        creature.c player.c options.c vector.c \
+	lua/init.c lua/io.c lua/form.c \
         form/form.c form/crtr.c form/item.c
 
 OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(SRCS)))

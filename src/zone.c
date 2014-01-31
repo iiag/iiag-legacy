@@ -112,10 +112,10 @@ static void generate(zone * z)
 	}
 
 	// place some random junk
-	if (world.iform_cnt != 0) {
+	if (world.iforms.cnt != 0) {
 		max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
 		for (i = max; i >= 0; i--) {
-			it = item_new(world.iforms[random() % world.iform_cnt]);
+			it = item_new(world.iforms.arr[random() % world.iforms.cnt]);
 
 			do {
 				x = random() % z->width;
@@ -128,10 +128,10 @@ static void generate(zone * z)
 	}
 
 	// place some more random junk
-	if (world.cform_cnt != 0) {
+	if (world.cforms.cnt != 0) {
 		max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
 		for (i = max; i >= 0; i--) {
-			cr = crtr_new(world.cforms[random() % world.cform_cnt]);
+			cr = crtr_new(world.cforms.arr[random() % world.cforms.cnt]);
 
 			do {
 				x = random() % z->width;
@@ -187,7 +187,6 @@ void zone_free(zone * z)
 
 void zone_draw_tile(zone * z, int x, int y)
 {
-//	if (zone_can_see(z, world.plyr.x, world.plyr.y, x, y, 20)) {
 	if (z->tiles[x][y].show || OPT(OPT_SHOW_ALL)) {
 		disp_put(x, y, z->tiles[x][y].ch);
 	} else {

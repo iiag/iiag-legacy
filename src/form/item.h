@@ -12,6 +12,9 @@ struct iform;
 #define ITEM_CONSUMABLE 1
 #define ITEM_EQUIPABLE  2
 
+#define ITEM_CONSUMABLE_SFT 0
+#define ITEM_EQUIPABLE_SFT  1
+
 typedef struct iform {
 	is_form;
 	unsigned type;

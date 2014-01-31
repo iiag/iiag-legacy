@@ -2,6 +2,7 @@
 // main.c
 //
 
+#include <lua.h>
 #include <time.h>
 #include <stdio.h>
 #include <assert.h>
@@ -15,6 +16,7 @@
 #include "options.h"
 #include "creature.h"
 #include "inventory.h"
+#include "lua/lua.h"
 
 static void update_status(void)
 {
@@ -54,6 +56,7 @@ int main(int argc, char ** argv)
 	int c;
 
 	parse_options(argc, argv);
+	init_lua();
 
 	srandom(time(NULL));
 
