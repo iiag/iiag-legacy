@@ -46,6 +46,35 @@ typedef struct {
 // Unglobal this
 point_t avg;
 
+static void create_room_map(int *** room_map, int width, int height)
+{
+	int i;
+	if (NULL != *room_map) wrlog("Warning: create_room_map called with non-null pointer");
+
+	*room_map = (int**) calloc(1,sizeof(int*) * width);
+	for (i = 0; i < width; i++)
+		(*room_map)[i] = (int*) calloc(1,sizeof(int) * height);
+
+}
+
+static void clear_room_map(int ** room_map, int width, int height)
+{
+	int i;
+
+	for (i = 0; i < width; i++)
+		memset(room_map[i],0,sizeof(int) * height);
+
+}
+
+static void free_room_map(int ** room_map, int width)
+{
+	int i;
+
+	for (i = 0; i < width; i++)
+		free(room_map[i]);
+	free(room_map);
+}
+
 
 static int on(zone * z, int x, int y)
 {
@@ -231,15 +260,19 @@ static void dig_tile(zone * z, partition * p, int x, int y)
 
 }
 
-static void dig_room(zone * z, partition * p, point_t *pts, int num)
+static int dig_room(zone * z, partition * p, point_t *pts, int num)
 {
 	int i,j;	
 	int del = -2, prev_del = 2;
 	int dir, prev_dir = 2; // Toggles between x and y (0 and 1)
 
+	int ret = 0;
+	int pros;
+	int ** room_map = NULL;
 	int cur[2];
 
 	// Dig the border
+//	dir = 0;
 	dir = rand() % 2;
 	for (i = 0; i < num; i++) {
 		// Walk to the next point	
@@ -249,14 +282,15 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 			del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
 //			tar = abs( ((int*) &pts[(i+1) % num])[dir] - ((int*) &pts[i])[dir] );
 
-			if ((prev_dir == dir) && (prev_del == -del)) {
+			if ((prev_dir == dir) && (prev_del == (-del))) {
 				dir = !dir;
 				del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
 			}
+			zone_draw(z); // More debug
 			for (; cur[dir] - ((int*) &pts[(i+1) % num])[dir] != 0; cur[dir] += del) {
 				// Set each of these zone tiles to floor
 				z->tiles[cur[0]][cur[1]].type = TILE_EDGE;
-				z->tiles[cur[0]][cur[1]].ch = '^'; // DEBUG PORPOISES
+				z->tiles[cur[0]][cur[1]].ch = '+'; // DEBUG PORPOISES
 			}
 
 			prev_dir = dir;	
@@ -265,31 +299,29 @@ static void dig_room(zone * z, partition * p, point_t *pts, int num)
 			}
 		}
 	}
-
 	// Fill the room
 	point_t center = get_center(pts,num);
 
 
-	int ** room_map;
+	create_room_map(&room_map,z->width,z->height);
 
-	room_map = (int**) calloc(1,sizeof(int*) * z->width);
-	for (i = 0; i < z->width; i++)
-		room_map[i] = (int*) calloc(1,sizeof(int) * z->height);
+	for (i = 0; i < 3; i++) {
+		// TODO: Check bounds
+		center = get_center(pts,num);
+		center.x += rand() % 20 - 10;
+		center.y += rand() % 20 - 10;
 
-	int pros = prospect_tile(z,p,room_map,center.x,center.y);
+		ret |= (pros = prospect_tile(z,p,room_map,center.x,center.y));
+		if (pros)
+			dig_tile(z,p,center.x,center.y);
 
-	for (i = 0; i < z->width; i++)
-		free(room_map[i]);
-	free(room_map);
-
-	wrlog("Prospect said: %d",pros);
-
-	if (pros) {
-		wrlog("starting to dig room in (%d,%d)",center.x,center.y);
-		dig_tile(z,p,center.x,center.y);
-	} else {
-		wrlog("Bad region detected, rejecting");
+		clear_room_map(room_map,z->width,z->height);
 	}
+
+	free_room_map(room_map,z->width);
+	return !ret;
+
+	return 0;
 }
 
 
@@ -301,6 +333,7 @@ static void generate_region(zone * z, partition * p)
 	// Number of pairs of points
 	int num_pts = 8;
 	int dir;
+	int tries = 3;
 
 	point_t diff;
 
@@ -308,6 +341,8 @@ static void generate_region(zone * z, partition * p)
 	diff.y = p->ymax - p->ymin - 2;
 
 	point_t *pts = (point_t*) malloc(sizeof(point_t) * num_pts);
+
+build_room:
 
 	// Generate a list of "paired" points
 	for (i = 0; i < num_pts; i+=2) {
@@ -319,6 +354,7 @@ static void generate_region(zone * z, partition * p)
 		((int*) &pts[i+1])[!dir] = ((int*) &pts[i])[!dir];
 		// Vary the other
 		((int*) &pts[i+1])[dir] = ((((int*) &pts[i])[dir]) + (rand() % ((int*) &diff)[dir])) % ((int*) &diff)[dir];
+
 	}
 
 	radial_sort(pts,num_pts);
@@ -336,7 +372,12 @@ static void generate_region(zone * z, partition * p)
 //	z->tiles[avg.x + p->xmin][avg.y + p->ymin].type = 0x0;
 //	z->tiles[avg.x + p->xmin][avg.y + p->ymin].ch = '?';
 
-	dig_room(z,p,pts,num_pts);
+	if (dig_room(z,p,pts,num_pts)) {
+		wrlog("Bad region detected, rejecting, %d tries left", tries-1);
+		if (--tries)
+			goto build_room;
+	}
+
 	free(pts);
 }
 
@@ -380,11 +421,11 @@ static void detect_rooms(zone * z, int ** room_map, int *num_rooms)
 	}
 
 	// DEBUG PORPOISES
-	for (y = 0; y < z->height; y++) {
+	/*for (y = 0; y < z->height; y++) {
 		for (x = 0; x < z->width; x++) {
 			if (room_map[x][y] != 0) z->tiles[x][y].ch = '0'+ room_map[x][y];
 		}
-	}
+	}*/
 }
 
 static void generate(zone * z)
@@ -442,19 +483,15 @@ static void generate(zone * z)
 			}
 		}
 	}
-
-	int ** room_map;
+wrlog("getting here");
+	int ** room_map = NULL;
 	int num_rooms;
 
-	room_map = (int**) calloc(1,sizeof(int*) * z->width);
-	for (i = 0; i < z->width; i++)
-		room_map[i] = (int*) calloc(1,sizeof(int) * z->height);
+	create_room_map(&room_map,z->width,z->height);
 
 	detect_rooms(z,room_map,&num_rooms);
 
-	for (i = 0; i < z->width; i++)
-		free(room_map[i]);
-	free(room_map);
+	free_room_map(room_map,z->width);
 
 }
 
@@ -561,6 +598,7 @@ zone * zone_new(int w, int h)
 		for (j = 0; j < h; j++) {
 			z->tiles[i][j].impassible = 0;
 			z->tiles[i][j].crtr = NULL;
+			z->tiles[i][j].ch = ' ';
 			z->tiles[i][j].inv = inv_new(TILE_MAX_WEIGHT);
 		}
 	}
