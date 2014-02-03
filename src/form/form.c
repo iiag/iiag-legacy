@@ -7,6 +7,7 @@
 void form_initial(void * ptr, chtype ch)
 {
 	form * f = ptr;
+	f->freq = 1;
 	f->refs = 1;
 	f->name = NULL;
 	f->weight = 1;

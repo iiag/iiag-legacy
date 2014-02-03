@@ -90,6 +90,7 @@ GET_TEMPLATE_END
 static void set_cform(lua_State * lstate, cform * cf)
 {
 	cf->name = get_string(lstate, "name", cf->name);
+	cf->freq        = get_int(lstate, "freq",        cf->freq);
 	cf->max_health  = get_int(lstate, "max_health",  cf->max_health);
 	cf->max_stamina = get_int(lstate, "max_stamina", cf->max_stamina);
 	cf->def_attack  = get_int(lstate, "attack",      cf->def_attack);
@@ -108,6 +109,7 @@ int lcf_cform(lua_State * lstate)
 	cf = cform_new(get_chtype(lstate, "char", '?'));
 	set_cform(lstate, cf);
 	vector_append(&world.cforms, cf);
+	world.max_cforms_freq += cf->freq;
 
 	return 0;
 }
@@ -131,6 +133,7 @@ int lcf_iform(lua_State * lstate)
 
 	f = iform_new(0, get_chtype(lstate, "char", '?'));
 	f->name = get_string(lstate, "name", f->name);
+	f->freq            = get_int(lstate, "freq",            f->freq);
 	f->restore_health  = get_int(lstate, "restore_health",  f->restore_health);
 	f->restore_stamina = get_int(lstate, "restore_stamina", f->restore_stamina);
 	f->modify_attack   = get_int(lstate, "modify_attack",   f->modify_attack);
@@ -142,6 +145,7 @@ int lcf_iform(lua_State * lstate)
 
 	assure_world();
 	vector_append(&world.iforms, f);
+	world.max_iforms_freq += f->freq;
 
 	return 0;
 }

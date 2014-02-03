@@ -13,6 +13,7 @@ struct form;
 	char * name; \
 	int refs; \
 	int weight; \
+	int freq; \
 	chtype ch
 
 // this type should never be declared

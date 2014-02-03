@@ -17,6 +17,8 @@ vector_t * vector_new(void);
 void vector_free(vector_t *);
 void vector_append(vector_t *, void *);
 
+void * choose_random(vector_t *, int, int);
+
 char * read_file(const char *);
 char * copy_str(const char *);
 

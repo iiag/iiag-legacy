@@ -6,6 +6,7 @@ cform {
 	name = 'gnat';
 	char = 'g';
 	max_health = 2;
+	freq = 20;
 }
 
 cform {
@@ -13,12 +14,14 @@ cform {
 	char = 'g';
 	max_health = 1;
 	attack = 4;
+	freq = 120;
 }
 
 cform {
 	name = 'fbir';
 	char = 'f';
 	max_health = 6;
+	freq = 80;
 }
 
 cform {
@@ -26,6 +29,7 @@ cform {
 	char = 'F';
 	max_health = 10;
 	attack = 2;
+	freq = 20;
 }
 
 cform {
@@ -33,6 +37,7 @@ cform {
 	char = 'G';
 	max_health = 100;
 	attack = 10;
+	freq = 10;
 }
 
 cform {
@@ -40,6 +45,7 @@ cform {
 	char = 'p';
 	max_health = 5;
 	attack = 6;
+	freq = 90;
 }
 
 cform {
@@ -47,6 +53,7 @@ cform {
 	char = 'p';
 	max_health = 5;
 	attack = 3;
+	freq = 40;
 }
 
 cform {
@@ -54,6 +61,7 @@ cform {
 	char = 'p';
 	max_health = 3;
 	attack = 3;
+	freq = 20;
 }
 
 cform {
@@ -61,4 +69,5 @@ cform {
 	max_health = 1337;
 	attack = 1337;
 	char = '!';
+	freq = 1;
 }

@@ -16,6 +16,8 @@ typedef struct {//world states
 	struct vector zones;//list of zones that exist
 	struct vector iforms;
 	struct vector cforms;
+	int max_iforms_freq;
+	int max_cforms_freq;
 } world_st;
 
 extern world_st world;//prototype world

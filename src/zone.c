@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <assert.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include "item.h"
 #include "zone.h"
@@ -115,7 +116,7 @@ static void generate(zone * z)
 	if (world.iforms.cnt != 0) {
 		max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
 		for (i = max; i >= 0; i--) {
-			it = item_new(world.iforms.arr[random() % world.iforms.cnt]);
+			it = item_new(choose_random(&world.iforms, offsetof(iform, freq), world.max_iforms_freq));
 
 			do {
 				x = random() % z->width;
@@ -131,7 +132,7 @@ static void generate(zone * z)
 	if (world.cforms.cnt != 0) {
 		max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
 		for (i = max; i >= 0; i--) {
-			cr = crtr_new(world.cforms.arr[random() % world.cforms.cnt]);
+			cr = crtr_new(choose_random(&world.cforms, offsetof(cform, freq), world.max_cforms_freq));
 
 			do {
 				x = random() % z->width;

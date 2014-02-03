@@ -28,6 +28,9 @@ void assure_world(void)
 		vector_init(&world.iforms);
 		vector_init(&world.zones);
 
+		world.max_iforms_freq = 0;
+		world.max_cforms_freq = 0;
+
 		first = 0;
 	}
 }

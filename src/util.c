@@ -5,7 +5,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "util.h"
+
+void * choose_random(vector_t * v, int offset, int max)
+{
+	int i, x;
+	int r = random() % max;
+
+	for (i = 0; i < v->cnt; i++) {
+		x = *(int *)((char *)(v->arr[i]) + offset);
+		if (r < x) break;
+		r -= x;
+	}
+
+	assert(i != v->cnt);
+	return v->arr[i];
+}
 
 char * read_file(const char * fn)//reading the file contaning teh list of creatures, monsters, and generic items 
 {

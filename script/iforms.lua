@@ -6,6 +6,7 @@ iform {
 	name = 'rock';
 	char = '*';
 	weight = 100;
+	freq = 20;
 }
 
 iform {
@@ -13,6 +14,7 @@ iform {
 	char = '%';
 	weight = 1;
 	restore_stamina = 40;
+	freq = 15;
 }
 
 iform {
@@ -21,6 +23,7 @@ iform {
 	char = '&';
 	weight = 1;
 	restore_health = 10;
+	freq = 15;
 }
 
 iform {
@@ -30,6 +33,7 @@ iform {
 	weight = 8;
 	modify_attack = 12;
 	slot = 'right-hand';
+	freq = 10;
 }
 
 iform {
@@ -39,6 +43,7 @@ iform {
 	weight = 6;
 	modify_ac = 4;
 	slot = 'head';
+	freq = 15;
 }
 
 iform {
@@ -51,6 +56,7 @@ iform {
 	restore_stamina = 20;
 	modify_attack = 4;
 	slot = 'right-hand';
+	freq = 15;
 }
 
 iform {
@@ -61,6 +67,7 @@ iform {
 	modify_ac = 5;
 	modify_attack = 10;
 	slot = 'cape';
+	freq = 5;
 }
 
 iform {
@@ -71,6 +78,7 @@ iform {
 	modify_ac = 2700;
 	modify_attack = -1000;
 	slot = 'cape';
+	freq = 1;
 }
 
 iform {
@@ -80,6 +88,7 @@ iform {
 	weight = 120;
 	modify_ac = 14;
 	slot = 'feet';
+	freq = 3;
 }
 
 iform {
@@ -89,6 +98,7 @@ iform {
 	weight = 70;
 	modify_ac = 1;
 	slot = 'feet';
+	freq = 15;
 }
 
 iform {
@@ -99,4 +109,5 @@ iform {
 	modify_ac = -100;
 	modify_attack = 9001;
 	slot = 'right-hand';
+	freq = 1;
 }
