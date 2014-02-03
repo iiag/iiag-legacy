@@ -239,8 +239,8 @@ static void dig_tile(zone * z, partition * p, int x, int y)
 	// Base Cases
 	if ((x >= p->xmax) || ( x < p->xmin)) return;
 	if ((y >= p->ymax) || ( y < p->ymin)) return;
-	if (z->tiles[x][y].type == TILE_FLOOR) return;
-	if (z->tiles[x][y].type == TILE_EDGE) return;//goto edge; //return;
+	if (z->tiles[x][y].type & TILE_FLOOR) return;
+	if (z->tiles[x][y].type & TILE_EDGE) return;//goto edge; //return;
 	
 	//wrlog("Landed on non-floor! digging...");
 	z->tiles[x][y].type = TILE_FLOOR;
@@ -267,7 +267,7 @@ static void check_room_edges(zone * z, partition * p, int x, int y) {
 	create_room_map(&part_map,z->width,z->height);
 	
 	if (z->tiles[x][y].type == TILE_EDGE) {// To prevent infinit recursion
-		z->tiles[x][y].type = TILE_FLOOR; // Mark this edge as "done"
+		z->tiles[x][y].type |= TILE_FLOOR; // Mark this edge as "done"
 		z->tiles[x][y].ch = '.';
 //		zone_draw(z);
 	}
@@ -280,7 +280,7 @@ static void check_room_edges(zone * z, partition * p, int x, int y) {
 				continue;
 			if ((x+i < 0) || (x+i >= z->width)) continue;
 			if ((y+j < 0) || (y+j >= z->height)) continue;
-			if (z->tiles[x+i][y+j].type == TILE_FLOOR) continue; // We only want to check walls
+			if (z->tiles[x+i][y+j].type & TILE_FLOOR) continue; // We only want to check walls
 			clear_room_map(part_map,z->width,z->height);
 			if (prospect_tile(z,p,part_map,x+i,y+j))
 				dig_tile(z,p,x+i,y+j);
@@ -299,8 +299,6 @@ static int dig_room(zone * z, partition * p, point_t *pts, int num)
 	int dir, prev_dir = 2; // Toggles between x and y (0 and 1)
 
 	int ret = 0;
-	int pros;
-	int ** room_map = NULL;
 	int cur[2];
 
 	// Dig the border
@@ -331,7 +329,6 @@ static int dig_room(zone * z, partition * p, point_t *pts, int num)
 		}
 	}
 	// Fill the room
-	point_t center = get_center(pts,num);
 
 /*
 	create_room_map(&room_map,z->width,z->height);
@@ -366,7 +363,6 @@ static void generate_region(zone * z, partition * p)
 	// Number of pairs of points
 	int num_pts = 8;
 	int dir;
-	int tries = 3;
 
 	point_t diff;
 
@@ -374,8 +370,6 @@ static void generate_region(zone * z, partition * p)
 	diff.y = p->ymax - p->ymin - 2;
 
 	point_t *pts = (point_t*) malloc(sizeof(point_t) * num_pts);
-
-build_room:
 
 	// Generate a list of "paired" points
 	for (i = 0; i < num_pts; i+=2) {
@@ -462,6 +456,69 @@ static void detect_rooms(zone * z, int ** room_map, int *num_rooms)
 	}*/
 }
 
+static void tunnel(zone * z, point_t * from, point_t * to)
+{
+	point_t cur = *from;
+	int dx,dy;
+	int door_next;	
+
+	// TODO: Remove assumption that the points are linear	
+	dx = (from->x == to->x) ? 0 : (to->x - from->x) / abs(to->x - from->x);
+	dy = (from->y == to->y) ? 0 : (to->y - from->y) / abs(to->y - from->y);
+
+	while ((cur.x != to->x) && (cur.y != to->y)) {
+		// Determine how to move next
+		// TODO: Write this
+
+		// Move cur to the next tile
+		cur.x += dx;
+		cur.y += dy;
+		
+		// Update the new tile
+		if (z->tiles[cur.x][cur.y].type == TILE_WALL) {
+			z->tiles[cur.x][cur.y].type = TILE_TUNNEL;
+			z->tiles[cur.x][cur.y].ch = '#';
+		}
+		else if (z->tiles[cur.x][cur.y].type == (TILE_FLOOR | TILE_EDGE)) {
+			door_next = 1;
+		}
+		if (door_next && z->tiles[cur.x][cur.y].type == TILE_WALL) {
+			z->tiles[cur.x][cur.y].type = TILE_DOOR;
+			z->tiles[cur.x][cur.y].ch = '+';
+			door_next = 0;
+		}
+
+	}
+
+}
+
+// OPTIMIZE: For the love of God and all that is Holy, fix this function
+static void dig_tunnels(zone * z)
+{
+	int ** room_map = NULL;
+	int num_rooms;
+	int i;
+	point_t one,two;
+
+	create_room_map(&room_map,z->width,z->height);
+	detect_rooms(z,room_map,&num_rooms);
+
+		
+	for (i = 0; i < 10; i++) {
+		while (room_map[one.x][one.y] && room_map[two.x][two.y] && (room_map[one.x][one.y] != room_map[two.x][two.y])) {
+			one.x = rand() % z->width;
+			one.y = rand() % z->height;
+			
+			two.x = rand() % z->width;
+			two.y = rand() % z->height;
+		}
+		tunnel(z,&one,&two);
+	}
+
+	free_room_map(room_map,z->width);
+}
+
+
 static void generate(zone * z)
 {
 	int xparts,yparts;
@@ -517,15 +574,7 @@ static void generate(zone * z)
 			}
 		}
 	}
-wrlog("getting here");
-	int ** room_map = NULL;
-	int num_rooms;
-
-	create_room_map(&room_map,z->width,z->height);
-
-	detect_rooms(z,room_map,&num_rooms);
-
-	free_room_map(room_map,z->width);
+	dig_tunnels(z);
 
 }
 

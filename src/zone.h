@@ -8,10 +8,14 @@ struct zone;
 #ifndef ZONE_H
 #define ZONE_H
 
+// TODO: Align and set better numbers for
 #define TILE_MAX_WEIGHT 1000
+#define TILE_NULL 0x0
 #define TILE_WALL 0x1
 #define TILE_FLOOR 0x2
-#define TILE_EDGE 0x3
+#define TILE_EDGE 0x4
+#define TILE_TUNNEL 0x8
+#define TILE_DOOR 0x10
 
 #include "creature.h"
 #include "inventory.h"
