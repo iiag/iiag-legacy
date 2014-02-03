@@ -455,15 +455,14 @@ static void tunnel(zone * z, point_t * from, point_t * to)
 	point_t cur = *from;
 	int dx,dy;
 	int door_next;	
-
 	// TODO: Remove assumption that the points are linear	
 	dx = (from->x == to->x) ? 0 : (to->x - from->x) / abs(to->x - from->x);
 	dy = (from->y == to->y) ? 0 : (to->y - from->y) / abs(to->y - from->y);
 
-	while ((cur.x != to->x) && (cur.y != to->y)) {
+	while ((cur.x != to->x) || (cur.y != to->y)) {
 		// Determine how to move next
 		// TODO: Write this
-
+		
 		// Move cur to the next tile
 		cur.x += dx;
 		cur.y += dy;
@@ -472,6 +471,7 @@ static void tunnel(zone * z, point_t * from, point_t * to)
 		if (z->tiles[cur.x][cur.y].type == TILE_WALL) {
 			z->tiles[cur.x][cur.y].type = TILE_TUNNEL;
 			z->tiles[cur.x][cur.y].ch = '#';
+			z->tiles[cur.x][cur.y].impassible = 0;
 		}
 		else if (z->tiles[cur.x][cur.y].type == (TILE_FLOOR | TILE_EDGE)) {
 			door_next = 1;
@@ -492,21 +492,30 @@ static void dig_tunnels(zone * z)
 	int ** room_map = NULL;
 	int num_rooms;
 	int i;
-	point_t one,two;
+	point_t one = {0},two = {0};
 
 	create_room_map(&room_map,z->width,z->height);
 	detect_rooms(z,room_map,&num_rooms);
 
 		
 	for (i = 0; i < 10; i++) {
-		while (room_map[one.x][one.y] && room_map[two.x][two.y] && (room_map[one.x][one.y] != room_map[two.x][two.y])) {
-			one.x = rand() % z->width;
-			one.y = rand() % z->height;
-			
-			two.x = rand() % z->width;
-			two.y = rand() % z->height;
+		while (!(room_map[one.x][one.y] && room_map[two.x][two.y]) || (room_map[one.x][one.y] == room_map[two.x][two.y])) {
+			if (rand() % 2) {
+				one.x = rand() % z->width;
+				one.y = rand() % z->height;	
+				two.x = one.x;
+				two.y = rand() % z->height;
+			} else {
+				one.x = rand() % z->width;
+				one.y = rand() % z->height;	
+				two.x = rand() % z->width;
+				two.y = one.y;
+			}
 		}
 		tunnel(z,&one,&two);
+wrlog("(%d,%d):%d -> (%d,%d):%d",one.x,one.y,room_map[one.x][one.y],two.x,two.y,room_map[two.x][two.y]);
+		memset(&one,0,sizeof(point_t));
+		memset(&two,0,sizeof(point_t));
 	}
 
 	free_room_map(room_map,z->width);
