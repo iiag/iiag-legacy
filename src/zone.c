@@ -205,10 +205,10 @@ static void radial_sort(point_t * pts, int num)
 
 }
 
+// Returns 1 if it is all clear, 0 if an edge is hit.
 static int prospect_tile(zone * z, partition * p, int ** part_map, int x, int y)
 {
 	int i,j;
-	int ret = 1;
 
 	if ((x >= p->xmax) || ( x < p->xmin)) return 0;
 	if ((y >= p->ymax) || ( y < p->ymin)) return 0;
@@ -222,15 +222,16 @@ static int prospect_tile(zone * z, partition * p, int ** part_map, int x, int y)
 		for (i = -1; i <= 1; i++) {
 			if ((!i) && (!j))
 				continue;
-			ret = ret && prospect_tile(z,p,part_map,x+i,y+j);
+			if(!prospect_tile(z,p,part_map,x+i,y+j))
+				return 0;
 		}
 	}
 
-	return ret;
+	return 1;
 }
 
 
-
+// TODO: Clean this function up
 static void dig_tile(zone * z, partition * p, int x, int y)
 {
 	//wrlog("entered on tile (%d,%d)",x,y);
@@ -239,8 +240,8 @@ static void dig_tile(zone * z, partition * p, int x, int y)
 	if ((x >= p->xmax) || ( x < p->xmin)) return;
 	if ((y >= p->ymax) || ( y < p->ymin)) return;
 	if (z->tiles[x][y].type == TILE_FLOOR) return;
-	if (z->tiles[x][y].type == TILE_EDGE) edge = 1; //return;
-		
+	if (z->tiles[x][y].type == TILE_EDGE) return;//goto edge; //return;
+	
 	//wrlog("Landed on non-floor! digging...");
 	z->tiles[x][y].type = TILE_FLOOR;
 	z->tiles[x][y].ch = '.';
@@ -256,8 +257,39 @@ static void dig_tile(zone * z, partition * p, int x, int y)
 				dig_tile(z,p,x+i,y+j);
 		}
 	}
+	return;
+}
 
 
+static void check_room_edges(zone * z, partition * p, int x, int y) {
+	int i,j;
+	int ** part_map = NULL;
+	create_room_map(&part_map,z->width,z->height);
+	
+	if (z->tiles[x][y].type == TILE_EDGE) {// To prevent infinit recursion
+		z->tiles[x][y].type = TILE_FLOOR; // Mark this edge as "done"
+		z->tiles[x][y].ch = '.';
+//		zone_draw(z);
+	}
+	else return;
+
+	// Just do adjacent!
+	for (j = -1; j <= 1; j++) {
+		for (i = -1; i <= 1; i++) {
+			if (abs(i) == abs(j))
+				continue;
+			if ((x+i < 0) || (x+i >= z->width)) continue;
+			if ((y+j < 0) || (y+j >= z->height)) continue;
+			if (z->tiles[x+i][y+j].type == TILE_FLOOR) continue; // We only want to check walls
+			clear_room_map(part_map,z->width,z->height);
+			if (prospect_tile(z,p,part_map,x+i,y+j))
+				dig_tile(z,p,x+i,y+j);
+			if (z->tiles[x+i][y+j].type == TILE_EDGE) // Another edge found, recursing.
+				check_room_edges(z,p,x+i,y+j);
+
+		}
+	}
+	free_room_map(part_map,z->width);
 }
 
 static int dig_room(zone * z, partition * p, point_t *pts, int num)
@@ -286,11 +318,10 @@ static int dig_room(zone * z, partition * p, point_t *pts, int num)
 				dir = !dir;
 				del = ((((int*) &pts[i])[dir] < ((int*) &pts[(i+1) % num])[dir]) << 1 ) - 1; 
 			}
-			zone_draw(z); // More debug
 			for (; cur[dir] - ((int*) &pts[(i+1) % num])[dir] != 0; cur[dir] += del) {
 				// Set each of these zone tiles to floor
 				z->tiles[cur[0]][cur[1]].type = TILE_EDGE;
-				z->tiles[cur[0]][cur[1]].ch = '+'; // DEBUG PORPOISES
+//				z->tiles[cur[0]][cur[1]].ch = '+'; // DEBUG PORPOISES
 			}
 
 			prev_dir = dir;	
@@ -302,7 +333,7 @@ static int dig_room(zone * z, partition * p, point_t *pts, int num)
 	// Fill the room
 	point_t center = get_center(pts,num);
 
-
+/*
 	create_room_map(&room_map,z->width,z->height);
 
 	for (i = 0; i < 3; i++) {
@@ -319,6 +350,8 @@ static int dig_room(zone * z, partition * p, point_t *pts, int num)
 	}
 
 	free_room_map(room_map,z->width);
+*/
+	check_room_edges(z,p,pts[0].x,pts[0].y);
 	return !ret;
 
 	return 0;
@@ -371,12 +404,13 @@ build_room:
 
 //	z->tiles[avg.x + p->xmin][avg.y + p->ymin].type = 0x0;
 //	z->tiles[avg.x + p->xmin][avg.y + p->ymin].ch = '?';
+	dig_room(z,p,pts,num_pts);
 
-	if (dig_room(z,p,pts,num_pts)) {
+/*	if (dig_room(z,p,pts,num_pts)) {
 		wrlog("Bad region detected, rejecting, %d tries left", tries-1);
 		if (--tries)
 			goto build_room;
-	}
+	}*/
 
 	free(pts);
 }
