@@ -43,9 +43,6 @@ typedef struct {
 	point_t cart;
 } ptpair_t;
 
-// Unglobal this
-point_t avg;
-
 static void create_room_map(int *** room_map, int width, int height)
 {
 	int i;
@@ -137,41 +134,38 @@ static polar_t cart_to_polar(point_t *cart)
 // OPTIMIZE: Please. Unecessarily memory intensive
 static void do_sort(point_t *pts, int num)
 {
-	int i,j;
-	int c;
+	int compare(const void * va, const void * vb) {
+		const ptpair_t * a = va;
+		const ptpair_t * b = vb;
+		if (a->polar.angle == b->polar.angle) return 0;
+		return a->polar.angle - b->polar.angle;
+	}
+
+	int i;
 
 	ptpair_t *pairs = (ptpair_t*) malloc(sizeof(ptpair_t) * num);
-	ptpair_t *sorted_pairs = (ptpair_t*) malloc(sizeof(ptpair_t) * num);
 
 	// Generate pair array
 	for (i = 0; i < num; i++) {
 		pairs[i].cart = pts[i];
 		pairs[i].polar = cart_to_polar(&pts[i]);
-	}
-	
-	
-	for (i = 0; i < num; i++) {
-		c = 0;
-		for (j = 0; j < num; j++) {
-			if (pairs[i].polar.angle > pairs[j].polar.angle)
-				c++;
-		}
-		sorted_pairs[c] = pairs[i];
-	}
+	} 
+
+	qsort(pairs, num, sizeof(ptpair_t), compare);
 
 	for (i = 0; i < num; i++) {
-		pts[i] = sorted_pairs[i].cart;
+		pts[i] = pairs[i].cart;
 	}
 
 
 	free(pairs);
-	free(sorted_pairs);
 }
 
 
 static void radial_sort(point_t * pts, int num)
 {
 	int i;
+	point_t avg;
 	point_t sum = {0};
 
 	// NOTE: Temporarily global
