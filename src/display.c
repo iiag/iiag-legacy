@@ -26,7 +26,7 @@ WINDOW * statscr;
 void init_disp(void)
 {
 	initscr();
-	raw();
+	cbreak();
 	noecho();
 	getmaxyx(stdscr, max_height, max_width);
 

@@ -48,6 +48,7 @@ static void step(void)
 static void sig_handler(int rc)
 {
 	end_disp();
+	fprintf(stderr, "Signal %d caught.\n", rc);
 	exit(rc);
 }
 
