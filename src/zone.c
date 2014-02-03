@@ -188,7 +188,9 @@ void zone_free(zone * z)
 
 void zone_draw_tile(zone * z, int x, int y)
 {
-	if (z->tiles[x][y].show || OPT(OPT_SHOW_ALL)) {
+	if (z->tiles[x][y].show == 1 || OPT(OPT_SHOW_ALL)
+		|| (z->tiles[x][y].show && z->tiles[x][y].impassible)
+	) {
 		disp_put(x, y, z->tiles[x][y].ch);
 	} else {
 		disp_put(x, y, ' ');
