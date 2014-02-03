@@ -8,6 +8,7 @@
 #include <lua.h>
 
 int lcf_cform(lua_State *);
+int lcf_player(lua_State *);
 int lcf_iform(lua_State *);
 
 #endif

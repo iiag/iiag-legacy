@@ -12,7 +12,8 @@
 
 typedef struct {//world states
 	creature plyr;//player creature
-	zone ** zones;//list of zones that exist
+	cform * plyr_form;
+	struct vector zones;//list of zones that exist
 	struct vector iforms;
 	struct vector cforms;
 } world_st;

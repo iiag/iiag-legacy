@@ -14,6 +14,7 @@ cform * cform_new(chtype ch)
 	cf->max_stamina = 5000;
 	cf->def_attack = 1;
 	cf->def_ac = 1;
+	cf->on_spawn = 0;
 
 	return cf;
 }

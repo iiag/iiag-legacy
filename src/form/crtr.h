@@ -8,6 +8,7 @@ struct cform;
 #define FORM_CRTR_H
 
 #include "form.h"
+#include "../trigger.h"
 
 typedef struct cform {
 	is_form;
@@ -15,6 +16,8 @@ typedef struct cform {
 	int max_stamina;
 	int def_attack;
 	int def_ac;
+
+	trigger on_spawn;
 } cform;
 
 cform * cform_new(chtype);

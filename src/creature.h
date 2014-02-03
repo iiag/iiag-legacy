@@ -52,6 +52,7 @@ typedef struct creature{
 
 void crtr_init(creature *, cform *);
 creature * crtr_new(cform *);
+void crtr_spawn(creature *, struct zone *);
 void crtr_free(creature *);
 
 int crtr_move(creature *, int, int);

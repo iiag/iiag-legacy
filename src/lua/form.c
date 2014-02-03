@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <lauxlib.h>
 #include "form.h"
 #include "../util.h"
 #include "../world.h"
@@ -21,53 +22,44 @@ const char * slot_names[] = {
 	"feet"
 };
 
-static chtype get_chtype(lua_State * lstate, const char * name, chtype x)
-{
-	lua_checkstack(lstate, 1);
+// oh god, this is awful
+#define GET_TEMPLATE_FRONT(TY, TYNM) \
+static TY get_##TYNM(lua_State * lstate, const char * name, TY x) \
+{ \
+	lua_checkstack(lstate, 1); \
 	lua_getfield(lstate, 1, name);
 
+#define GET_TEMPLATE_END \
+	lua_pop(lstate, 1); \
+	return x; \
+}
+
+
+GET_TEMPLATE_FRONT(chtype, chtype)
 	if (lua_isstring(lstate, -1)) {
 		x = lua_tostring(lstate, -1)[0];
 	}
+GET_TEMPLATE_END
 
-	lua_pop(lstate, 1);
-	return x;
-}
 
-static int get_int(lua_State * lstate, const char * name, int x)
-{
-	lua_checkstack(lstate, 1);
-	lua_getfield(lstate, 1, name);
-
+GET_TEMPLATE_FRONT(int, int)
 	if (lua_isnumber(lstate, -1)) {
 		x = lua_tointeger(lstate, -1);
 	}
+GET_TEMPLATE_END
 
-	lua_pop(lstate, 1);
-	return x;
-}
 
-static char * get_string(lua_State * lstate, const char * name, char * x)
-{
-	lua_checkstack(lstate, 1);
-	lua_getfield(lstate, 1, name);
-
+GET_TEMPLATE_FRONT(char *, string)
 	if (lua_isstring(lstate, -1)) {
 		free(x);
 		x = copy_str(lua_tostring(lstate, -1));
 	}
+GET_TEMPLATE_END
 
-	lua_pop(lstate, 1);
-	return x;
-}
 
-static int get_slot(lua_State * lstate, const char * name, int x)
-{
+GET_TEMPLATE_FRONT(int, slot)
 	int i;
 	const char * str;
-
-	lua_checkstack(lstate, 1);
-	lua_getfield(lstate, 1, name);
 
 	if (lua_isstring(lstate, -1)) {
 		str = lua_tostring(lstate, -1);
@@ -79,40 +71,54 @@ static int get_slot(lua_State * lstate, const char * name, int x)
 			}
 		}
 	}
+GET_TEMPLATE_END
 
-	lua_pop(lstate, 1);
-	return x;
-}
 
-static int get_bool(lua_State * lstate, const char * name, int x)
-{
-	lua_checkstack(lstate, 1);
-	lua_getfield(lstate, 1, name);
-
+GET_TEMPLATE_FRONT(int, bool)
 	if (lua_isboolean(lstate, -1)) {
 		x = lua_toboolean(lstate, -1);
 	}
+GET_TEMPLATE_END
 
-	lua_pop(lstate, 1);
-	return x;
-}
 
-	
-int lcf_cform(lua_State * lstate)
+GET_TEMPLATE_FRONT(trigger, trigger)
+	if (lua_isfunction(lstate, -1)) {
+		return luaL_ref(lstate, LUA_REGISTRYINDEX);
+	}
+GET_TEMPLATE_END
+
+static void set_cform(lua_State * lstate, cform * cf)
 {
-	cform * cf;
-
-	assert(lua_istable(lstate, 1)); // TODO use actual error reporting here
-
-	cf = cform_new(get_chtype(lstate, "char", '?'));
 	cf->name = get_string(lstate, "name", cf->name);
 	cf->max_health  = get_int(lstate, "max_health",  cf->max_health);
 	cf->max_stamina = get_int(lstate, "max_stamina", cf->max_stamina);
 	cf->def_attack  = get_int(lstate, "attack",      cf->def_attack);
 	cf->def_ac      = get_int(lstate, "ac",          cf->def_ac);
+	cf->on_spawn    = get_trigger(lstate, "on_spawn", cf->on_spawn);
+}
+	
+int lcf_cform(lua_State * lstate)
+{
+	cform * cf;
 
+	// TODO use actual error reporting here
+	assert(lua_istable(lstate, 1));
 	assure_world();
+
+	cf = cform_new(get_chtype(lstate, "char", '?'));
+	set_cform(lstate, cf);
 	vector_append(&world.cforms, cf);
+
+	return 0;
+}
+
+int lcf_player(lua_State * lstate)
+{
+	assert(lua_istable(lstate, 1));
+	assure_world();
+
+	set_cform(lstate, world.plyr_form);
+	world.plyr_form->ch = get_chtype(lstate, "char", world.plyr_form->ch);
 
 	return 0;
 }

@@ -3,6 +3,7 @@
 //
 
 #include <math.h>
+#include <assert.h>
 #include <stdlib.h>
 #include "log.h"
 #include "zone.h"
@@ -16,6 +17,9 @@
 
 // player_level - XP_LEVEL_DIFF = minimum creature level for gaining xp
 #define XP_LEVEL_DIFF 5
+
+// iterations before spawn attempts timeout
+#define SPAWN_TIMEOUT 5000
 
 static int req_xp(creature * c)
 {
@@ -51,6 +55,20 @@ creature * crtr_new(cform * f)
 	creature * c = malloc(sizeof(creature));
 	crtr_init(c, f);
 	return c;
+}
+
+void crtr_spawn(creature * c, zone * z)
+{
+	int timeout = SPAWN_TIMEOUT;
+	int x, y;
+
+	do {
+		x = random() % z->width;
+		y = random() % z->height;
+		assert(timeout--); // FIXME
+	} while (!crtr_tele(c, x, y, z));
+
+	trigger_pull(c->f->on_spawn, c);
 }
 
 void crtr_free(creature * c)

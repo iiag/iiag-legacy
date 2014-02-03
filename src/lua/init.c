@@ -12,22 +12,23 @@
 #include "../log.h"
 #include "../display.h"
 
+lua_State * prim_lstate;
 const char * init_script = "script/init.lua";
 
-static void reg_all(lua_State * lstate)
-{
-#define RFUNC(N, F) lua_pushcfunction(lstate, F); lua_setglobal(lstate, N)
-
-	RFUNC("memo",  lcf_memo);
-	RFUNC("wrlog", lcf_wrlog);
-	RFUNC("cform", lcf_cform);
-	RFUNC("iform", lcf_iform);
-
-#undef RFUNC
-}
+static const struct {
+	const char * name;
+	lua_CFunction func;
+} funcs[] = {
+	{ "memo",   lcf_memo   },
+	{ "wrlog",  lcf_wrlog  },
+	{ "cform",  lcf_cform  },
+	{ "player", lcf_player },
+	{ "iform",  lcf_iform  },
+};
 
 void init_lua(void)
 {
+	int i;
 	lua_State * lstate;
 
 	lstate = luaL_newstate();
@@ -39,7 +40,10 @@ void init_lua(void)
 		exit(-1);
 	}
 
-	reg_all(lstate);
+	for (i = 0; i < sizeof(funcs) / sizeof(*funcs); i++) {
+		lua_pushcfunction(lstate, funcs[i].func);
+		lua_setglobal(lstate, funcs[i].name);
+	}
 
 	if (lua_pcall(lstate, 0, 0, 0)) {
 		end_disp();
@@ -47,5 +51,10 @@ void init_lua(void)
 		exit(-1);
 	}
 
-	lua_close(lstate);
+	prim_lstate = lstate;
+}
+
+void cleanup_lua(void)
+{
+	lua_close(prim_lstate);
 }
