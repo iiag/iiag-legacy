@@ -15,6 +15,7 @@ void memo(const char *, ...);
 void statline(int, const char *, ...);
 
 void scroll_disp(int, int);
+void scroll_center(int, int);
 
 extern WINDOW * memoscr;
 extern WINDOW * dispscr;

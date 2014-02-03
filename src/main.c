@@ -67,6 +67,7 @@ int main(int argc, char ** argv)
 	init_world();
 
 	plyr_ev_birth();
+	scroll_center(PLYR.x, PLYR.y);
 	zone_draw(PLYR.z);
 	update_status();
 
@@ -90,6 +91,7 @@ continue_loop:
 		case '.': plyr_act_drop();     break;
 		case 'c': plyr_act_consume();  break;
 		case 'w': plyr_act_equip();    break;
+		case 'C': scroll_center(PLYR.x, PLYR.y); zone_draw(PLYR.z); goto continue_loop;
 		case KEY_LEFT:  scroll_disp(-1,  0); zone_draw(PLYR.z); goto continue_loop;
 		case KEY_RIGHT: scroll_disp( 1,  0); zone_draw(PLYR.z); goto continue_loop;
 		case KEY_UP:    scroll_disp( 0, -1); zone_draw(PLYR.z); goto continue_loop;

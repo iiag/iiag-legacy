@@ -37,11 +37,11 @@ void init_disp(void)
 	dispscr = newwin(max_height - 4, max_width, 1, 0);
 	statscr = newwin(3, max_width, max_height - 3, 0);
 
-    if ( memoscr == NULL || dispscr == NULL
-            || statscr == NULL ) {
-        fprintf(stderr, "Failed to initialize ncurses!\n");
-        exit(EXIT_FAILURE);
-    }
+	if ( memoscr == NULL || dispscr == NULL || statscr == NULL ) {
+		end_disp();
+		fprintf(stderr, "Failed to initialize ncurses!\n");
+		exit(EXIT_FAILURE);
+	}
 
 	keypad(stdscr, TRUE);
 	keypad(dispscr, TRUE);
@@ -112,6 +112,22 @@ void scroll_disp(int dx, int dy)
 {
 	scroll_x += dx;
 	scroll_y += dy;
+
+	if (scroll_x < 0) scroll_x = 0;
+	if (scroll_y < 0) scroll_y = 0;
+}
+
+void scroll_center(int x, int y)
+{
+	int cx, cy;
+
+	getmaxyx(dispscr, cy, cx);
+
+	cx /= 2;
+	cy /= 2;
+
+	scroll_x = x - cx;
+	scroll_y = y - cy;
 
 	if (scroll_x < 0) scroll_x = 0;
 	if (scroll_y < 0) scroll_y = 0;
