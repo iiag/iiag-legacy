@@ -16,9 +16,6 @@ void statline(int, const char *, ...);
 
 void scroll_disp(int, int);
 
-int get_dispw(void);
-int get_disph(void);
-
 extern WINDOW * memoscr;
 extern WINDOW * dispscr;
 extern WINDOW * statscr;

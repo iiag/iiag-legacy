@@ -116,13 +116,3 @@ void scroll_disp(int dx, int dy)
 	if (scroll_x < 0) scroll_x = 0;
 	if (scroll_y < 0) scroll_y = 0;
 }
-
-int get_dispw(void)
-{
-	return max_width;
-}
-
-int get_disph(void)
-{
-	return max_height - 4;
-}
