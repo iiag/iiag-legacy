@@ -20,6 +20,8 @@
 
 static void update_status(void)
 {
+	char time[100];
+
 	statline(0, " Hp: %d/%d | Stm: %d/%d | Wt: %d/%d | Xp: %d/%d | Lvl: %d",
 		PLYR.health, PLYR.f->max_health,
 		PLYR.stamina, PLYR.f->max_stamina,
@@ -32,17 +34,15 @@ static void update_status(void)
 		PLYR.attack,
 		PLYR.ac
 	);
+
+	get_time(time, 100);
+	statline(2, " %s", time);
 }
 
 static void step(void)
 {
-	static int step = 0;
-
+	step_world();
 	update_status();
-	assert(PLYR.health > 0);
-
-	zone_step(PLYR.z, step);
-	step = !step;
 }
 
 static void sig_handler(int rc)

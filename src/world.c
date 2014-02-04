@@ -4,6 +4,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <assert.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +23,14 @@ void assure_world(void)
 	static int first = 1;
 
 	if (first) {
+		world.tm.era   = 3;
+		world.tm.year  = 329;
+		world.tm.month = 4;
+		world.tm.mday  = 5;
+		world.tm.wday  = 4;
+		world.tm.hour  = 9;
+		world.tm.min   = 0;
+
 		world.plyr_form = cform_new('@' | A_BOLD);
 
 		vector_init(&world.cforms);
@@ -50,4 +59,44 @@ void init_world(void)
 
 	crtr_spawn(&world.plyr, z);
 	zone_update(z, world.plyr.x, world.plyr.y);
+}
+
+void step_world(void)
+{
+	static int step = 0;
+
+	assert(world.plyr.health > 0);
+
+	zone_step(world.plyr.z, step);
+	step = !step;
+
+	// update time
+	world.tm.min += 125;
+
+	while (world.tm.min >= 60) {
+		world.tm.min -= 60;
+		world.tm.hour++;
+
+		if (world.tm.hour >= 24) {
+			world.tm.hour -= 24;
+			world.tm.mday++;
+			world.tm.wday = (world.tm.wday + 1) % 7 + 1;
+
+			if (world.tm.mday > 30 + (world.tm.month & 1)) {
+				world.tm.mday -= 30 + (world.tm.month & 1);
+				world.tm.month++;
+
+				if (world.tm.month > 12)
+					world.tm.year++;
+			}
+		}
+	}
+}
+
+void get_time(char * to, int max)
+{
+	snprintf(to, max, "%02d:%02d %d/%d/%d Era %d",
+		world.tm.hour, world.tm.min,
+		world.tm.month, world.tm.mday, world.tm.year,
+		world.tm.era);
 }
