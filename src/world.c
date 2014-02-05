@@ -71,7 +71,7 @@ void step_world(void)
 	step = !step;
 
 	// update time
-	world.tm.min += 125;
+	world.tm.min += 5;
 
 	while (world.tm.min >= 60) {
 		world.tm.min -= 60;
