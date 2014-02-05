@@ -17,6 +17,7 @@ void parse_options(int argc, char ** argv)
 		if (argv[i][0] == '-') {
 			switch (argv[i][1]) {
 			case 's': SET(OPT_SHOW_ALL);
+			case 'f': SET(OPT_FORGET_WALLS);
 			default: wrlog("Unknown switch '%s'.", argv[i]);
 			}
 		} else {
