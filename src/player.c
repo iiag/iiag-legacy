@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "player.h"
 #include "display.h"
+#include "options.h"
 
 #define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])
 
@@ -16,7 +17,7 @@ static void update_vis(void)
 		for (y = 0; y < PLYR.z->height; y++) {
 			show = zone_can_see(PLYR.z, PLYR.x, PLYR.y, x, y, 20);
 			if (show != PLYR.z->tiles[x][y].show) {
-				PLYR.z->tiles[x][y].show = show ? show : 2;
+				PLYR.z->tiles[x][y].show = show || OPT(OPT_FORGET_WALLS) ? show : 2;
 				zone_draw_tile(PLYR.z, x, y);
 			}
 		}
