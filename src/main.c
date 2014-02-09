@@ -17,6 +17,7 @@
 #include "creature.h"
 #include "inventory.h"
 #include "lua/lua.h"
+#include "controlls.h"
 
 static void update_status(void)
 {
