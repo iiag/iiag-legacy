@@ -30,7 +30,7 @@ void init_lua(void)
 {
 	int i;
 	lua_State * lstate;
-	
+
 	lstate = luaL_newstate();
 	luaL_openlibs(lstate);
 
