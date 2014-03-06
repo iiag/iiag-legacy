@@ -14,7 +14,6 @@
 #include "config.h"
 #include "player.h"
 #include "display.h"
-#include "options.h"
 #include "creature.h"
 #include "inventory.h"
 #include "lua/lua.h"
@@ -69,7 +68,7 @@ int main(int argc, char ** argv)
 {
 	int c;
 
-	parse_options(argc, argv);
+	init_config(argc, argv);
 	init_lua();
 
 	srandom(time(NULL));

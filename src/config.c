@@ -14,6 +14,7 @@
 config_t config = {
 	NULL,
 	"script/init.lua",
+	0, 0,
 	
 	{
 		// movement controls
@@ -81,13 +82,18 @@ static const struct {
 static void print_help()
 {
 	fprintf(stderr,
-	"options:\n"
+	"\noptions:\n"
 	"    -c [config file]\n"
 	"        Specify the configuration file to use (- for stdin).\n"
+	"    -f\n"
+	"        Turn on wall forgetting.\n"
 	"    -h\n"
 	"        Display this useful information.\n"
 	"    -i [lua init file]\n"
 	"        The initial lua script to run.\n"
+	"    -s\n"
+	"        Show everything.\n"
+	"\n"
 	);
 
 	exit(0);
@@ -103,7 +109,7 @@ static void load_config(const char * file)
 	} else {
 		f = fopen(file, "r");
 		if (f == NULL) {
-			wrlog("Could not open config file '%s'.", file);
+			wrlog("Could not open config file '%s'", file);
 			return;
 		}
 	}
@@ -130,6 +136,14 @@ void init_config(int argc, char ** argv)
 			case 'i':
 				config.lua_init = argv[++i];
 				break;
+			case 's':
+				config.show_all = 1;
+				break;
+			case 'f':
+				config.forget_walls = 1;
+				break;
+			default:
+				wrlog("Ignoring unknown flag '%s'", argv[i]);
 			}
 		} else {
 			wrlog("Command line argument '%s' ignored.", argv[i]);

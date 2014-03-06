@@ -45,6 +45,8 @@ enum {
 typedef struct config {
 	const char * cfg_file;
 	const char * lua_init;
+	int forget_walls;
+	int show_all;
 	int ctrl[TOTAL_CONTROLS];
 } config_t;
 
