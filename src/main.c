@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include "item.h"
 #include "world.h"
+#include "config.h"
 #include "player.h"
 #include "display.h"
 #include "options.h"
@@ -52,6 +53,18 @@ static void sig_handler(int rc)
 	exit(rc);
 }
 
+static int get_ctrl(void)
+{
+	int i;
+	int c = wgetch(memoscr);
+
+	for (i = 0; i < TOTAL_CONTROLS; i++) {
+		if (config.ctrl[i] == c) return i;
+	}
+
+	return CTRL_INVALID;
+}
+
 int main(int argc, char ** argv)
 {
 	int c;
@@ -74,33 +87,41 @@ int main(int argc, char ** argv)
 
 	for (;;) {
 continue_loop:
-		c = wgetch(memoscr);
+		c = get_ctrl();
 		reset_memos();
 
 		switch (c) {
-		case 'h': plyr_act_move(-1,  0); break;
-		case 'j': plyr_act_move( 0,  1); break;
-		case 'k': plyr_act_move( 0, -1); break;
-		case 'l': plyr_act_move( 1,  0); break;
-		case 'y': plyr_act_move(-1, -1); break;
-		case 'u': plyr_act_move( 1, -1); break;
-		case 'b': plyr_act_move(-1,  1); break;
-		case 'n': plyr_act_move( 1,  1); break;
-		case 'i': plyr_act_inv();      break;
-		case 'E': plyr_act_equipped(); break;
-		case ',': plyr_act_pickup();   break;
-		case '.': plyr_act_drop();     break;
-		case 'c': plyr_act_consume();  break;
-		case 'w': plyr_act_equip();    break;
-		case 'C': scroll_center(PLYR.x, PLYR.y); zone_draw(PLYR.z); goto continue_loop;
-		case KEY_LEFT:  scroll_disp(-1,  0); zone_draw(PLYR.z); goto continue_loop;
-		case KEY_RIGHT: scroll_disp( 1,  0); zone_draw(PLYR.z); goto continue_loop;
-		case KEY_UP:    scroll_disp( 0, -1); zone_draw(PLYR.z); goto continue_loop;
-		case KEY_DOWN:  scroll_disp( 0,  1); zone_draw(PLYR.z); goto continue_loop;
-		case ' ': break;
-		case 'q': goto cleanup;
+		// movement
+		case CTRL_LEFT:   plyr_act_move(-1,  0); break;
+		case CTRL_DOWN:   plyr_act_move( 0,  1); break;
+		case CTRL_UP:     plyr_act_move( 0, -1); break;
+		case CTRL_RIGHT:  plyr_act_move( 1,  0); break;
+		case CTRL_ULEFT:  plyr_act_move(-1, -1); break;
+		case CTRL_URIGHT: plyr_act_move( 1, -1); break;
+		case CTRL_DLEFT:  plyr_act_move(-1,  1); break;
+		case CTRL_DRIGHT: plyr_act_move( 1,  1); break;
+
+		// scrolling
+		case CTRL_SCRL_CENTER: scroll_center(PLYR.x, PLYR.y); zone_draw(PLYR.z); goto continue_loop;
+		case CTRL_SCRL_LEFT:   scroll_disp(-1,  0);           zone_draw(PLYR.z); goto continue_loop;
+		case CTRL_SCRL_RIGHT:  scroll_disp( 1,  0);           zone_draw(PLYR.z); goto continue_loop;
+		case CTRL_SCRL_UP:     scroll_disp( 0, -1);           zone_draw(PLYR.z); goto continue_loop;
+		case CTRL_SCRL_DOWN:   scroll_disp( 0,  1);           zone_draw(PLYR.z); goto continue_loop;
+
+		// actions
+		case CTRL_DISP_INV: plyr_act_inv();      break;
+		case CTRL_DISP_EQP: plyr_act_equipped(); break;
+		case CTRL_PICKUP:   plyr_act_pickup();   break;
+		case CTRL_DROP:     plyr_act_drop();     break;
+		case CTRL_CONSUME:  plyr_act_consume();  break;
+		case CTRL_EQUIP:    plyr_act_equip();    break;
+
+		// miscellaneous
+		case CTRL_SKIP_TURN: break;
+		case CTRL_QUIT: goto cleanup;
+
 		default:
-			memo("Unknown key press: %c (%d)", c, c);
+			memo("Unknown key press");
 			goto continue_loop;
 		}
 

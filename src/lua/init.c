@@ -10,10 +10,10 @@
 #include "lua.h"
 #include "form.h"
 #include "../log.h"
+#include "../config.h"
 #include "../display.h"
 
 lua_State * prim_lstate;
-const char * init_script = "script/init.lua";
 
 static const struct {
 	const char * name;
@@ -30,25 +30,27 @@ void init_lua(void)
 {
 	int i;
 	lua_State * lstate;
-
+	
 	lstate = luaL_newstate();
 	luaL_openlibs(lstate);
 
-	if (luaL_loadfile(lstate, init_script)) {
-		end_disp();
-		fprintf(stderr, "Failed to load init script: %s\n", lua_tostring(lstate, -1));
-		exit(-1);
-	}
+	if (config.lua_init != NULL) {
+		if (luaL_loadfile(lstate, config.lua_init)) {
+			end_disp();
+			fprintf(stderr, "Failed to load init script: %s\n", lua_tostring(lstate, -1));
+			exit(-1);
+		}
 
-	for (i = 0; i < sizeof(funcs) / sizeof(*funcs); i++) {
-		lua_pushcfunction(lstate, funcs[i].func);
-		lua_setglobal(lstate, funcs[i].name);
-	}
+		for (i = 0; i < sizeof(funcs) / sizeof(*funcs); i++) {
+			lua_pushcfunction(lstate, funcs[i].func);
+			lua_setglobal(lstate, funcs[i].name);
+		}
 
-	if (lua_pcall(lstate, 0, 0, 0)) {
-		end_disp();
-		fprintf(stderr, "Failed to execute init script: %s\n", lua_tostring(lstate, -1));
-		exit(-1);
+		if (lua_pcall(lstate, 0, 0, 0)) {
+			end_disp();
+			fprintf(stderr, "Failed to execute init script: %s\n", lua_tostring(lstate, -1));
+			exit(-1);
+		}
 	}
 
 	prim_lstate = lstate;
