@@ -2,6 +2,7 @@
 // config.c
 //
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -49,36 +50,199 @@ config_t config = {
 };
 
 ///// Define the Configuration Language /////
-static const struct {
+struct field {
 	enum {
 		STRING,
 		CONTROL,
+		BOOLEAN,
 	} type;
 
-	char * field;
-	size_t offset;
-} cfg_fields[] = {
-	{ STRING, "lua-init", offsetof(config_t, lua_init) },
-
-	// movement controls
-	{ CONTROL, "ctrl-up",     offsetof(config_t, ctrl[CTRL_UP    ]) },
-	{ CONTROL, "ctrl-down",   offsetof(config_t, ctrl[CTRL_DOWN  ]) },
-	{ CONTROL, "ctrl-left",   offsetof(config_t, ctrl[CTRL_LEFT  ]) },
-	{ CONTROL, "ctrl-right",  offsetof(config_t, ctrl[CTRL_RIGHT ]) },
-	{ CONTROL, "ctrl-uleft",  offsetof(config_t, ctrl[CTRL_ULEFT ]) },
-	{ CONTROL, "ctrl-uright", offsetof(config_t, ctrl[CTRL_URIGHT]) },
-	{ CONTROL, "ctrl-dleft",  offsetof(config_t, ctrl[CTRL_DLEFT ]) },
-	{ CONTROL, "ctrl-dright", offsetof(config_t, ctrl[CTRL_DRIGHT]) },
-
-	// scrolling controls
-	{ CONTROL, "ctrl-scrl-center", offsetof(config_t, ctrl[CTRL_SCRL_CENTER]) },
-	{ CONTROL, "ctrl-scrl-up",     offsetof(config_t, ctrl[CTRL_SCRL_UP    ]) },
-	{ CONTROL, "ctrl-scrl-down",   offsetof(config_t, ctrl[CTRL_SCRL_DOWN  ]) },
-	{ CONTROL, "ctrl-scrl-left",   offsetof(config_t, ctrl[CTRL_SCRL_LEFT  ]) },
-	{ CONTROL, "ctrl-scrl-right",  offsetof(config_t, ctrl[CTRL_SCRL_RIGHT ]) },
+	char * name;
+	void * ptr;
 };
 
-// prints help message
+static const struct field cfg_fields[] = {
+	{ STRING,  "lua-init",     &config.lua_init     },
+	{ BOOLEAN, "show-all",     &config.show_all     },
+	{ BOOLEAN, "forget-walls", &config.forget_walls },
+
+	// movement controls
+	{ CONTROL, "ctrl-up",     config.ctrl + CTRL_UP     },
+	{ CONTROL, "ctrl-down",   config.ctrl + CTRL_DOWN   },
+	{ CONTROL, "ctrl-left",   config.ctrl + CTRL_LEFT   },
+	{ CONTROL, "ctrl-right",  config.ctrl + CTRL_RIGHT  },
+	{ CONTROL, "ctrl-uleft",  config.ctrl + CTRL_ULEFT  },
+	{ CONTROL, "ctrl-uright", config.ctrl + CTRL_URIGHT },
+	{ CONTROL, "ctrl-dleft",  config.ctrl + CTRL_DLEFT  },
+	{ CONTROL, "ctrl-dright", config.ctrl + CTRL_DRIGHT },
+
+	// scrolling controls
+	{ CONTROL, "ctrl-scrl-center", config.ctrl + CTRL_SCRL_CENTER },
+	{ CONTROL, "ctrl-scrl-up",     config.ctrl + CTRL_SCRL_UP     },
+	{ CONTROL, "ctrl-scrl-down",   config.ctrl + CTRL_SCRL_DOWN   },
+	{ CONTROL, "ctrl-scrl-left",   config.ctrl + CTRL_SCRL_LEFT   },
+	{ CONTROL, "ctrl-scrl-right",  config.ctrl + CTRL_SCRL_RIGHT  },
+};
+
+///// Configuration file parsing /////
+static int igspaces(FILE * f)
+{
+	int c;
+
+	do {
+		c = fgetc(f);
+		if (c == '#') while (fgetc(f) != '\n');
+	} while (isspace(c));
+
+	ungetc(c, f);
+	return c;
+}
+
+static char * get_string(FILE * f)
+{
+	// this is not very elegant
+
+#define MAX 512
+
+	int i, c = -1, p;
+	char str[MAX];
+	char * dest;
+
+	igspaces(f);
+
+	// get delimeted string
+	for (i = 0; i < MAX - 1; i++) {
+		p = c;
+		c = fgetc(f);
+
+		if (c == EOF || c == 0 || (p != '\\' && (isspace(c) || c == '=')))
+			break;
+
+		str[i] = c;
+	}
+
+	str[i] = 0;
+	if (c != EOF) ungetc(c, f);
+
+	// return malloced string
+	dest = malloc(strlen(str) + 1);
+	strcpy(dest, str);
+	return dest;
+
+#undef MAX
+}
+
+static int get_control(FILE * f)
+{
+	static const struct {
+		char * name;
+		int ctrl;
+	} special[] = {
+		{ "%up%",    KEY_UP    },
+		{ "%down%",  KEY_DOWN  },
+		{ "%left%",  KEY_LEFT  },
+		{ "%right%", KEY_RIGHT },
+	};
+
+	int ctrl, i;
+	char * s, * o;
+
+	o = s = get_string(f);
+
+	for (i = 0; i < sizeof(special) / sizeof(*special); i++) {
+		if (!strcmp(special[i].name, s)) {
+			ctrl = special[i].ctrl;
+			goto done;
+		}
+	}
+
+	if (isdigit(*s))
+		ctrl = atoi(s);
+	else
+		ctrl = *s;
+
+done:
+	free(o);
+	return ctrl;
+}
+
+static int get_boolean(FILE * f, const char * fn)
+{
+	int b;
+	char * s = get_string(f);
+
+	b = !strcmp("true", s);
+	if (!b && strcmp("false", s)) {
+		wrlog("%s: expected 'true' or 'false' instead of '%s'", fn, s);
+	}
+
+	free(s);
+	return b;
+}
+
+static void expect(char c, FILE * f, const char * fn)
+{
+	int g = fgetc(f);
+	if (c != g) {
+		wrlog("%s: Expected %c (%d), got %c (%d)", fn, c, c, g, g);
+	}
+}
+
+static void load_config(const char * file)
+{
+	int i;
+	FILE * f;
+	char * name;
+	const struct field * fld;
+
+	if (!strcmp(file, "-")) {
+		f = stdin;
+	} else {
+		f = fopen(file, "r");
+		if (f == NULL) {
+			wrlog("Could not open config file '%s'", file);
+			return;
+		}
+	}
+
+	while (igspaces(f) != EOF) {
+		fld = NULL;
+		name = get_string(f);
+
+		for (i = 0; i < sizeof(cfg_fields) / sizeof(*cfg_fields); i++) {
+			if (!strcmp(cfg_fields[i].name, name)) {
+				fld = cfg_fields + i;
+				break;
+			}
+		}
+
+		expect('=', f, file);
+
+		if (fld == NULL) {
+			wrlog("%s: Unknown field '%s'", file, name);
+			free(get_string(f));
+		} else {
+			switch (fld->type) {
+			case STRING:
+				// FIXME potential memory leak
+				*(char **)fld->ptr = get_string(f);
+				break;
+			case BOOLEAN:
+				*(int *)fld->ptr = get_boolean(f, file);
+				break;
+			case CONTROL:
+				*(int *)fld->ptr = get_control(f);
+				break;
+			}
+		}
+
+		free(name);
+	}
+
+	if (f != stdin) fclose(f);
+}
+
+///// Command line argument parsing /////
 static void print_help()
 {
 	fprintf(stderr,
@@ -99,27 +263,6 @@ static void print_help()
 	exit(0);
 }
 
-// loads configuration from file
-static void load_config(const char * file)
-{
-	FILE * f;
-
-	if (!strcmp(file, "-")) {
-		f = stdin;
-	} else {
-		f = fopen(file, "r");
-		if (f == NULL) {
-			wrlog("Could not open config file '%s'", file);
-			return;
-		}
-	}
-
-	// TODO i'll get to it eventually
-
-	if (f != stdin) fclose(f);
-}
-
-// handles command-line arguments and loads config file
 void init_config(int argc, char ** argv)
 {
 	int i;
