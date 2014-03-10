@@ -5,7 +5,7 @@
 SHELL  = bash
 TARGET = iiag
 CC     = gcc
-LUAV   = lua5.1
+LUAV   = lua
 CCFL  := -c -g -Wall `pkg-config --cflags $(LUAV)`
 LDFL  := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 
