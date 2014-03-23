@@ -85,7 +85,7 @@ void crtr_spawn(creature * c, zone * z)
 		assert(timeout--); // FIXME
 	} while (!crtr_tele(c, x, y, z));
 
-	trigger_pull(c->f->on_spawn, c);
+	trigger_pull(&c->f->on_spawn, c);
 }
 
 //
@@ -163,7 +163,7 @@ void crtr_xp_up(creature * c, int xp)
 		c->level++;
 		c->need_xp = req_xp(c);
 
-		if (plyr_is_me(c)) plyr_ev_lvlup();
+		trigger_pull(&c->f->on_lvlup, NULL);
 		crtr_xp_up(c, 0);
 	}
 }
@@ -202,8 +202,6 @@ int crtr_equip(creature * c, item * it, slot sl)
 // The attacker attacks the defender (attack vs ac)
 // Does not free any resources when the defender is killed
 //
-// TODO trigger death event (don't directly call plyr_ev_death)
-//
 int crtr_attack(creature * attacker, creature * defender)
 {
 	int damage, xp;
@@ -220,10 +218,7 @@ int crtr_attack(creature * attacker, creature * defender)
 		if (xp < 0) xp = 0;
 
 		crtr_xp_up(attacker, xp);
-
-		if (plyr_is_me(defender)) {
-			plyr_ev_death("violence");
-		}
+		trigger_pull(&defender->f->on_death, "violence");
 
 		return DEAD;
 	}
@@ -326,6 +321,8 @@ static void beast_ai(creature * c)
 // This is called once per game step, i.e. once every time for each creature
 //   when the player presses a significant key
 //
+// TODO trigger death event properly
+//
 void crtr_step(creature * c, int step)
 {
 	int x, y;
@@ -338,6 +335,7 @@ void crtr_step(creature * c, int step)
 		// stamina upkeep
 		c->stamina -= 1;
 		if (c->stamina <= 0) {
+			// FIXME
 			if (plyr_is_me(c)) {
 				plyr_ev_death("starvation");
 			} else {

@@ -19,6 +19,8 @@ typedef struct cform {
 	int def_sight;
 
 	trigger on_spawn;
+	trigger on_death;
+	trigger on_lvlup;
 } cform;
 
 //

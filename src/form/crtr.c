@@ -15,7 +15,10 @@ cform * cform_new(chtype ch)
 	cf->def_attack  = 1;
 	cf->def_ac      = 1;
 	cf->def_sight   = 15;
-	cf->on_spawn    = 0;
+
+	trigger_init(cf->on_spawn);
+	trigger_init(cf->on_death);
+	trigger_init(cf->on_lvlup);
 
 	return cf;
 }

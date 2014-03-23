@@ -81,7 +81,7 @@ GET_TEMPLATE_FRONT(int, bool)
 GET_TEMPLATE_END
 
 
-GET_TEMPLATE_FRONT(trigger, trigger)
+GET_TEMPLATE_FRONT(int, trigger)
 	if (lua_isfunction(lstate, -1)) {
 		return luaL_ref(lstate, LUA_REGISTRYINDEX);
 	}
@@ -96,7 +96,7 @@ static void set_cform(lua_State * lstate, cform * cf)
 	cf->def_attack  = get_int(lstate, "attack",      cf->def_attack);
 	cf->def_ac      = get_int(lstate, "ac",          cf->def_ac);
 	cf->def_sight   = get_int(lstate, "sight",       cf->def_sight);
-	cf->on_spawn    = get_trigger(lstate, "on_spawn", cf->on_spawn);
+	cf->on_spawn.lua_block = get_trigger(lstate, "on_spawn", cf->on_spawn.lua_block);
 }
 	
 int lcf_cform(lua_State * lstate)

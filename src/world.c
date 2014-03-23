@@ -12,6 +12,7 @@
 #include "log.h"
 #include "util.h"
 #include "world.h"
+#include "player.h"
 #include "display.h"
 #include "inventory.h"
 #include "form/form.h"
@@ -61,6 +62,8 @@ void init_world(void)
 	z = zone_new(150, 50);
 	vector_append(&world.zones, z);
 
+	world.plyr_form->on_death.c_func = (trigger_cfunc)plyr_ev_death;
+	world.plyr_form->on_lvlup.c_func = (trigger_cfunc)plyr_ev_lvlup;
 	crtr_init(&world.plyr, world.plyr_form);
 	world.plyr.nofree = 1;
 	world.plyr.inv = inv_new(500);
