@@ -70,4 +70,23 @@ cform {
 	attack = 1337;
 	char = '!';
 	freq = 1;
+	sight = 5;
+}
+
+cform {
+	name = 'sentinel';
+	max_health = 3;
+	attack = 1;
+	freq = 50;
+	char = 'T';
+	sight = 150;
+}
+
+cform {
+	name = 'statue';
+	max_health = 120;
+	attack = 50;
+	ac = 30;
+	char = 'S';
+	sight = 1;
 }

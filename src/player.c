@@ -15,7 +15,7 @@ static void update_vis(void)
 
 	for (x = 0; x < PLYR.z->width; x++) {
 		for (y = 0; y < PLYR.z->height; y++) {
-			show = zone_can_see(PLYR.z, PLYR.x, PLYR.y, x, y, 20);
+			show = zone_can_see(PLYR.z, PLYR.x, PLYR.y, x, y, PLYR.sight);
 			if (show != PLYR.z->tiles[x][y].show) {
 				PLYR.z->tiles[x][y].show = show || config.forget_walls ? show : 2;
 				zone_draw_tile(PLYR.z, x, y);

@@ -49,6 +49,7 @@ void crtr_init(creature * c, cform * f)
 	c->ability = NULL;
 	c->attack  = f->def_attack;
 	c->ac      = f->def_ac;
+	c->sight   = f->def_sight;
 	c->name    = NULL;
 	c->level   = 1;
 	c->need_xp = req_xp(c);
@@ -230,10 +231,103 @@ int crtr_attack(creature * attacker, creature * defender)
 	return damage;
 }
 
+//
+// TODO this function
+//
+int crtr_disposition(const creature * a, const creature * b)
+{
+	// temporary
+	if (a == b) return 1;
+	return -1;
+}
+
+//
+// Controls a creature as a basic beast-like ai
+// Attacks creatures based on closeness and disposition, perfering to attack
+//   creatures close and of a negative disposition.
+//
+static void beast_ai(creature * c)
+{
+	creature * tar;
+	int x, y, s, dam, show;
+	int dx, dy;
+	int tx = 0;
+	int ty = 0;
+	int score = -1;
+
+	int sx = c->x > c->sight ? c->x - c->sight : 0;
+	int sy = c->y > c->sight ? c->y - c->sight : 0;
+	int ex = c->x + c->sight;
+	int ey = c->y + c->sight;
+
+	if (ex > c->z->width)  ex = c->z->width;
+	if (ey > c->z->height) ey = c->z->height;
+
+	// find target
+	for (x = sx; x < ex; x++) {
+		for (y = sy; y < ey; y++) {
+			if (zone_can_see(c->z, c->x, c->y, x, y, c->sight)) {
+				if (c->z->tiles[x][y].crtr != NULL) {
+					s = -crtr_disposition(c, c->z->tiles[x][y].crtr);
+					dx = x - c->x;
+					dy = y - c->y;
+					s *= c->sight - (int)(sqrt(dx*dx + dy*dy) + 0.5) + 1;
+
+					if (s > score) {
+						score = s;
+						tx = x;
+						ty = y;
+					}
+				}
+			}
+		}
+	}
+
+	// move towards/attack target (if there is a target)
+	if (score > -1) {
+		if (c->x > tx) dx = -1;
+		else if (c->x < tx) dx = 1;
+		else dx = 0;
+
+		if (c->y > ty) dy = -1;
+		else if (c->y < ty) dy = 1;
+		else dy = 0;
+
+		if (c->x + dx == tx && c->y + dy == ty) {
+			tar = c->z->tiles[tx][ty].crtr;
+			dam = crtr_attack(c, tar);
+
+			show = tileof(c)->show && tileof(tar)->show;
+
+			switch (dam) {
+			case DEAD:
+				if (show) memo("%s kills %s", c->f->name, tar->f->name);
+				zone_update(tar->z, tar->x, tar->y);
+				wrefresh(dispscr);
+				crtr_free(tar);
+				break;
+			case 0:
+				if (show) memo("%s misses %s.", c->f->name, tar->f->name);
+				break;
+			default:
+				if (show) memo("%s hits %s for %d damage.", c->f->name, tar->f->name, dam);
+			}
+		} else {
+			if (!crtr_move(c, dx, dy)) {
+				if (!dx || !crtr_move(c, dx, 0)) {
+					crtr_move(c, 0, dy);
+				}
+			}
+		}
+	}
+}
+
+//
+// This is called once per game step, i.e. once every time for each creature
+//   when the player presses a significant key
+//
 void crtr_step(creature * c, int step)
 {
-	int dam;
-	int dx = 0, dy = 0;
 	int x, y;
 	zone * z;
 
@@ -261,31 +355,8 @@ void crtr_step(creature * c, int step)
 			return;
 		}
 
-		// ai section
 		if (!plyr_is_me(c)) {
-			// this is pretty ugly
-
-			if (c->x > world.plyr.x) dx = -1;
-			else if (c->x < world.plyr.x) dx = 1;
-
-			if (c->y > world.plyr.y) dy = -1;
-			else if (c->y < world.plyr.y) dy = 1;
-
-			if (PLYR.x == c->x + dx && PLYR.y == c->y + dy) {
-				dam = crtr_attack(c, &PLYR);
-
-				if (dam) {
-					memo("%s hits you for %d damage", c->f->name, dam);
-				} else {
-					memo("%s misses you", c->f->name);
-				}
-			} else {
-				if (!crtr_move(c, dx, dy) && dx && dy) {
-					if (!crtr_move(c, dx, 0)) {
-						crtr_move(c, 0, dy);
-					}
-				}
-			}
+			beast_ai(c);
 		}
 
 		c->step = step;

@@ -95,6 +95,7 @@ static void set_cform(lua_State * lstate, cform * cf)
 	cf->max_stamina = get_int(lstate, "max_stamina", cf->max_stamina);
 	cf->def_attack  = get_int(lstate, "attack",      cf->def_attack);
 	cf->def_ac      = get_int(lstate, "ac",          cf->def_ac);
+	cf->def_sight   = get_int(lstate, "sight",       cf->def_sight);
 	cf->on_spawn    = get_trigger(lstate, "on_spawn", cf->on_spawn);
 }
 	

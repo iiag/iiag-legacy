@@ -16,6 +16,7 @@ typedef struct cform {
 	int max_stamina;
 	int def_attack;
 	int def_ac;
+	int def_sight;
 
 	trigger on_spawn;
 } cform;
