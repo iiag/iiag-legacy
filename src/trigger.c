@@ -7,6 +7,9 @@
 #include "trigger.h"
 #include "lua/lua.h"
 
+//
+// Right now, simply initiates a call to a lua block
+//
 void trigger_pull(trigger tr, void * ud)
 {
 	if (tr) {

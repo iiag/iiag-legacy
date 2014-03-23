@@ -108,17 +108,19 @@ void plyr_act_move(int dx, int dy)
 {
 	int dam;
 	tile * t;
+	creature * def;
 
 	if (!crtr_move(&PLYR, dx, dy)) {
 		t = zone_at(PLYR.z, PLYR.x + dx, PLYR.y + dy);
 
 		// auto attack
 		if (t != NULL && t->crtr != NULL) {
-			switch (dam = crtr_attack(&PLYR, t->crtr)) {
+			def = t->crtr;
+
+			switch (dam = crtr_attack(&PLYR, def)) {
 			case DEAD:
-				memo("You slay the %s.", t->crtr->f->name);
-				crtr_free(t->crtr);
-				t->crtr = NULL;
+				memo("You slay the %s.", def->f->name);
+				crtr_free(def);
 
 				zone_update(PLYR.z, PLYR.x + dx, PLYR.y + dy);
 				wrefresh(dispscr);

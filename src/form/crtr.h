@@ -20,7 +20,14 @@ typedef struct cform {
 	trigger on_spawn;
 } cform;
 
+//
+// Creates a new cform, to be freed with cform_free
+//
 cform * cform_new(chtype);
+
+//
+// Frees a cform created with cform_new or assigned with form_assign
+//
 void cform_free(cform *);
 
 #endif

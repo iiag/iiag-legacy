@@ -4,6 +4,10 @@
 
 #include "form.h"
 
+typedef struct {
+	is_form;
+} form;
+
 void form_initial(void * ptr, chtype ch)
 {
 	form * f = ptr;
@@ -14,7 +18,7 @@ void form_initial(void * ptr, chtype ch)
 	f->ch = ch;
 }
 
-void * form_copy(void * ptr)
+void * form_assign(void * ptr)
 {
 	form * f = ptr;
 	f->refs++;

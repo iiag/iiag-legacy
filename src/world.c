@@ -18,6 +18,10 @@
 
 world_st world;
 
+//
+// Makes sure everything is in a usable state
+// Only does something the first time it is called
+//
 void assure_world(void)
 {
 	static int first = 1;
@@ -44,6 +48,10 @@ void assure_world(void)
 	}
 }
 
+//
+// Performs the first initialization of the world
+// Will call assure_world if it has yet to be called
+//
 void init_world(void)
 {
 	zone * z;
@@ -61,6 +69,9 @@ void init_world(void)
 	zone_update(z, world.plyr.x, world.plyr.y);
 }
 
+//
+// Right now, only steps the player's zone and updates the time
+//
 void step_world(void)
 {
 	static int step = 0;
@@ -93,6 +104,10 @@ void step_world(void)
 	}
 }
 
+//
+// Fills the string to with the time
+// 30 characters should be enough right now
+//
 void get_time(char * to, int max)
 {
 	snprintf(to, max, "%02d:%02d %d/%d/%d Era %d",

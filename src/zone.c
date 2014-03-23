@@ -203,7 +203,7 @@ void zone_update(zone * z, int x, int y)
 	item * it;
 	chtype ch = '.';
 
-	if (z->tiles[x][y].crtr == NULL) {
+	if (z->tiles[x][y].crtr == NULL || z->tiles[x][y].crtr->health <= 0) {
 		for (i = 0; i < z->tiles[x][y].inv->size; i++) {
 			it = z->tiles[x][y].inv->itms[i];
 

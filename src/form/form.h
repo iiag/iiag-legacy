@@ -9,6 +9,7 @@ struct form;
 
 #include <ncurses.h>
 
+// Placed before properties in all form subclasses
 #define is_form \
 	char * name; \
 	int refs; \
@@ -16,12 +17,16 @@ struct form;
 	int freq; \
 	chtype ch
 
-// this type should never be declared
-typedef struct form {
-	is_form;
-} form;
-
+//
+// Initializes a form
+// To be called in subclass constructors
+//
 void form_initial(void *, chtype);
-void * form_copy(void *);
+
+//
+// Handles reference counting for forms
+// To be called on all permenant assignments of forms
+//
+void * form_assign(void *);
 
 #endif

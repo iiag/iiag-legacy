@@ -27,11 +27,28 @@ typedef struct {//world states
 	int max_cforms_freq;
 } world_st;
 
-extern world_st world;//prototype world
+// The singleton world object
+extern world_st world;
 
+//
+// Assures that the world is in a manipulatable state
+// Should be called if you don't know if init_world has be called yet
+//
 void assure_world(void);
-void init_world(void);//initializes the world
+
+//
+// Initializes the world
+//
+void init_world(void);
+
+//
+// Performs a single game step over the entire world
+//
 void step_world(void);
+
+//
+// Gets a string representing the current time of the world
+//
 void get_time(char *, int);
 
 #endif

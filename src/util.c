@@ -23,7 +23,7 @@ void * choose_random(vector_t * v, int offset, int max)
 	return v->arr[i];
 }
 
-char * read_file(const char * fn)//reading the file contaning teh list of creatures, monsters, and generic items 
+char * read_file(const char * fn)
 {
 	FILE * f;
 	char * buf;

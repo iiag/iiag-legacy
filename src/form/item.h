@@ -29,7 +29,14 @@ typedef struct iform {
 	int slot;
 } iform;
 
+//
+// Creates a new item form, to be freed with iform_free
+//
 iform * iform_new(unsigned, chtype);
+
+//
+// Frees an iform from iform_new or form_assign
+//
 void iform_free(iform *);
 
 #endif

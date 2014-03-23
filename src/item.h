@@ -18,10 +18,27 @@ typedef struct item {
 	int i; // index in inventory
 } item;
 
+//
+// Creates a new item, to be freed with item_free
+//
 item * item_new(iform *);
-void item_free(item *); // does not remove it from its inventory
 
+//
+// Frees an item created with item_new
+// Does not remove it from it's inventory
+//
+void item_free(item *);
+
+//
+// Teleport an item to a given location
+// Sets 'of' and 'i' if successful
+// Returns 1 on success, 0 on failure
+//
 int item_tele(item *, int, int, struct zone *);
+
+//
+// Checks if an item is equiped to a creature
+//
 int item_equipped(item *, struct creature *);
 
 #endif

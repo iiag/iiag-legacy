@@ -21,16 +21,23 @@
 // iterations before spawn attempts timeout
 #define SPAWN_TIMEOUT 5000
 
+//
+// For a given creature, calculates the required XP to level up
+//
 static int req_xp(creature * c)
 {
 	return (int) (ceil(exp(c->level)) * LEVELING_CONSTANT);
 }
 
+//
+// Initializes the creature, all values are set
+// Calls form_assign for f
+//
 void crtr_init(creature * c, cform * f)
 {
 	int i;
 
-	c->f = form_copy(f);
+	c->f = form_assign(f);
 	c->nofree = 0;
 	c->step = 1;
 
@@ -50,6 +57,9 @@ void crtr_init(creature * c, cform * f)
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
 }
 
+//
+// Basically allocates and wraps to crtr_init
+//
 creature * crtr_new(cform * f)
 {
 	creature * c = malloc(sizeof(creature));
@@ -57,6 +67,12 @@ creature * crtr_new(cform * f)
 	return c;
 }
 
+//
+// Places the creature at a random location in the zone
+// crtr_tele handles placing the creature
+//
+// TODO fix what happens on timeout
+//
 void crtr_spawn(creature * c, zone * z)
 {
 	int timeout = SPAWN_TIMEOUT;
@@ -71,23 +87,31 @@ void crtr_spawn(creature * c, zone * z)
 	trigger_pull(c->f->on_spawn, c);
 }
 
+//
+// Frees the creature if c->nofree not set
+// Will try to remove self from zone
+//
 void crtr_free(creature * c)
 {
 	if (!c->nofree) {
+		if (c->z != NULL) {
+			assert(tileof(c)->crtr == c);
+			tileof(c)->crtr = NULL;
+		}
+
 		cform_free(c->f);
 		free(c);
 	}
 }
 
-static void update2(zone * z, int x1, int y1, int x2, int y2)
-{
-	if (z != NULL && z == world.plyr.z) {
-		zone_update(z, x1, y1);
-		zone_update(z, x2, y2);
-		wrefresh(dispscr);
-	}
-}
-
+//
+// This takes a creature, and tries to place it somewhere
+//
+// Will fail if target square is:
+//   already occupied
+//   impassible
+//   nonexistant
+//
 int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
 	tile * t = zone_at(z, x, y);
@@ -97,9 +121,14 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 
 		if (crtr->z != NULL) {
 			tileof(crtr)->crtr = NULL;
-		}
 
-		update2(crtr->z, x, y, crtr->x, crtr->y);
+			// redraw the tiles
+			if (crtr->z == world.plyr.z) {
+				zone_update(z, x, y);
+				zone_update(z, crtr->x, crtr->y);
+				wrefresh(dispscr);
+			}
+		}
 
 		crtr->x = x;
 		crtr->y = y;
@@ -111,16 +140,20 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 	return 0;
 }
 
+//
+// Simply wraps to crtr_tele, but relative
+//
 int crtr_move(creature * crtr, int dx, int dy)
 {
-	int ox = crtr->x;
-	int oy = crtr->y;
-	int nx = ox + dx;
-	int ny = oy + dy;
+	int nx = crtr->x + dx;
+	int ny = crtr->y + dy;
 
 	return crtr_tele(crtr, nx, ny, crtr->z);
 }
 
+//
+// Gives a creature expirence points an
+//
 void crtr_xp_up(creature * c, int xp)
 {
 	c->xp += xp;
@@ -134,17 +167,25 @@ void crtr_xp_up(creature * c, int xp)
 	}
 }
 
+//
+// Unequips an item
+//
 void crtr_unequip(creature * c, slot sl)
 {
-	c->attack -= c->slots[sl]->f->modify_attack;
-	c->ac     -= c->slots[sl]->f->modify_ac;
-	c->slots[sl] = NULL;
+	if (c->slots[sl] != NULL) {
+		c->attack -= c->slots[sl]->f->modify_attack;
+		c->ac     -= c->slots[sl]->f->modify_ac;
+		c->slots[sl] = NULL;
+	}
 }
 
+//
+// Equips an item, unequips whatever was there first
+//
 int crtr_equip(creature * c, item * it, slot sl)
 {
 	if (it->f->type & ITEM_EQUIPABLE) {
-		if (c->slots[sl] != NULL) crtr_unequip(c, sl);
+		crtr_unequip(c, sl);
 
 		c->attack += it->f->modify_attack;
 		c->ac     += it->f->modify_ac;
@@ -156,6 +197,12 @@ int crtr_equip(creature * c, item * it, slot sl)
 	return 0;
 }
 
+//
+// The attacker attacks the defender (attack vs ac)
+// Does not free any resources when the defender is killed
+//
+// TODO trigger death event (don't directly call plyr_ev_death)
+//
 int crtr_attack(creature * attacker, creature * defender)
 {
 	int damage, xp;
@@ -175,10 +222,6 @@ int crtr_attack(creature * attacker, creature * defender)
 
 		if (plyr_is_me(defender)) {
 			plyr_ev_death("violence");
-		} else if (!plyr_is_me(attacker)) {
-			// the player wants the name of what he killed
-			tileof(defender)->crtr = NULL;
-			crtr_free(defender);
 		}
 
 		return DEAD;
@@ -195,6 +238,9 @@ void crtr_step(creature * c, int step)
 	zone * z;
 
 	if (c->step != step) {
+		assert(c->health > 0);
+		assert(c->stamina > 0);
+
 		// stamina upkeep
 		c->stamina -= 1;
 		if (c->stamina <= 0) {
@@ -207,7 +253,6 @@ void crtr_step(creature * c, int step)
 				y = c->y;
 				z = c->z;
 
-				tileof(c)->crtr = NULL;
 				crtr_free(c);
 				zone_update(z, x, y);
 				wrefresh(dispscr);
@@ -247,6 +292,9 @@ void crtr_step(creature * c, int step)
 	}
 }
 
+//
+// If equipped, unequip item, then remove from inventory
+//
 item * crtr_rm_item(creature * c, int i)
 {
 	item * it = c->inv->itms[i];
