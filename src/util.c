@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "log.h"
 #include "util.h"
 
 void * choose_random(vector_t * v, int offset, int max)
@@ -47,7 +48,12 @@ char * read_file(const char * fn)
 
 char * copy_str(const char * old)//copy string
 {
-	char * str = malloc(strlen(old) + 1);
+	char * str;
+
+	if (old == NULL) return NULL;
+
+	str = malloc(strlen(old) + 1);
 	strcpy(str, old);
+
 	return str;
 }

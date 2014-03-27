@@ -5,10 +5,10 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include "item.h"
 #include "util.h"
 #include "zone.h"
 #include "creature.h"
-#include "form/item.h"
 
 typedef struct {
 	int era, year, month;
@@ -17,8 +17,7 @@ typedef struct {
 } world_time_t;
 
 typedef struct {//world states
-	creature plyr;//player creature
-	cform * plyr_form;
+	creature plyr;
 	world_time_t tm;
 	struct vector zones;//list of zones that exist
 	struct vector iforms;

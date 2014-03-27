@@ -47,9 +47,9 @@ void plyr_act_pickup(void)
 			if ((j = inv_add(PLYR.inv, PLYRT.inv->itms[i])) != INVALID) {
 				PLYRT.inv->itms[i]->i = j;
 				inv_rm(PLYRT.inv, i);
-				memo("You pick up the %s", PLYR.inv->itms[j]->f->name);
+				memo("You pick up the %s", PLYR.inv->itms[j]->name);
 			} else {
-				memo("The %s is too heavy to pick up.", PLYRT.inv->itms[i]->f->name);
+				memo("The %s is too heavy to pick up.", PLYRT.inv->itms[i]->name);
 			}
 		} else {
 			memo("You try to pick it up, but then you realize it does not exist.");
@@ -68,9 +68,9 @@ void plyr_act_drop(void)
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
 		if((j=inv_add(PLYRT.inv,PLYR.inv->itms[i]))!=INVALID){
 			crtr_rm_item(&PLYR, i)->i = j;
-			memo("You dropped the %s",PLYRT.inv->itms[j]->f->name);
+			memo("You dropped the %s",PLYRT.inv->itms[j]->name);
 		}else{
-			memo("You cannot drop the %s.",PLYR.inv->itms[i]->f->name);
+			memo("You cannot drop the %s.",PLYR.inv->itms[i]->name);
 		}
 	}else{
 		memo("There is no such item.");
@@ -96,12 +96,12 @@ void plyr_act_equipped(void)
 		wprintw(dispscr, " %s: ", slot_names[i]);
 
 		if (PLYR.slots[i] == NULL) wprintw(dispscr, "nothing\n");
-		else wprintw(dispscr, "%s\n", PLYR.slots[i]->f->name);
+		else wprintw(dispscr, "%s\n", PLYR.slots[i]->name);
 	}
 
 	wgetch(dispscr);
 	zone_draw(PLYR.z);
-	wrefresh(dispscr); 
+	wrefresh(dispscr);
 }
 
 void plyr_act_move(int dx, int dy)
@@ -119,7 +119,7 @@ void plyr_act_move(int dx, int dy)
 
 			switch (dam = crtr_attack(&PLYR, def)) {
 			case DEAD:
-				memo("You slay the %s.", def->f->name);
+				memo("You slay the %s.", crtr_name(def));
 				crtr_free(def);
 
 				zone_update(PLYR.z, PLYR.x + dx, PLYR.y + dy);
@@ -146,16 +146,16 @@ void plyr_act_consume(void)
 	i = inv_prompt("What dost thou consume?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
-		if (PLYR.inv->itms[i]->f->type & ITEM_CONSUMABLE){
+		if (PLYR.inv->itms[i]->type & ITEM_CONSUMABLE){
 			it = crtr_rm_item(&PLYR, i);
 
-			PLYR.health  += it->f->restore_health;
-			PLYR.stamina += it->f->restore_stamina;
+			PLYR.health  += it->restore_health;
+			PLYR.stamina += it->restore_stamina;
 
-			if (PLYR.health  > PLYR.f->max_health ) PLYR.health  = PLYR.f->max_health;
-			if (PLYR.stamina > PLYR.f->max_stamina) PLYR.stamina = PLYR.f->max_stamina;
+			if (PLYR.health  > PLYR.max_health ) PLYR.health  = PLYR.max_health;
+			if (PLYR.stamina > PLYR.max_stamina) PLYR.stamina = PLYR.max_stamina;
 
-			memo("Thou dost consume the %s.", it->f->name);
+			memo("Thou dost consume the %s.", it->name);
 			item_free(it);
 		}else{
 			memo("That would upset thy stomach.");
@@ -175,11 +175,11 @@ void plyr_act_equip(void)
 	i = inv_prompt("What dost thou equip?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL){
-		if (PLYR.inv->itms[i]->f->type & ITEM_EQUIPABLE){
+		if (PLYR.inv->itms[i]->type & ITEM_EQUIPABLE){
 			it = PLYR.inv->itms[i];
-			crtr_equip(&PLYR, it, it->f->slot);
+			crtr_equip(&PLYR, it, it->slot);
 
-			memo("Thou dost equip the %s.", it->f->name);
+			memo("Thou dost equip the %s.", it->name);
 		} else {
 			memo("It seems trying to equip that would prove fruitless.");
 		}
@@ -207,7 +207,7 @@ void plyr_ev_death(const char * reasons)
 void plyr_ev_lvlup(void)
 {
 	memo("Level up!");
-	PLYR.f->max_health += 5;
+	PLYR.max_health += 5;
 	PLYR.health += 5;
 	PLYR.attack += 1;
 }

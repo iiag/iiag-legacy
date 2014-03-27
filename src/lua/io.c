@@ -7,7 +7,7 @@
 #include "../log.h"
 #include "../display.h"
 
-const char * stringify(lua_State * lstate)
+static const char * stringify(lua_State * lstate)
 {
 	int n = lua_gettop(lstate);
 	lua_concat(lstate, n);

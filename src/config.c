@@ -16,7 +16,7 @@ config_t config = {
 	NULL,
 	"script/init.lua",
 	0, 0,
-	
+
 	{
 		// movement controls
 		'k', // up
@@ -27,7 +27,7 @@ config_t config = {
 		'u', // up right
 		'b', // down left
 		'n', // down right
-	
+
 		// scrolling controls
 		'C',
 		KEY_UP,

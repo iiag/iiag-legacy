@@ -23,8 +23,8 @@ static void update_status(void)
 	char time[100];
 
 	statline(0, " Hp: %d/%d | Stm: %d/%d | Wt: %d/%d | Xp: %d/%d | Lvl: %d",
-		PLYR.health, PLYR.f->max_health,
-		PLYR.stamina, PLYR.f->max_stamina,
+		PLYR.health, PLYR.max_health,
+		PLYR.stamina, PLYR.max_stamina,
 		PLYR.inv->weight, PLYR.inv->max_weight,
 		PLYR.xp, PLYR.need_xp,
 		PLYR.level
@@ -48,7 +48,7 @@ static void step(void)
 static void sig_handler(int rc)
 {
 	end_disp();
-	fprintf(stderr, "Signal %d caught.\n", rc);
+	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
 

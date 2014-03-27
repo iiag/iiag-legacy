@@ -49,7 +49,7 @@ int inv_add(inventory * inv, item * it)
 
 	// See if item fits
 	if (!inv_try(inv, it)) return INVALID;
-	inv->weight += it->f->weight;
+	inv->weight += it->weight;
 
 	// Look for free slot
 	for (i = 0; i < inv->size; i++) {
@@ -81,7 +81,7 @@ int inv_add(inventory * inv, item * it)
 int inv_try(inventory * inv, item * it)
 {
 	if (inv->max_weight == INFINITE) return 1;
-	return it->f->weight + inv->weight <= inv->max_weight;
+	return it->weight + inv->weight <= inv->max_weight;
 }
 
 //
@@ -92,9 +92,9 @@ int inv_try(inventory * inv, item * it)
 item * inv_rm(inventory * inv, int i)
 {
 	if (inv->itms[i] == NULL) return NULL;
-	
+
 	item * ret = inv->itms[i];
-	inv->weight -= inv->itms[i]->f->weight;
+	inv->weight -= inv->itms[i]->weight;
 	inv->itms[i] = NULL;
 
 	return ret;
@@ -109,7 +109,7 @@ item * inv_rm(inventory * inv, int i)
 int inv_prompt(const char * prompt, inventory * inv, creature * c)
 {
 	int i;
-	
+
 	wmove(dispscr, 0, 0);
 	wprintw(dispscr, "%s\n", prompt);
 
@@ -117,7 +117,7 @@ int inv_prompt(const char * prompt, inventory * inv, creature * c)
 		if (inv->itms[i] != NULL) {
 			wprintw(dispscr, " %c) %s",
 				ind2ch(i),
-				inv->itms[i]->f->name
+				inv->itms[i]->name
 			);
 
 			if (c != NULL && item_equipped(inv->itms[i], c)) {

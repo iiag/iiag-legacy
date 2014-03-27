@@ -15,7 +15,6 @@
 #include "player.h"
 #include "display.h"
 #include "inventory.h"
-#include "form/form.h"
 
 world_st world;
 
@@ -36,7 +35,7 @@ void assure_world(void)
 		world.tm.hour  = 9;
 		world.tm.min   = 0;
 
-		world.plyr_form = cform_new('@' | A_BOLD);
+		crtr_init(&world.plyr, '@' | A_BOLD);
 
 		vector_init(&world.cforms);
 		vector_init(&world.iforms);
@@ -62,11 +61,9 @@ void init_world(void)
 	z = zone_new(150, 50);
 	vector_append(&world.zones, z);
 
-	world.plyr_form->on_death.c_func = (trigger_cfunc)plyr_ev_death;
-	world.plyr_form->on_lvlup.c_func = (trigger_cfunc)plyr_ev_lvlup;
-	crtr_init(&world.plyr, world.plyr_form);
+	world.plyr.on_death.c_func = (trigger_cfunc)plyr_ev_death;
+	world.plyr.on_lvlup.c_func = (trigger_cfunc)plyr_ev_lvlup;
 	world.plyr.nofree = 1;
-	world.plyr.inv = inv_new(500);
 
 	crtr_spawn(&world.plyr, z);
 	zone_update(z, world.plyr.x, world.plyr.y);

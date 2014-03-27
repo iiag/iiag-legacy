@@ -11,6 +11,7 @@ iform {
 
 iform {
 	name = 'muffin';
+	consumable = true;
 	char = '%';
 	weight = 1;
 	restore_stamina = 40;

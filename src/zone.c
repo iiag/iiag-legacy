@@ -115,7 +115,7 @@ static void generate(zone * z)
 	if (world.iforms.cnt != 0) {
 		max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
 		for (i = max; i >= 0; i--) {
-			it = item_new(choose_random(&world.iforms, offsetof(iform, freq), world.max_iforms_freq));
+			it = item_copy(choose_random(&world.iforms, offsetof(item, freq), world.max_iforms_freq));
 
 			do {
 				x = random() % z->width;
@@ -131,15 +131,9 @@ static void generate(zone * z)
 	if (world.cforms.cnt != 0) {
 		max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
 		for (i = max; i >= 0; i--) {
-			cr = crtr_new(choose_random(&world.cforms, offsetof(cform, freq), world.max_cforms_freq));
-
-			do {
-				x = random() % z->width;
-				y = random() % z->height;
-			} while (z->tiles[x][y].impassible || z->tiles[x][y].crtr != NULL);
-
-			crtr_tele(cr, x, y, z);
-			zone_update(z, x, y);
+			cr = crtr_copy(choose_random(&world.cforms, offsetof(creature, freq), world.max_cforms_freq));
+			crtr_spawn(cr, z);
+			zone_update(z, cr->x, cr->y);
 		}
 	}
 }
@@ -207,13 +201,13 @@ void zone_update(zone * z, int x, int y)
 		for (i = 0; i < z->tiles[x][y].inv->size; i++) {
 			it = z->tiles[x][y].inv->itms[i];
 
-			if (it != NULL && it->f->weight > weight) {
-				weight = it->f->weight;
-				ch = it->f->ch;
+			if (it != NULL && it->weight > weight) {
+				weight = it->weight;
+				ch = it->ch;
 			}
 		}
 	} else {
-		ch = z->tiles[x][y].crtr->f->ch;
+		ch = z->tiles[x][y].crtr->ch;
 	}
 
 	z->tiles[x][y].ch = ch;

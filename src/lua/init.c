@@ -19,11 +19,11 @@ static const struct {
 	const char * name;
 	lua_CFunction func;
 } funcs[] = {
-	{ "memo",   lcf_memo   },
-	{ "wrlog",  lcf_wrlog  },
-	{ "cform",  lcf_cform  },
-	{ "player", lcf_player },
-	{ "iform",  lcf_iform  },
+	{ "memo",   lcf_memo     },
+	{ "wrlog",  lcf_wrlog    },
+	{ "cform",  lcf_creature },
+	{ "player", lcf_player   },
+	{ "iform",  lcf_item     },
 };
 
 void init_lua(void)

@@ -7,10 +7,11 @@ struct creature;
 #ifndef CREATURE_H
 #define CREATURE_H
 
+#include <ncurses.h>
 #include "item.h"
 #include "zone.h"
+#include "trigger.h"
 #include "inventory.h"
-#include "form/crtr.h"
 
 #define DEAD (-1)
 
@@ -29,26 +30,43 @@ typedef enum slot {
 } slot;
 
 typedef struct creature {
+	chtype ch;
+
 	// iternalish stuff
-	cform * f;
 	int nofree;
 	int step;
+
+	// if prototype, frequency of generation
+	int freq;
 
 	// position in world
 	int x, y;
 	struct zone * z;
 
-	// pragmatic fields
-	struct inventory * inv;
-	char * name;
+	// identification
+	char * specific_name;
+	char * generic_name;
 	char * ability;
-	int health, stamina;
+
+	// item fields
+	struct inventory * inv;
+	struct item * slots[MAX_SLOTS];
+
+	// level/xp
 	int level;
 	int xp, need_xp;
+
+	// skills and stats
+	int health, stamina;
+	int max_health, max_stamina;
 	int attack;
 	int ac;
 	int sight;
-	struct item * slots[MAX_SLOTS];
+
+	// triggers
+	trigger on_spawn;
+	trigger on_death;
+	trigger on_lvlup;
 } creature;
 
 //
@@ -56,13 +74,18 @@ typedef struct creature {
 // If called manually (i.e. not through crtr_new) then the creature should
 //   probably persist through the program.
 //
-void crtr_init(creature *, cform *);
+void crtr_init(creature *, chtype);
 
 //
 // Allocates memory for a creature, should be freed with crtr_free
 // Returns allocated creature
 //
-creature * crtr_new(cform *);
+creature * crtr_new(chtype);
+
+//
+// Copies a creature, useful for creating creatures from prototype creatures
+//
+creature * crtr_copy(const creature *);
 
 //
 // Places the given creature in a given zone
@@ -92,6 +115,16 @@ int crtr_tele(creature *, int, int, struct zone *);
 // Gives a creature XP points
 //
 void crtr_xp_up(creature *, int);
+
+//
+// Returns the name of the creature
+//
+const char * crtr_name(const creature *);
+
+//
+// Return the disposition of one creature to another
+//
+int crtr_disposition(const creature *, const creature *);
 
 //
 // Creature A attacks creature B.

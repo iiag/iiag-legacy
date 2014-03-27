@@ -33,38 +33,82 @@ static int req_xp(creature * c)
 // Initializes the creature, all values are set
 // Calls form_assign for f
 //
-void crtr_init(creature * c, cform * f)
+void crtr_init(creature * c, chtype ch)
 {
 	int i;
 
-	c->f = form_assign(f);
+	c->ch = ch;
+
 	c->nofree = 0;
 	c->step = 1;
 
 	c->x = c->y = 0;
 	c->z = NULL;
 
-	c->health  = f->max_health;
-	c->stamina = f->max_stamina;
+	c->specific_name = NULL;
+	c->generic_name = NULL;
 	c->ability = NULL;
-	c->attack  = f->def_attack;
-	c->ac      = f->def_ac;
-	c->sight   = f->def_sight;
-	c->name    = NULL;
-	c->level   = 1;
-	c->need_xp = req_xp(c);
-	c->xp      = 0;
 
+	c->level = 1;
+	c->xp = 0;
+	c->need_xp = req_xp(c);
+
+	c->max_health  = 10;
+	c->max_stamina = 5000;
+	c->health  = c->max_health;
+	c->stamina = c->max_stamina;
+	c->attack  = 1;
+	c->ac      = 1;
+	c->sight   = 15;
+
+	c->inv = inv_new(500);
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
+
+	trigger_init(c->on_spawn);
+	trigger_init(c->on_death);
+	trigger_init(c->on_lvlup);
 }
+
 
 //
 // Basically allocates and wraps to crtr_init
 //
-creature * crtr_new(cform * f)
+creature * crtr_new(chtype ch)
 {
 	creature * c = malloc(sizeof(creature));
-	crtr_init(c, f);
+	crtr_init(c, ch);
+	return c;
+}
+
+//
+// Just copies a creature
+//
+creature * crtr_copy(const creature * p)
+{
+	creature * c = crtr_new(p->ch);
+
+	c->specific_name = copy_str(p->specific_name);
+	c->generic_name  = copy_str(p->generic_name);
+	c->ability       = copy_str(p->ability);
+
+	// TODO inventory
+
+	c->level   = p->level;
+	c->xp      = p->xp;
+	c->need_xp = p->need_xp;
+
+	c->health      = p->health;
+	c->stamina     = p->stamina;
+	c->max_health  = p->max_health;
+	c->max_stamina = p->max_stamina;
+	c->attack      = p->attack;
+	c->ac          = p->ac;
+	c->sight       = p->sight;
+
+	c->on_spawn = p->on_spawn;
+	c->on_death = p->on_death;
+	c->on_lvlup = p->on_lvlup;
+
 	return c;
 }
 
@@ -85,7 +129,7 @@ void crtr_spawn(creature * c, zone * z)
 		assert(timeout--); // FIXME
 	} while (!crtr_tele(c, x, y, z));
 
-	trigger_pull(&c->f->on_spawn, c);
+	trigger_pull(&c->on_spawn, c);
 }
 
 //
@@ -100,7 +144,6 @@ void crtr_free(creature * c)
 			tileof(c)->crtr = NULL;
 		}
 
-		cform_free(c->f);
 		free(c);
 	}
 }
@@ -163,7 +206,7 @@ void crtr_xp_up(creature * c, int xp)
 		c->level++;
 		c->need_xp = req_xp(c);
 
-		trigger_pull(&c->f->on_lvlup, NULL);
+		trigger_pull(&c->on_lvlup, NULL);
 		crtr_xp_up(c, 0);
 	}
 }
@@ -174,8 +217,8 @@ void crtr_xp_up(creature * c, int xp)
 void crtr_unequip(creature * c, slot sl)
 {
 	if (c->slots[sl] != NULL) {
-		c->attack -= c->slots[sl]->f->modify_attack;
-		c->ac     -= c->slots[sl]->f->modify_ac;
+		c->attack -= c->slots[sl]->modify_attack;
+		c->ac     -= c->slots[sl]->modify_ac;
 		c->slots[sl] = NULL;
 	}
 }
@@ -185,11 +228,11 @@ void crtr_unequip(creature * c, slot sl)
 //
 int crtr_equip(creature * c, item * it, slot sl)
 {
-	if (it->f->type & ITEM_EQUIPABLE) {
+	if (it->type & ITEM_EQUIPABLE) {
 		crtr_unequip(c, sl);
 
-		c->attack += it->f->modify_attack;
-		c->ac     += it->f->modify_ac;
+		c->attack += it->modify_attack;
+		c->ac     += it->modify_ac;
 		c->slots[sl] = it;
 
 		return 1;
@@ -218,12 +261,23 @@ int crtr_attack(creature * attacker, creature * defender)
 		if (xp < 0) xp = 0;
 
 		crtr_xp_up(attacker, xp);
-		trigger_pull(&defender->f->on_death, "violence");
+		trigger_pull(&defender->on_death, "violence");
 
 		return DEAD;
 	}
 
 	return damage;
+}
+
+//
+// Returns the creature name
+//  specific>generic>'mysterious creature'
+//
+const char * crtr_name(const creature * c)
+{
+	if (c->specific_name != NULL) return c->specific_name;
+	if (c->generic_name  != NULL) return c->generic_name;
+	return "mysterious creature";
 }
 
 //
@@ -249,11 +303,12 @@ static void beast_ai(creature * c)
 	int tx = 0;
 	int ty = 0;
 	int score = -1;
+	int sight = c->sight + 1;
 
-	int sx = c->x > c->sight ? c->x - c->sight : 0;
-	int sy = c->y > c->sight ? c->y - c->sight : 0;
-	int ex = c->x + c->sight;
-	int ey = c->y + c->sight;
+	int sx = c->x > sight ? c->x - sight : 0;
+	int sy = c->y > sight ? c->y - sight : 0;
+	int ex = c->x + sight;
+	int ey = c->y + sight;
 
 	if (ex > c->z->width)  ex = c->z->width;
 	if (ey > c->z->height) ey = c->z->height;
@@ -296,16 +351,16 @@ static void beast_ai(creature * c)
 
 			switch (dam) {
 			case DEAD:
-				if (show) memo("%s kills %s", c->f->name, tar->f->name);
+				if (show) memo("%s kills %s", crtr_name(c), crtr_name(tar));
 				zone_update(tar->z, tar->x, tar->y);
 				wrefresh(dispscr);
 				crtr_free(tar);
 				break;
 			case 0:
-				if (show) memo("%s misses %s.", c->f->name, tar->f->name);
+				if (show) memo("%s misses %s.", crtr_name(c), crtr_name(tar));
 				break;
 			default:
-				if (show) memo("%s hits %s for %d damage.", c->f->name, tar->f->name, dam);
+				if (show) memo("%s hits %s for %d damage.", crtr_name(c), crtr_name(tar), dam);
 			}
 		} else {
 			if (!crtr_move(c, dx, dy)) {
@@ -339,7 +394,7 @@ void crtr_step(creature * c, int step)
 			if (plyr_is_me(c)) {
 				plyr_ev_death("starvation");
 			} else {
-				memo("%s dies of starvation", c->f->name);
+				memo("%s dies of starvation", crtr_name(c));
 
 				x = c->x;
 				y = c->y;
@@ -369,7 +424,7 @@ item * crtr_rm_item(creature * c, int i)
 	item * it = c->inv->itms[i];
 
 	if (item_equipped(it, c)) {
-		crtr_unequip(c, it->f->slot);
+		crtr_unequip(c, it->slot);
 	}
 
 	inv_rm(c->inv, i);
