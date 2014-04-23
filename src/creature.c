@@ -55,7 +55,7 @@ void crtr_init(creature * c, chtype ch)
 	c->need_xp = req_xp(c);
 
 	c->max_health  = 10;
-	c->max_stamina = 5000;
+	c->max_stamina = 500;
 	c->health  = c->max_health;
 	c->stamina = c->max_stamina;
 	c->attack  = 1;

@@ -54,14 +54,14 @@ cform {
 	freq = 90;
 }
 
-cform {
-	name = 'gerp';
-	faction = 'derp';
-	char = 'p';
-	max_health = 5;
-	attack = 3;
-	freq = 40;
-}
+--cform {
+--	name = 'gerp';
+--	faction = 'derp';
+--	char = 'p';
+--	max_health = 5;
+--	attack = 3;
+--	freq = 40;
+--}
 
 cform {
 	name = 'glorp';
