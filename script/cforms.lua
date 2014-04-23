@@ -4,6 +4,7 @@
 
 cform {
 	name = 'gnat';
+	faction = 'gnat';
 	char = 'g';
 	max_health = 2;
 	freq = 20;
@@ -11,6 +12,7 @@ cform {
 
 cform {
 	name = 'gnot';
+	faction = 'gnat';
 	char = 'g';
 	max_health = 1;
 	attack = 4;
@@ -19,6 +21,7 @@ cform {
 
 cform {
 	name = 'fbir';
+	faction = 'gnat';
 	char = 'f';
 	max_health = 6;
 	freq = 80;
@@ -26,6 +29,7 @@ cform {
 
 cform {
 	name = 'fbR';
+	faction = 'gnat';
 	char = 'F';
 	max_health = 10;
 	attack = 2;
@@ -34,6 +38,7 @@ cform {
 
 cform {
 	name = 'gnat lord';
+	faction = 'gnat';
 	char = 'G';
 	max_health = 100;
 	attack = 10;
@@ -42,6 +47,7 @@ cform {
 
 cform {
 	name = 'derp';
+	faction = 'derp';
 	char = 'p';
 	max_health = 5;
 	attack = 6;
@@ -50,6 +56,7 @@ cform {
 
 cform {
 	name = 'gerp';
+	faction = 'derp';
 	char = 'p';
 	max_health = 5;
 	attack = 3;
@@ -58,6 +65,7 @@ cform {
 
 cform {
 	name = 'glorp';
+	faction = 'derp';
 	char = 'p';
 	max_health = 3;
 	attack = 3;

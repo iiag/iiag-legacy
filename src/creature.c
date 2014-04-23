@@ -48,6 +48,7 @@ void crtr_init(creature * c, chtype ch)
 	c->specific_name = NULL;
 	c->generic_name = NULL;
 	c->ability = NULL;
+	c->fctn = NULL;
 
 	c->level = 1;
 	c->xp = 0;
@@ -90,6 +91,7 @@ creature * crtr_copy(const creature * p)
 	c->specific_name = copy_str(p->specific_name);
 	c->generic_name  = copy_str(p->generic_name);
 	c->ability       = copy_str(p->ability);
+	c->fctn          = p->fctn;
 
 	// TODO inventory
 
@@ -281,13 +283,12 @@ const char * crtr_name(const creature * c)
 }
 
 //
-// TODO this function
+// As of now, only takes into consideration faction relations
 //
 int crtr_disposition(const creature * a, const creature * b)
 {
-	// temporary
-	if (a == b) return 1;
-	return -1;
+	if (a == b) return 1000; // temporary
+	return fctn_relto(a->fctn, b->fctn);
 }
 
 //

@@ -10,6 +10,7 @@ struct creature;
 #include <ncurses.h>
 #include "item.h"
 #include "zone.h"
+#include "faction.h"
 #include "trigger.h"
 #include "inventory.h"
 
@@ -47,6 +48,7 @@ typedef struct creature {
 	char * specific_name;
 	char * generic_name;
 	char * ability;
+	faction * fctn;
 
 	// item fields
 	struct inventory * inv;

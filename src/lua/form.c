@@ -10,6 +10,7 @@
 #include "../item.h"
 #include "../util.h"
 #include "../world.h"
+#include "../faction.h"
 #include "../creature.h"
 
 const char * slot_names[] = {
@@ -86,6 +87,13 @@ GET_TEMPLATE_FRONT(int, trigger)
 	}
 GET_TEMPLATE_END
 
+
+GET_TEMPLATE_FRONT(faction *, faction)
+	if (lua_isstring(lstate, -1)) {
+		x = fctn_get(lua_tostring(lstate, -1));
+	}
+GET_TEMPLATE_END
+
 static void set_creature(lua_State * lstate, creature * cf)
 {
 	cf->generic_name = get_string(lstate, "name", cf->generic_name);
@@ -97,6 +105,7 @@ static void set_creature(lua_State * lstate, creature * cf)
 	cf->attack      = get_int(lstate, "attack",      cf->attack);
 	cf->ac          = get_int(lstate, "ac",          cf->ac);
 	cf->sight       = get_int(lstate, "sight",       cf->sight);
+	cf->fctn        = get_faction(lstate, "faction", cf->fctn);
 	cf->on_spawn.lua_block = get_trigger(lstate, "on_spawn", cf->on_spawn.lua_block);
 	cf->on_death.lua_block = get_trigger(lstate, "on_death", cf->on_death.lua_block);
 	cf->on_lvlup.lua_block = get_trigger(lstate, "on_lvlup", cf->on_lvlup.lua_block);
