@@ -319,7 +319,7 @@ static void beast_ai(creature * c)
 		for (y = sy; y < ey; y++) {
 			if (zone_can_see(c->z, c->x, c->y, x, y, c->sight)) {
 				if (c->z->tiles[x][y].crtr != NULL) {
-					s = -crtr_disposition(c, c->z->tiles[x][y].crtr);
+					s = -crtr_disposition(c, c->z->tiles[x][y].crtr) + 1;
 					dx = x - c->x;
 					dy = y - c->y;
 					s *= c->sight - (int)(sqrt(dx*dx + dy*dy) + 0.5) + 1;
@@ -352,16 +352,16 @@ static void beast_ai(creature * c)
 
 			switch (dam) {
 			case DEAD:
-				if (show) memo("%s kills %s", crtr_name(c), crtr_name(tar));
+				if (show && (plyr_is_me(c) || plyr_is_me(tar))) memo("%s kills %s", crtr_name(c), crtr_name(tar));
 				zone_update(tar->z, tar->x, tar->y);
 				wrefresh(dispscr);
 				crtr_free(tar);
 				break;
 			case 0:
-				if (show) memo("%s misses %s.", crtr_name(c), crtr_name(tar));
+				if (show && (plyr_is_me(c) || plyr_is_me(tar))) memo("%s misses %s.", crtr_name(c), crtr_name(tar));
 				break;
 			default:
-				if (show) memo("%s hits %s for %d damage.", crtr_name(c), crtr_name(tar), dam);
+				if (show && (plyr_is_me(c) || plyr_is_me(tar))) memo("%s hits %s for %d damage.", crtr_name(c), crtr_name(tar), dam);
 			}
 		} else {
 			if (!crtr_move(c, dx, dy)) {

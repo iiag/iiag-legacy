@@ -19,6 +19,18 @@ iform {
 }
 
 iform {
+	name = 'semi egg';
+	consumable = true;
+	equipable = true;
+	slot = 'head';
+	char = '0';
+	restore_health = 50;
+	restore_stamina = -10;
+	weight = 1;
+	freq = 3;
+}
+
+iform {
 	name = 'health-potion';
 	consumable = true;
 	char = '&';

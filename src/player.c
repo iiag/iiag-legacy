@@ -179,7 +179,7 @@ void plyr_act_equip(void)
 			it = PLYR.inv->itms[i];
 			crtr_equip(&PLYR, it, it->slot);
 
-			memo("Thou dost equip the %s.", it->name);
+			memo("Thou dost equip the %s to thy %s.", it->name, slot_names[it->slot]);
 		} else {
 			memo("It seems trying to equip that would prove fruitless.");
 		}

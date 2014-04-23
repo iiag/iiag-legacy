@@ -29,7 +29,7 @@ faction * fctn_get(const char * name)
 int fctn_relto(const faction * f, const faction * to)
 {
 	relation * r;
-	
+
 	if (f == NULL) return 0;
 	if (f == to) return 1000;
 
