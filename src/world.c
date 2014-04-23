@@ -58,7 +58,7 @@ void init_world(void)
 
 	assure_world();
 
-	z = zone_new(250, 100);
+	z = zone_new(150, 50);
 	vector_append(&world.zones, z);
 
 	world.plyr.on_death.c_func = (trigger_cfunc)plyr_ev_death;
