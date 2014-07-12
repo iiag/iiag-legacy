@@ -33,11 +33,11 @@ enum {
 	CTRL_DROP,
 	CTRL_CONSUME,
 	CTRL_EQUIP,
-	
+
 	// miscellaneous
 	CTRL_SKIP_TURN,
 	CTRL_QUIT,
-	
+
 	TOTAL_CONTROLS
 };
 
