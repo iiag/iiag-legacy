@@ -91,7 +91,7 @@ static int igspaces(FILE * f)
 
 	do {
 		c = fgetc(f);
-		if (c == '#') while (fgetc(f) != '\n');
+		if (c == '#') while ((c = fgetc(f)) != '\n' && c != EOF);
 	} while (isspace(c));
 
 	ungetc(c, f);
@@ -216,6 +216,7 @@ static void load_config(const char * file)
 			}
 		}
 
+		igspaces(f);
 		expect('=', f, file);
 
 		if (fld == NULL) {
