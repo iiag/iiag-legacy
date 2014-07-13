@@ -10,7 +10,7 @@ CCFL  := -c -g -Wall `pkg-config --cflags $(LUAV)`
 LDFL  := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 
 SRCS := main.c world.c zone.c display.c log.c inventory.c util.c item.c \
-        creature.c player.c vector.c trigger.c config.c faction.c \
+        creature.c player.c vector.c trigger.c config.c faction.c input.c \
         lua/init.c lua/io.c lua/form.c
 
 OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(SRCS)))

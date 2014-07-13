@@ -69,4 +69,10 @@ int item_tele(item *, int, int, struct zone *);
 //
 int item_equipped(item *, struct creature *);
 
+//
+// Throws an item from a location along a path
+// Used for both actual throwing and firing projectiles
+//
+int item_throw(item *, int, int, struct zone *, int, int, int);
+
 #endif

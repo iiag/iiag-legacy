@@ -33,6 +33,7 @@ enum {
 	CTRL_DROP,
 	CTRL_CONSUME,
 	CTRL_EQUIP,
+	CTRL_THROW,
 
 	// miscellaneous
 	CTRL_SKIP_TURN,

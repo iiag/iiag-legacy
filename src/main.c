@@ -10,6 +10,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include "item.h"
+#include "input.h"
 #include "world.h"
 #include "config.h"
 #include "player.h"
@@ -52,17 +53,6 @@ static void sig_handler(int rc)
 	exit(rc);
 }
 
-static int get_ctrl(void)
-{
-	int i;
-	int c = wgetch(memoscr);
-
-	for (i = 0; i < TOTAL_CONTROLS; i++) {
-		if (config.ctrl[i] == c) return i;
-	}
-
-	return CTRL_INVALID;
-}
 
 int main(int argc, char ** argv)
 {
@@ -114,6 +104,7 @@ continue_loop:
 		case CTRL_DROP:     plyr_act_drop();     break;
 		case CTRL_CONSUME:  plyr_act_consume();  break;
 		case CTRL_EQUIP:    plyr_act_equip();    break;
+		case CTRL_THROW:    plyr_act_throw();    break;
 
 		// miscellaneous
 		case CTRL_SKIP_TURN: break;

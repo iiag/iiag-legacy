@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include "input.h"
 #include "config.h"
 #include "player.h"
 #include "display.h"
@@ -41,7 +42,7 @@ void plyr_act_pickup(void)
 	if (PLYRT.inv->weight == 0) {
 		memo("There is nothing here to pick up.");
 	} else {
-		i = inv_prompt("Pick up what?", PLYRT.inv, NULL);
+		i = prompt_inv("Pick up what?", PLYRT.inv, NULL);
 
 		if (PLYRT.inv->size > i && PLYRT.inv->itms[i] != NULL) {
 			if ((j = inv_add(PLYR.inv, PLYRT.inv->itms[i])) != INVALID) {
@@ -63,7 +64,7 @@ void plyr_act_drop(void)
 {
 	int i,j;
 
-	i = inv_prompt("You dropped what?", PLYR.inv, &PLYR);
+	i = prompt_inv("You dropped what?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
 		if((j=inv_add(PLYRT.inv,PLYR.inv->itms[i]))!=INVALID){
@@ -81,7 +82,7 @@ void plyr_act_drop(void)
 
 void plyr_act_inv(void)
 {
-	inv_prompt("You examine the contents of your inventory:", PLYR.inv, &PLYR);
+	prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
 	redraw();
 }
 
@@ -143,7 +144,7 @@ void plyr_act_consume(void)
 	int i;
 	item * it;
 
-	i = inv_prompt("What dost thou consume?", PLYR.inv, &PLYR);
+	i = prompt_inv("What dost thou consume?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
 		if (PLYR.inv->itms[i]->type & ITEM_CONSUMABLE){
@@ -167,12 +168,36 @@ void plyr_act_consume(void)
 	redraw();
 }
 
+void plyr_act_throw(void)
+{
+	int i, dx, dy;
+
+	i = prompt_inv("Throw what?", PLYR.inv, &PLYR);
+	redraw();
+
+	if (prompt_dir("Throw where?", &dx, &dy)) {
+		if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
+			if (item_throw(PLYR.inv->itms[i], PLYR.x, PLYR.y, PLYR.z, dx, dy, 1)) {
+				inv_rm(PLYR.inv, i);
+			} else {
+				memo("As the item is released from your hand, strange forces make it reappear in your pocket.");
+			}
+		} else {
+			memo("Such an item existeth not.");
+		}
+	} else {
+		memo("That is not a direction.");
+	}
+
+	redraw();
+}
+
 void plyr_act_equip(void)
 {
 	int i;
 	item * it;
 
-	i = inv_prompt("What dost thou equip?", PLYR.inv, &PLYR);
+	i = prompt_inv("What dost thou equip?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL){
 		if (PLYR.inv->itms[i]->type & ITEM_EQUIPABLE){

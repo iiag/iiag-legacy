@@ -42,6 +42,7 @@ config_t config = {
 		'.', // drop
 		'c', // consume
 		'w', // equip
+		't', // throw
 
 		// miscellaneous controls
 		' ', // skip turn

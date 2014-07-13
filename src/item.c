@@ -3,8 +3,11 @@
 //
 
 #include <stdlib.h>
+#include <unistd.h>
 #include "item.h"
 #include "util.h"
+#include "player.h"
+#include "display.h"
 
 //
 // Allocates a new item
@@ -87,4 +90,57 @@ int item_tele(item * it, int x, int y, zone * z)
 int item_equipped(item * it, creature * c)
 {
 	return it->type & ITEM_EQUIPABLE && c->slots[it->slot] == it;
+}
+
+//
+// Throws an item from a position along the given direction
+// (x, y, z) + (dx, dy) is the starting position.
+// (dx, dy) is the direction the item moves in.
+// f is the force of the throw, effects duration and damage of the throw
+// Returns 1 on success and 0 on failure of placing the item
+//
+int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int f)
+{
+	int ret;
+	int anim = (z == PLYR.z);
+	chtype tmp = 0;
+
+	x += dx;
+	y += dy;
+
+	// TODO timeout from lack of force
+	while (x >= 0 && y >= 0 && x < z->width && y < z->height && !z->tiles[x][y].impassible) {
+
+		if (anim) {
+			if (tmp) {
+				z->tiles[x-dx][y-dy].ch = tmp;
+				zone_draw_tile(z, x-dx, y-dy);
+			}
+
+			tmp = z->tiles[x][y].ch;
+			z->tiles[x][y].ch = it->ch;
+			zone_draw_tile(z, x, y);
+			wrefresh(dispscr);
+
+			usleep(50000);
+		}
+
+		if (z->tiles[x][y].crtr != NULL) {
+			memo("The %s is hit with the %s!", crtr_name(z->tiles[x][y].crtr), it->name);
+			// TODO damage/xp/force
+			goto cleanup;
+		}
+
+		x += dx;
+		y += dy;
+	}
+
+	x -= dx;
+	y -= dy;
+
+cleanup:
+	ret = item_tele(it, x, y, z);
+	zone_update(z, x, y);
+	wrefresh(dispscr);
+	return ret;
 }

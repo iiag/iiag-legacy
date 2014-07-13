@@ -50,11 +50,6 @@ int inv_try(inventory *, struct item *);
 struct item * inv_rm(inventory *, int);
 
 //
-// Will display the inventory an prompt, and return the item selected by the user
-//
-int inv_prompt(const char *, inventory *, struct creature *);
-
-//
 // These 2 functions convert between indicies and character representations of
 //   said integers.
 //

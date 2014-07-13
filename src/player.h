@@ -19,6 +19,7 @@ void plyr_act_equipped(void);
 void plyr_act_move(int, int);
 void plyr_act_consume(void);
 void plyr_act_equip(void);
+void plyr_act_throw(void);
 
 // the inevitable
 void plyr_ev_birth(void);

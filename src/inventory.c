@@ -101,38 +101,6 @@ item * inv_rm(inventory * inv, int i)
 }
 
 //
-// Displays the inventory with the prompt to the dispscr
-// Waits for a keypress for a item selection
-//
-// TODO don't use ncurses functions
-//
-int inv_prompt(const char * prompt, inventory * inv, creature * c)
-{
-	int i;
-
-	wmove(dispscr, 0, 0);
-	wprintw(dispscr, "%s\n", prompt);
-
-	for (i = 0; i < inv->size; i++) {
-		if (inv->itms[i] != NULL) {
-			wprintw(dispscr, " %c) %s",
-				ind2ch(i),
-				inv->itms[i]->name
-			);
-
-			if (c != NULL && item_equipped(inv->itms[i], c)) {
-				wprintw(dispscr, " (equipped)");
-			}
-
-			wprintw(dispscr, "\n");
-		}
-	}
-
-	wrefresh(dispscr);
-	return ch2ind(wgetch(dispscr));
-}
-
-//
 // Converts an index to a character
 //
 // TODO fix for indexs >= 62
