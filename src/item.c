@@ -106,7 +106,7 @@ int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
 	creature * c;
 	int ret, dam;
 	int anim = (z == PLYR.z) && config.throw_anim_delay;
-	int timeout = 10 * force / it->weight;
+	int timeout = 100 * force / it->weight;
 	chtype tmp = 0;
 
 	x += dx;

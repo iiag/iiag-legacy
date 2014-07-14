@@ -24,7 +24,7 @@ typedef struct item {
 	chtype ch;
 	char * name;
 	int freq;
-	int weight;
+	int weight; // in 1/100ths of pounds
 	int spikiness;
 
 	// where in what inventory

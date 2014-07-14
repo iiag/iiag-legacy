@@ -64,7 +64,7 @@ void crtr_init(creature * c, chtype ch)
 	c->reflex  = 1;
 	c->throw   = 20;
 
-	c->inv = inv_new(500);
+	c->inv = inv_new(5000);
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
 
 	trigger_init(c->on_spawn);
@@ -458,6 +458,6 @@ int crtr_dodges(creature * c, int difficulty)
 {
 	int roll;
 	if (difficulty < 0) difficulty = 0;
-	roll = rand() % c->reflex;
+	roll = random() % c->reflex;
 	return difficulty < roll || roll == c->reflex;
 }

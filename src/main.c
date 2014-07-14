@@ -23,10 +23,11 @@ static void update_status(void)
 {
 	char time[100];
 
-	statline(0, " Hp: %d/%d | Stm: %d/%d | Wt: %d/%d | Xp: %d/%d | Lvl: %d",
+	statline(0, " Hp: %d/%d | Stm: %d/%d | Wt: %d.%d/%d.%d | Xp: %d/%d | Lvl: %d",
 		PLYR.health, PLYR.max_health,
 		PLYR.stamina, PLYR.max_stamina,
-		PLYR.inv->weight, PLYR.inv->max_weight,
+		PLYR.inv->weight / 100, PLYR.inv->weight % 100,
+		PLYR.inv->max_weight / 100, PLYR.inv->max_weight % 100,
 		PLYR.xp, PLYR.need_xp,
 		PLYR.level
 	);

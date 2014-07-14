@@ -5,7 +5,7 @@
 iform {
 	name = 'rock';
 	char = '*';
-	weight = 100;
+	weight = 500;
 	freq = 20;
 }
 
@@ -13,7 +13,7 @@ iform {
 	name = 'muffin';
 	consumable = true;
 	char = '%';
-	weight = 1;
+	weight = 7;
 	restore_stamina = 40;
 	freq = 15;
 }
@@ -26,7 +26,7 @@ iform {
 	char = '0';
 	restore_health = 50;
 	restore_stamina = -10;
-	weight = 1;
+	weight = 5;
 	freq = 3;
 }
 
@@ -34,7 +34,7 @@ iform {
 	name = 'health-potion';
 	consumable = true;
 	char = '&';
-	weight = 1;
+	weight = 60;
 	restore_health = 10;
 	freq = 15;
 }
@@ -43,7 +43,7 @@ iform {
 	name = 'sword';
 	equipable = true;
 	char = '/';
-	weight = 8;
+	weight = 400;
 	modify_attack = 12;
 	slot = 'right-hand';
 	freq = 10;
@@ -53,7 +53,7 @@ iform {
 	name = 'helm';
 	equipable = true;
 	char = '^';
-	weight = 6;
+	weight = 250;
 	modify_ac = 4;
 	slot = 'head';
 	freq = 15;
@@ -76,7 +76,7 @@ iform {
 	name = 'magic cape';
 	equipable = true;
 	char = '\\';
-	weight = 4;
+	weight = 150;
 	modify_ac = 5;
 	modify_attack = 10;
 	slot = 'cape';
@@ -87,7 +87,7 @@ iform {
 	name = 'cloak of darkness';
 	equipable = true;
 	char = '\\';
-	weight = 80;
+	weight = 800;
 	modify_ac = 2700;
 	modify_attack = -1000;
 	slot = 'cape';
@@ -98,7 +98,7 @@ iform {
 	name = 'quaz boots';
 	equipable = true;
 	char = '"';
-	weight = 120;
+	weight = 900;
 	modify_ac = 14;
 	slot = 'feet';
 	freq = 3;
@@ -108,7 +108,7 @@ iform {
 	name = 'hiking boots';
 	equipable = true;
 	char = '"';
-	weight = 70;
+	weight = 140;
 	modify_ac = 1;
 	slot = 'feet';
 	freq = 15;
@@ -118,7 +118,7 @@ iform {
 	name = 'death stick';
 	equipable = true;
 	char = '/';
-	weight = 499;
+	weight = 4800;
 	modify_ac = -100;
 	modify_attack = 9001;
 	slot = 'right-hand';
