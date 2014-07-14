@@ -177,9 +177,7 @@ void plyr_act_throw(void)
 
 	if (prompt_dir("Throw where?", &dx, &dy)) {
 		if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
-			if (item_throw(PLYR.inv->itms[i], PLYR.x, PLYR.y, PLYR.z, dx, dy, 1)) {
-				inv_rm(PLYR.inv, i);
-			} else {
+			if (!crtr_throw_item(&PLYR, i, dx, dy)) {
 				memo("As the item is released from your hand, strange forces make it reappear in your pocket.");
 			}
 		} else {

@@ -61,6 +61,8 @@ void crtr_init(creature * c, chtype ch)
 	c->attack  = 1;
 	c->ac      = 1;
 	c->sight   = 15;
+	c->reflex  = 1;
+	c->throw   = 20;
 
 	c->inv = inv_new(500);
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
@@ -430,4 +432,32 @@ item * crtr_rm_item(creature * c, int i)
 
 	inv_rm(c->inv, i);
 	return it;
+}
+
+//
+// Causes a creature to throw an item
+// Returns 1 on success, 0 on failure
+//
+int crtr_throw_item(creature * c, int i, int dx, int dy)
+{
+	assert(c->inv->size > i);
+	assert(c->inv->itms[i] != NULL);
+
+	if (item_throw(c->inv->itms[i], c->x, c->y, c->z, dx, dy, c->throw)) {
+		crtr_rm_item(c, i);
+		return 1;
+	}
+
+	return 0;
+}
+
+//
+// Tests if a creature can dodge an item
+//
+int crtr_dodges(creature * c, int difficulty)
+{
+	int roll;
+	if (difficulty < 0) difficulty = 0;
+	roll = rand() % c->reflex;
+	return difficulty < roll || roll == c->reflex;
 }

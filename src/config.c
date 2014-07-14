@@ -15,7 +15,8 @@
 config_t config = {
 	NULL,
 	"script/init.lua",
-	0, 0,
+	0, 0, 0,
+	20,
 
 	{
 		// movement controls
@@ -56,6 +57,7 @@ struct field {
 		STRING,
 		CONTROL,
 		BOOLEAN,
+		INTEGER,
 	} type;
 
 	char * name;
@@ -63,9 +65,11 @@ struct field {
 };
 
 static const struct field cfg_fields[] = {
-	{ STRING,  "lua-init",     &config.lua_init     },
-	{ BOOLEAN, "show-all",     &config.show_all     },
-	{ BOOLEAN, "forget-walls", &config.forget_walls },
+	{ STRING,  "lua-init",         &config.lua_init         },
+	{ BOOLEAN, "show-all",         &config.show_all         },
+	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
+	{ BOOLEAN, "all-alone",        &config.all_alone        },
+	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
 
 	// movement controls
 	{ CONTROL, "ctrl-up",     config.ctrl + CTRL_UP     },
@@ -181,6 +185,14 @@ static int get_boolean(FILE * f, const char * fn)
 	return b;
 }
 
+static int get_integer(FILE * f)
+{
+	char * s = get_string(f);
+	int v = atoi(s);
+	free(s);
+	return v;
+}
+
 static void expect(char c, FILE * f, const char * fn)
 {
 	int g = fgetc(f);
@@ -235,6 +247,9 @@ static void load_config(const char * file)
 			case CONTROL:
 				*(int *)fld->ptr = get_control(f);
 				break;
+			case INTEGER:
+				*(int *)fld->ptr = get_integer(f);
+				break;
 			}
 		}
 
@@ -257,6 +272,8 @@ static void print_help()
 	"        Display this useful information.\n"
 	"    -i [lua init file]\n"
 	"        The initial lua script to run.\n"
+	"    -l\n"
+	"        Turn on all alone mode, for debugging purposes.\n"
 	"    -s\n"
 	"        Show everything.\n"
 	"\n"
@@ -275,6 +292,7 @@ void init_config(int argc, char ** argv)
 			switch (argv[i][1]) {
 			case 'h':
 				print_help();
+				break;
 			case 'c':
 				config.cfg_file = argv[++i];
 				break;
@@ -286,6 +304,9 @@ void init_config(int argc, char ** argv)
 				break;
 			case 'f':
 				config.forget_walls = 1;
+				break;
+			case 'l':
+				config.all_alone = 1;
 				break;
 			default:
 				wrlog("Ignoring unknown flag '%s'", argv[i]);

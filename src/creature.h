@@ -64,6 +64,8 @@ typedef struct creature {
 	int attack;
 	int ac;
 	int sight;
+	int reflex;
+	int throw;
 
 	// triggers
 	trigger on_spawn;
@@ -156,5 +158,15 @@ void crtr_step(creature *, int);
 // Do not call inv_rm on the creature's inventory yourself
 //
 struct item * crtr_rm_item(creature *, int);
+
+//
+// Causes a creature to throw an item
+//
+int crtr_throw_item(creature *, int, int, int);
+
+//
+// Tests if a creature can dodge something
+//
+int crtr_dodges(creature *, int);
 
 #endif

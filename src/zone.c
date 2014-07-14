@@ -128,12 +128,14 @@ static void generate(zone * z)
 	}
 
 	// place some more random junk
-	if (world.cforms.cnt != 0) {
-		max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
-		for (i = max; i >= 0; i--) {
-			cr = crtr_copy(choose_random(&world.cforms, offsetof(creature, freq), world.max_cforms_freq));
-			crtr_spawn(cr, z);
-			zone_update(z, cr->x, cr->y);
+	if (!config.all_alone) {
+		if (world.cforms.cnt != 0) {
+			max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
+			for (i = max; i >= 0; i--) {
+				cr = crtr_copy(choose_random(&world.cforms, offsetof(creature, freq), world.max_cforms_freq));
+				crtr_spawn(cr, z);
+				zone_update(z, cr->x, cr->y);
+			}
 		}
 	}
 }

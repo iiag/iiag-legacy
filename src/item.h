@@ -25,6 +25,7 @@ typedef struct item {
 	char * name;
 	int freq;
 	int weight;
+	int spikiness;
 
 	// where in what inventory
 	struct inventory * of;

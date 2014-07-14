@@ -48,6 +48,8 @@ typedef struct config {
 	const char * lua_init;
 	int forget_walls;
 	int show_all;
+	int all_alone;
+	int throw_anim_delay;
 	int ctrl[TOTAL_CONTROLS];
 } config_t;
 

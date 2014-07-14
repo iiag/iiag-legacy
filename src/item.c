@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "item.h"
 #include "util.h"
+#include "config.h"
 #include "player.h"
 #include "display.h"
 
@@ -21,6 +22,7 @@ item * item_new(unsigned type, chtype ch)
 	it->name = NULL;
 	it->freq = 1;
 	it->weight = 1;
+	it->spikiness = 0;
 
 	it->of = NULL;
 	it->i = 0;
@@ -99,18 +101,23 @@ int item_equipped(item * it, creature * c)
 // f is the force of the throw, effects duration and damage of the throw
 // Returns 1 on success and 0 on failure of placing the item
 //
-int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int f)
+int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
 {
-	int ret;
-	int anim = (z == PLYR.z);
+	creature * c;
+	int ret, dam;
+	int anim = (z == PLYR.z) && config.throw_anim_delay;
+	int timeout = 10 * force / it->weight;
 	chtype tmp = 0;
 
 	x += dx;
 	y += dy;
 
-	// TODO timeout from lack of force
-	while (x >= 0 && y >= 0 && x < z->width && y < z->height && !z->tiles[x][y].impassible) {
+	while (x >= 0 && y >= 0 && x < z->width && y < z->height && !z->tiles[x][y].impassible && timeout) {
+		if (x < 0 || x >= z->width) break;
+		if (y < 0 || y >= z->height) break;
+		if (z->tiles[x][y].impassible) break;
 
+		// handle the animation
 		if (anim) {
 			if (tmp) {
 				z->tiles[x-dx][y-dy].ch = tmp;
@@ -122,17 +129,37 @@ int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int f)
 			zone_draw_tile(z, x, y);
 			wrefresh(dispscr);
 
-			usleep(50000);
+			usleep(1000 * config.throw_anim_delay);
 		}
 
-		if (z->tiles[x][y].crtr != NULL) {
-			memo("The %s is hit with the %s!", crtr_name(z->tiles[x][y].crtr), it->name);
-			// TODO damage/xp/force
-			goto cleanup;
+		// creature collision
+		c = z->tiles[x][y].crtr;
+		if (c != NULL) {
+			if (crtr_dodges(c, force / 10)) {
+				memo("The %s artfully dodges the %s!", crtr_name(c), it->name);
+			} else {
+				dam = (it->spikiness + force) / 4 - 4;
+				if (dam < 0) dam = 0;
+				c->health -= dam;
+
+				if (c->health <= 0) {
+					memo("The %s kills the %s!\n", it->name, crtr_name(c));
+					trigger_pull(&c->on_death, "projectile impact");
+					zone_update(c->z, c->x, c->y);
+					wrefresh(dispscr);
+					crtr_free(c);
+				} else {
+					memo("The %s is hit with the %s for %d damage!", crtr_name(c), it->name, dam);
+				}
+
+				goto cleanup;
+			}
 		}
 
 		x += dx;
 		y += dy;
+		timeout--;
+
 	}
 
 	x -= dx;
