@@ -62,7 +62,7 @@ static void generate(zone * z)
 {
 	static int first = 1;
 
-	int i, x, y, max;
+	int i, x, y, max, timeout;
 	int rc;
 	int ** walls;
 	room * rv;
@@ -117,13 +117,17 @@ static void generate(zone * z)
 		for (i = max; i >= 0; i--) {
 			it = item_copy(choose_random(&world.iforms, offsetof(item, freq), world.max_iforms_freq));
 
+			timeout = 1000;
 			do {
 				x = random() % z->width;
 				y = random() % z->height;
-			} while (z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it));
+				timeout--;
+			} while ((z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it)) && timeout);
 
-			item_tele(it, x, y, z);
-			zone_update(z, x, y);
+			if (timeout) {
+				item_tele(it, x, y, z);
+				zone_update(z, x, y);
+			}
 		}
 	}
 
