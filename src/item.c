@@ -52,6 +52,7 @@ item * item_copy(const item * pt)
 	it->modify_attack   = pt->modify_attack;
 	it->modify_ac       = pt->modify_ac;
 	it->slot            = pt->slot;
+	it->spikiness       = pt->spikiness;
 
 	return it;
 }

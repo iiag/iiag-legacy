@@ -152,6 +152,7 @@ int lcf_item(lua_State * lstate)
 	it->modify_attack   = get_int(lstate, "modify_attack",   it->modify_attack);
 	it->modify_ac       = get_int(lstate, "modify_ac",       it->modify_ac);
 	it->weight          = get_int(lstate, "weight",          it->weight);
+	it->spikiness       = get_int(lstate, "spikiness",       it->spikiness);
 	it->type = (it->type & ~ITEM_CONSUMABLE) | (get_bool(lstate, "consumable", it->type & ITEM_CONSUMABLE) << ITEM_CONSUMABLE_SFT);
 	it->type = (it->type & ~ITEM_EQUIPABLE)  | (get_bool(lstate, "equipable",  it->type & ITEM_EQUIPABLE)  << ITEM_EQUIPABLE_SFT);
 	it->slot = get_slot(lstate, "slot", it->slot);

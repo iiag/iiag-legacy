@@ -124,3 +124,14 @@ iform {
 	slot = 'right-hand';
 	freq = 1;
 }
+
+iform {
+	name = 'shuriken';
+	equipable = true;
+	char = '+';
+	weight = 15;
+	modify_attack = 2;
+	slot = 'left-hand';
+	freq = 20;
+	spikiness = 30;
+}
