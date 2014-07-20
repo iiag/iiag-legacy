@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include "world.h"
 #include "generator.h"
 
 gclass_t * new_gclass(gclass_t * par)
@@ -24,7 +25,7 @@ gclass_t * new_gclass(gclass_t * par)
 
 gclass_t * get_gclass(const char * n, gclass_t * rt)
 {
-	int i;
+	int i, len;
 	const char * s;
 	gclass_t * cl;
 
@@ -35,8 +36,10 @@ gclass_t * get_gclass(const char * n, gclass_t * rt)
 
 		for (i = 0; i < rt->sub.cnt; i++) {
 			cl = rt->sub.arr[i];
+			len = strlen(cl->name);
+			len = len > n-s ? len : n-s;
 
-			if (!strncmp(s, cl->name, n-s)) {
+			if (!strncmp(s, cl->name, len)) {
 				rt = cl;
 				break;
 			}
@@ -125,7 +128,7 @@ static void * gensub(gclass_t * cl, int x)
 		sub = cl->sub.arr[i];
 		x -= sub->max_freq;
 
-		if (x < 0) {
+		if (x <= 0) {
 			return gensub(sub, -x);
 		}
 	}
@@ -135,7 +138,7 @@ static void * gensub(gclass_t * cl, int x)
 		elm = cl->elm.arr[i];
 		x -= elm->adj_freq;
 
-		if (x < 0) {
+		if (x <= 0) {
 			return elm->stuff;
 		}
 	}
@@ -147,13 +150,23 @@ static void * gensub(gclass_t * cl, int x)
 static void * gen(gclass_t * cl, int lvl)
 {
 	cache_tree(cl, lvl);
+	assert(cl->max_freq);
 	return gensub(cl, random() % cl->max_freq);
 }
 
 item * gen_item(gclass_t * cl, int lvl)
 {
-	//TODO
-	return item_copy(gen(cl, lvl));
+	gclass_t * mat_cl;
+	item * it;
+
+	it = item_copy(gen(cl, lvl));
+
+	if (it->mat_class != NULL) {
+		mat_cl = get_gclass(it->mat_class, world.gmats);
+		item_apply_mat(it, gen(mat_cl, lvl));
+	}
+
+	return it;
 }
 
 creature * gen_crtr(gclass_t * cl, int lvl)

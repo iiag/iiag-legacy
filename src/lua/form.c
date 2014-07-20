@@ -49,6 +49,13 @@ GET_TEMPLATE_FRONT(int, int)
 GET_TEMPLATE_END
 
 
+GET_TEMPLATE_FRONT(float, float)
+	if (lua_isnumber(lstate, -1)) {
+		x = lua_tonumber(lstate, -1);
+	}
+GET_TEMPLATE_END
+
+
 GET_TEMPLATE_FRONT(char *, string)
 	if (lua_isstring(lstate, -1)) {
 		free(x);
@@ -167,6 +174,7 @@ int lcf_item(lua_State * lstate)
 
 	it = item_new(0, get_chtype(lstate, "char", '?'));
 	it->name = get_string(lstate, "name", it->name);
+	it->mat_class = get_string(lstate, "material", it->mat_class);
 	it->restore_health  = get_int(lstate, "restore_health",  it->restore_health);
 	it->restore_stamina = get_int(lstate, "restore_stamina", it->restore_stamina);
 	it->modify_attack   = get_int(lstate, "modify_attack",   it->modify_attack);
@@ -179,6 +187,26 @@ int lcf_item(lua_State * lstate)
 
 	assure_world();
 	add_to_gclass(lstate, world.gitems, it);
+
+	return 0;
+}
+
+int lcf_material(lua_State * lstate)
+{
+	material * mat;
+
+	assert(lua_istable(lstate, 1));
+
+	mat = malloc(sizeof(material));
+	mat->refs = 1;
+	mat->name = get_string(lstate, "name", NULL);
+	mat->mult_weight    = get_float(lstate, "mult_weight",    1.);
+	mat->mult_attack    = get_float(lstate, "mult_attack",    1.);
+	mat->mult_ac        = get_float(lstate, "mult_ac",        1.);
+	mat->mult_spikiness = get_float(lstate, "mult_spikiness", 1.);
+
+	assure_world();
+	add_to_gclass(lstate, world.gmats, mat);
 
 	return 0;
 }

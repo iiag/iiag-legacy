@@ -41,6 +41,7 @@ iform {
 
 iform {
 	name = 'sword';
+	material = 'metal';
 	equipable = true;
 	char = '/';
 	weight = 400;
@@ -51,6 +52,7 @@ iform {
 
 iform {
 	name = 'helm';
+	material = 'metal';
 	equipable = true;
 	char = '^';
 	weight = 250;
@@ -95,13 +97,14 @@ iform {
 }
 
 iform {
-	name = 'quaz boots';
+	name = 'boots';
+	material = 'metal';
 	equipable = true;
 	char = '"';
 	weight = 900;
 	modify_ac = 14;
 	slot = 'feet';
-	freq = 3;
+	freq = 5;
 }
 
 iform {

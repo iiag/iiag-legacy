@@ -4,6 +4,7 @@
 
 dofile "script/cforms.lua"
 dofile "script/iforms.lua"
+dofile "script/mats.lua"
 
 player {
 	name = "you";

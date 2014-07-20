@@ -2,7 +2,9 @@
 // item.c
 //
 
+#include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "item.h"
 #include "util.h"
@@ -22,6 +24,9 @@ item * item_new(unsigned type, chtype ch)
 	it->name = NULL;
 	it->weight = 1;
 	it->spikiness = 0;
+
+	it->mat_class = NULL;
+	it->mat = NULL;
 
 	it->of = NULL;
 	it->i = 0;
@@ -51,6 +56,10 @@ item * item_copy(const item * pt)
 	it->modify_ac       = pt->modify_ac;
 	it->slot            = pt->slot;
 	it->spikiness       = pt->spikiness;
+	it->mat_class       = copy_str(pt->mat_class);
+	it->mat             = pt->mat;
+
+	if (it->mat != NULL) it->mat->refs++;
 
 	return it;
 }
@@ -169,4 +178,27 @@ cleanup:
 	zone_update(z, x, y);
 	wrefresh(dispscr);
 	return ret;
+}
+
+//
+// Applies a material to an item
+//
+void item_apply_mat(item * it, material * mt)
+{
+	char * name;
+
+	assert(it->mat == NULL);
+
+	mt->refs++;
+	it->mat = mt;
+	it->weight *= mt->mult_weight;
+	it->modify_attack *= mt->mult_attack;
+	it->modify_ac *= mt->mult_ac;
+	it->spikiness *= mt->mult_spikiness;
+
+	name = malloc(strlen(it->name) + strlen(mt->name) + 1);
+	strcpy(name, mt->name);
+	strcat(name, it->name);
+	free(it->name);
+	it->name = name;
 }

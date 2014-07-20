@@ -19,12 +19,24 @@ struct item;
 #include "creature.h"
 #include "inventory.h"
 
+typedef struct material {
+	int refs;
+	char * name;
+	float mult_weight;
+	float mult_attack;
+	float mult_ac;
+	float mult_spikiness;
+} material;
+
 typedef struct item {
 	unsigned type;
 	chtype ch;
 	char * name;
 	int weight; // in 1/100ths of pounds
 	int spikiness;
+
+	char * mat_class;
+	material * mat;
 
 	// where in what inventory
 	struct inventory * of;
@@ -74,5 +86,11 @@ int item_equipped(item *, struct creature *);
 // Used for both actual throwing and firing projectiles
 //
 int item_throw(item *, int, int, struct zone *, int, int, int);
+
+//
+// Applies a material to an item
+// Does not overwrite a previous material
+//
+void item_apply_mat(item *, material *);
 
 #endif

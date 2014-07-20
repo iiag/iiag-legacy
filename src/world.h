@@ -23,6 +23,7 @@ typedef struct {//world states
 	struct vector zones;//list of zones that exist
 	gclass_t * gcrtrs;
 	gclass_t * gitems;
+	gclass_t * gmats;
 } world_st;
 
 // The singleton world object
