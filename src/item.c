@@ -69,6 +69,15 @@ item * item_copy(const item * pt)
 //
 void item_free(item * it)
 {
+	if (it->mat != NULL) {
+		if (!--it->mat->refs) {
+			free(it->mat->name);
+			free(it->mat);
+		}
+	}
+
+	free(it->name);
+	free(it->mat_class);
 	free(it);
 }
 
