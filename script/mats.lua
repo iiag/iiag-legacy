@@ -3,7 +3,7 @@
 ---------------------
 
 material {
-	name = 'quaz ';
+	name = 'quaz';
 	class = 'metal';
 	mult_weight = 1.4;
 	mult_ac = 2;
@@ -13,17 +13,35 @@ material {
 }
 
 material {
-	name = 'iron ';
+	name = 'iron';
 	class = 'metal';
 	mult_weight = 1.6;
 	freq = 2;
 }
 
 material {
-	name = 'steel ';
+	name = 'steel';
 	class = 'metal';
 	mult_ac = 1.5;
 	mult_attack = 1.5;
 	mult_spikiness = 1.5;
+	freq = 1;
+}
+
+material {
+	name = 'bronze';
+	class = 'metal';
+	mult_ac = 1.3;
+	mult_attack = 1.3;
+	mult_spikiness = 1.3;
+	freq = 1;
+}
+
+material {
+	name = 'brass';
+	class = 'metal';
+	mult_ac = 1.4;
+	mult_attack = 1.2;
+	mult_spikiness = 1.4;
 	freq = 1;
 }

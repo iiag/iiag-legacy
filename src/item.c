@@ -205,8 +205,9 @@ void item_apply_mat(item * it, material * mt)
 	it->modify_ac *= mt->mult_ac;
 	it->spikiness *= mt->mult_spikiness;
 
-	name = malloc(strlen(it->name) + strlen(mt->name) + 1);
+	name = malloc(strlen(it->name) + strlen(mt->name) + 2);
 	strcpy(name, mt->name);
+	strcat(name, " ");
 	strcat(name, it->name);
 	free(it->name);
 	it->name = name;
