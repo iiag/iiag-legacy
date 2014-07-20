@@ -57,6 +57,13 @@ GET_TEMPLATE_FRONT(char *, string)
 GET_TEMPLATE_END
 
 
+GET_TEMPLATE_FRONT(const char *, cstring)
+	if (lua_isstring(lstate, -1)) {
+		x = lua_tostring(lstate, -1);
+	}
+GET_TEMPLATE_END
+
+
 GET_TEMPLATE_FRONT(int, slot)
 	int i;
 	const char * str;
@@ -97,7 +104,6 @@ GET_TEMPLATE_END
 static void set_creature(lua_State * lstate, creature * cf)
 {
 	cf->generic_name = get_string(lstate, "name", cf->generic_name);
-	cf->freq        = get_int(lstate, "freq",        cf->freq);
 	cf->health      = get_int(lstate, "health",      cf->health);
 	cf->stamina     = get_int(lstate, "stamina",     cf->stamina);
 	cf->max_health  = get_int(lstate, "max_health",  cf->max_health);
@@ -111,6 +117,20 @@ static void set_creature(lua_State * lstate, creature * cf)
 	cf->on_lvlup.lua_block = get_trigger(lstate, "on_lvlup", cf->on_lvlup.lua_block);
 }
 
+static void add_to_gclass(lua_State * lstate, gclass_t * root, void * stf)
+{
+	int freq, lvl;
+	const char * cl_name;
+	gclass_t * cl;
+
+	freq = get_int(lstate, "freq",  0);
+	lvl  = get_int(lstate, "level", 1);
+	cl_name = get_cstring(lstate, "class", "");
+	cl = get_gclass(cl_name, root);
+
+	add_gelm(cl, freq, lvl, stf);
+}
+
 int lcf_creature(lua_State * lstate)
 {
 	creature * c;
@@ -121,8 +141,9 @@ int lcf_creature(lua_State * lstate)
 
 	c = crtr_new(get_chtype(lstate, "char", '?'));
 	set_creature(lstate, c);
-	vector_append(&world.cforms, c);
-	world.max_cforms_freq += c->freq;
+
+	assure_world();
+	add_to_gclass(lstate, world.gcrtrs, c);
 
 	return 0;
 }
@@ -146,7 +167,6 @@ int lcf_item(lua_State * lstate)
 
 	it = item_new(0, get_chtype(lstate, "char", '?'));
 	it->name = get_string(lstate, "name", it->name);
-	it->freq            = get_int(lstate, "freq",            it->freq);
 	it->restore_health  = get_int(lstate, "restore_health",  it->restore_health);
 	it->restore_stamina = get_int(lstate, "restore_stamina", it->restore_stamina);
 	it->modify_attack   = get_int(lstate, "modify_attack",   it->modify_attack);
@@ -158,8 +178,7 @@ int lcf_item(lua_State * lstate)
 	it->slot = get_slot(lstate, "slot", it->slot);
 
 	assure_world();
-	vector_append(&world.iforms, it);
-	world.max_iforms_freq += it->freq;
+	add_to_gclass(lstate, world.gitems, it);
 
 	return 0;
 }

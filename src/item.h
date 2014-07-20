@@ -23,7 +23,6 @@ typedef struct item {
 	unsigned type;
 	chtype ch;
 	char * name;
-	int freq;
 	int weight; // in 1/100ths of pounds
 	int spikiness;
 

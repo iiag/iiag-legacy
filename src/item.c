@@ -20,7 +20,6 @@ item * item_new(unsigned type, chtype ch)
 	it->type = type;
 	it->ch = ch;
 	it->name = NULL;
-	it->freq = 1;
 	it->weight = 1;
 	it->spikiness = 0;
 
@@ -45,7 +44,6 @@ item * item_copy(const item * pt)
 	item * it = item_new(pt->type, pt->ch);
 
 	it->name            = copy_str(pt->name);
-	it->freq            = pt->freq;
 	it->weight          = pt->weight;
 	it->restore_health  = pt->restore_health;
 	it->restore_stamina = pt->restore_stamina;

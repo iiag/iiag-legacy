@@ -36,13 +36,10 @@ void assure_world(void)
 		world.tm.min   = 0;
 
 		crtr_init(&world.plyr, '@' | A_BOLD);
-
-		vector_init(&world.cforms);
-		vector_init(&world.iforms);
 		vector_init(&world.zones);
 
-		world.max_iforms_freq = 0;
-		world.max_cforms_freq = 0;
+		world.gcrtrs = new_gclass(NULL);
+		world.gitems = new_gclass(NULL);
 
 		first = 0;
 	}

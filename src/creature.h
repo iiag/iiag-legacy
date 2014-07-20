@@ -37,9 +37,6 @@ typedef struct creature {
 	int nofree;
 	int step;
 
-	// if prototype, frequency of generation
-	int freq;
-
 	// position in world
 	int x, y;
 	struct zone * z;

@@ -9,6 +9,7 @@
 #include "util.h"
 #include "zone.h"
 #include "creature.h"
+#include "generator.h"
 
 typedef struct {
 	int era, year, month;
@@ -20,10 +21,8 @@ typedef struct {//world states
 	creature plyr;
 	world_time_t tm;
 	struct vector zones;//list of zones that exist
-	struct vector iforms;
-	struct vector cforms;
-	int max_iforms_freq;
-	int max_cforms_freq;
+	gclass_t * gcrtrs;
+	gclass_t * gitems;
 } world_st;
 
 // The singleton world object

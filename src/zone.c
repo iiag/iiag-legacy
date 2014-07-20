@@ -112,34 +112,30 @@ static void generate(zone * z)
 	}
 
 	// place some random junk
-	if (world.iforms.cnt != 0) {
-		max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
-		for (i = max; i >= 0; i--) {
-			it = item_copy(choose_random(&world.iforms, offsetof(item, freq), world.max_iforms_freq));
+	max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
+	for (i = max; i >= 0; i--) {
+		it = gen_item(world.gitems, 1);
 
-			timeout = 1000;
-			do {
-				x = random() % z->width;
-				y = random() % z->height;
-				timeout--;
-			} while ((z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it)) && timeout);
+		timeout = 1000;
+		do {
+			x = random() % z->width;
+			y = random() % z->height;
+			timeout--;
+		} while ((z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it)) && timeout);
 
-			if (timeout) {
-				item_tele(it, x, y, z);
-				zone_update(z, x, y);
-			}
+		if (timeout) {
+			item_tele(it, x, y, z);
+			zone_update(z, x, y);
 		}
 	}
 
 	// place some more random junk
 	if (!config.all_alone) {
-		if (world.cforms.cnt != 0) {
-			max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
-			for (i = max; i >= 0; i--) {
-				cr = crtr_copy(choose_random(&world.cforms, offsetof(creature, freq), world.max_cforms_freq));
-				crtr_spawn(cr, z);
-				zone_update(z, cr->x, cr->y);
-			}
+		max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
+		for (i = max; i >= 0; i--) {
+			cr = gen_crtr(world.gcrtrs, 1);
+			crtr_spawn(cr, z);
+			zone_update(z, cr->x, cr->y);
 		}
 	}
 }
