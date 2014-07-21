@@ -2,8 +2,6 @@
 // util.h
 //
 
-struct vector;
-
 #ifndef UTIL_H
 #define UTIL_H
 

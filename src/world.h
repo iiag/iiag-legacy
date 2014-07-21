@@ -17,17 +17,17 @@ typedef struct {
 	int hour, min;
 } world_time_t;
 
-typedef struct {//world states
+typedef struct {
 	creature plyr;
 	world_time_t tm;
-	struct vector zones;//list of zones that exist
-	gclass_t * gcrtrs;
-	gclass_t * gitems;
-	gclass_t * gmats;
-} world_st;
+	struct vector zones; // list of zones that exist
+	gclass_t * gcrtrs;   // generatable creatures
+	gclass_t * gitems;   // generatable items
+	gclass_t * gmats;    // generatable materials
+} world_t;
 
 // The singleton world object
-extern world_st world;
+extern world_t world;
 
 //
 // Assures that the world is in a manipulatable state

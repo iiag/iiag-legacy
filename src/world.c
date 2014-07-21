@@ -16,7 +16,7 @@
 #include "display.h"
 #include "inventory.h"
 
-world_st world;
+world_t world;
 
 //
 // Makes sure everything is in a usable state

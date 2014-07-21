@@ -72,7 +72,6 @@ void crtr_init(creature * c, chtype ch)
 	trigger_init(c->on_lvlup);
 }
 
-
 //
 // Basically allocates and wraps to crtr_init
 //

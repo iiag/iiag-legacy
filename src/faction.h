@@ -2,23 +2,23 @@
 // faction.h
 //
 
-struct relation;
-struct faction;
-
 #ifndef FACTION_H
 #define FACTION_H
 
-typedef struct relation {
-	int value;
-	struct relation * next;
-	const struct faction * to;
-} relation;
+typedef struct relation relation;
+typedef struct faction faction;
 
-typedef struct faction {
+struct relation {
+	int value;
+	relation * next;
+	const faction * to;
+};
+
+struct faction {
 	char * name;
-	struct relation * rels;
-	struct faction * next;
-} faction;
+	relation * rels;
+	faction * next;
+};
 
 //
 // Retrieves a faction associated with a given identifier. If the faction does

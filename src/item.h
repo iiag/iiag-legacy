@@ -2,10 +2,11 @@
 // item.h
 //
 
-struct item;
-
 #ifndef ITEM_H
 #define ITEM_H
+
+typedef struct item item;
+typedef struct material material;
 
 // for item type bit field
 #define ITEM_CONSUMABLE 1
@@ -19,16 +20,16 @@ struct item;
 #include "creature.h"
 #include "inventory.h"
 
-typedef struct material {
+struct material {
 	int refs;
 	char * name;
 	float mult_weight;
 	float mult_attack;
 	float mult_ac;
 	float mult_spikiness;
-} material;
+};
 
-typedef struct item {
+struct item {
 	unsigned type;
 	chtype ch;
 	char * name;
@@ -39,7 +40,7 @@ typedef struct item {
 	material * mat;
 
 	// where in what inventory
-	struct inventory * of;
+	inventory * of;
 	int i;
 
 	// consumable-specific data
@@ -50,7 +51,7 @@ typedef struct item {
 	int modify_attack;
 	int modify_ac;
 	int slot;
-} item;
+};
 
 //
 // Creates a new item, to be freed with item_free
@@ -74,18 +75,18 @@ void item_free(item *);
 // Sets 'of' and 'i' if successful
 // Returns 1 on success, 0 on failure
 //
-int item_tele(item *, int, int, struct zone *);
+int item_tele(item *, int, int, zone *);
 
 //
 // Checks if an item is equiped to a creature
 //
-int item_equipped(item *, struct creature *);
+int item_equipped(item *, creature *);
 
 //
 // Throws an item from a location along a path
 // Used for both actual throwing and firing projectiles
 //
-int item_throw(item *, int, int, struct zone *, int, int, int);
+int item_throw(item *, int, int, zone *, int, int, int);
 
 //
 // Applies a material to an item

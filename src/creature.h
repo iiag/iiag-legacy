@@ -2,10 +2,10 @@
 // creature.h
 //
 
-struct creature;
-
 #ifndef CREATURE_H
 #define CREATURE_H
+
+typedef struct creature creature;
 
 #include <ncurses.h>
 #include "item.h"
@@ -30,7 +30,7 @@ typedef enum slot {
 	MAX_SLOTS
 } slot;
 
-typedef struct creature {
+struct creature {
 	chtype ch;
 
 	// iternalish stuff
@@ -39,7 +39,7 @@ typedef struct creature {
 
 	// position in world
 	int x, y;
-	struct zone * z;
+	zone * z;
 
 	// identification
 	char * specific_name;
@@ -48,8 +48,8 @@ typedef struct creature {
 	faction * fctn;
 
 	// item fields
-	struct inventory * inv;
-	struct item * slots[MAX_SLOTS];
+	inventory * inv;
+	item * slots[MAX_SLOTS];
 
 	// level/xp
 	int level;
@@ -68,7 +68,7 @@ typedef struct creature {
 	trigger on_spawn;
 	trigger on_death;
 	trigger on_lvlup;
-} creature;
+};
 
 //
 // Sets the values of the given creature to the default values
@@ -93,7 +93,7 @@ creature * crtr_copy(const creature *);
 // x, y, and z of creature set
 // Triggers on_spawn
 //
-void crtr_spawn(creature *, struct zone *);
+void crtr_spawn(creature *, zone *);
 
 //
 // Frees a creature allocated with crtr_new
@@ -110,7 +110,7 @@ int crtr_move(creature *, int, int);
 // Teleports a creature to a given (x, y, z), if possible
 // Returns 1 on success, 0 on failure
 //
-int crtr_tele(creature *, int, int, struct zone *);
+int crtr_tele(creature *, int, int, zone *);
 
 //
 // Gives a creature XP points
@@ -143,7 +143,7 @@ void crtr_unequip(creature *, slot);
 // Equips an item to the creature
 // Returns 1 if successful, 0 if failed
 //
-int crtr_equip(creature *, struct item *, slot);
+int crtr_equip(creature *, item *, slot);
 
 //
 // Called once per game step
@@ -154,7 +154,7 @@ void crtr_step(creature *, int);
 // Safely removes an item from the creatures inventory
 // Do not call inv_rm on the creature's inventory yourself
 //
-struct item * crtr_rm_item(creature *, int);
+item * crtr_rm_item(creature *, int);
 
 //
 // Causes a creature to throw an item
