@@ -161,7 +161,7 @@ int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
 
 				if (c->health <= 0) {
 					memo("The %s kills the %s!\n", it->name, crtr_name(c));
-					trigger_pull(&c->on_death, "projectile impact");
+					trigger_pull(&c->on_death, c, "projectile impact");
 					zone_update(c->z, c->x, c->y);
 					wrefresh(dispscr);
 					crtr_free(c);

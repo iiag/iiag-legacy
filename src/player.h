@@ -23,7 +23,9 @@ void plyr_act_throw(void);
 
 // the inevitable
 void plyr_ev_birth(void);
-void plyr_ev_death(const char *);
+void plyr_ev_death(creature *, const char *);
 void plyr_ev_lvlup(void);
+void plyr_ev_act_comp(creature *, item *);
+void plyr_ev_act_fail(creature *, void *);
 
 #endif

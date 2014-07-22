@@ -79,6 +79,7 @@ cform {
 	char = '!';
 	freq = 1;
 	sight = 5;
+	speed = 20;
 }
 
 cform {
@@ -88,6 +89,7 @@ cform {
 	freq = 50;
 	char = 'T';
 	sight = 150;
+	speed = 3;
 }
 
 cform {

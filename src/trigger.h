@@ -5,7 +5,7 @@
 #ifndef TRIGGER_H
 #define TRIGGER_H
 
-typedef void (* trigger_cfunc)(void *);
+typedef void (* trigger_cfunc)(void *, void *);
 
 typedef struct trigger {
 	int lua_block;
@@ -22,6 +22,6 @@ typedef struct trigger {
 //
 // Fires the given trigger
 //
-void trigger_pull(const trigger *, void *);
+void trigger_pull(const trigger *, void *, void *);
 
 #endif

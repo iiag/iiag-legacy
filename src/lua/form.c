@@ -118,6 +118,7 @@ static void set_creature(lua_State * lstate, creature * cf)
 	cf->attack      = get_int(lstate, "attack",      cf->attack);
 	cf->ac          = get_int(lstate, "ac",          cf->ac);
 	cf->sight       = get_int(lstate, "sight",       cf->sight);
+	cf->speed       = get_int(lstate, "speed",       cf->speed);
 	cf->fctn        = get_faction(lstate, "faction", cf->fctn);
 	cf->on_spawn.lua_block = get_trigger(lstate, "on_spawn", cf->on_spawn.lua_block);
 	cf->on_death.lua_block = get_trigger(lstate, "on_death", cf->on_death.lua_block);

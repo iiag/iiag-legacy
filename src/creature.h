@@ -5,6 +5,7 @@
 #ifndef CREATURE_H
 #define CREATURE_H
 
+typedef struct action action;
 typedef struct creature creature;
 
 #include <ncurses.h>
@@ -18,6 +19,7 @@ typedef struct creature creature;
 
 extern const char * slot_names[];
 
+// enumeration of different equipable slots
 typedef enum slot {
 	NO_SLOT = -1,
 	LEFT_HAND = 0,
@@ -30,12 +32,70 @@ typedef enum slot {
 	MAX_SLOTS
 } slot;
 
+// identifies the type of action to take
+typedef enum action_type {
+	ACT_MOVE,
+	ACT_AA_MOVE, // move w/ auto attack
+	ACT_PICKUP,
+	ACT_DROP,
+	ACT_CONSUME,
+	ACT_EQUIP,
+	ACT_THROW
+} action_type;
+
+// Identifies how an action failed
+// Of type void* so can be easily passed to triggers
+typedef enum action_fail {
+	ACT_FAIL_MOVE,
+	ACT_FAIL_AA_MOVE,
+	ACT_FAIL_PICKUP_HEAVY,
+	ACT_FAIL_PICKUP_PRESENT,
+	ACT_FAIL_DROP_HEAVY,
+	ACT_FAIL_DROP_PRESENT,
+	ACT_FAIL_CONSUME_ABLE,
+	ACT_FAIL_CONSUME_PRESENT,
+	ACT_FAIL_EQUIP_ABLE,
+	ACT_FAIL_EQUIP_PRESENT,
+	ACT_FAIL_THROW,
+} action_fail;
+
+#define V_ACT_FAIL_MOVE            ((void *) ACT_FAIL_MOVE)
+#define V_ACT_FAIL_AA_MOVE         ((void *) ACT_FAIL_AA_MOVE)
+#define V_ACT_FAIL_PICKUP_HEAVY    ((void *) ACT_FAIL_PICKUP_HEAVY)
+#define V_ACT_FAIL_PICKUP_PRESENT  ((void *) ACT_FAIL_PICKUP_PRESENT)
+#define V_ACT_FAIL_DROP_HEAVY      ((void *) ACT_FAIL_DROP_HEAVY)
+#define V_ACT_FAIL_DROP_PRESENT    ((void *) ACT_FAIL_DROP_PRESENT)
+#define V_ACT_FAIL_CONSUME_ABLE    ((void *) ACT_FAIL_CONSUME_ABLE)
+#define V_ACT_FAIL_CONSUME_PRESENT ((void *) ACT_FAIL_CONSUME_PRESENT)
+#define V_ACT_FAIL_EQUIP_ABLE      ((void *) ACT_FAIL_EQUIP_ABLE)
+#define V_ACT_FAIL_EQUIP_PRESENT   ((void *) ACT_FAIL_EQUIP_PRESENT)
+#define V_ACT_FAIL_THROW           ((void *) ACT_FAIL_THROW)
+
+// structure containing information on an action to perform
+struct action {
+	action_type type;
+
+	// parameters to the action
+	union {
+		struct {
+			int x, y;
+		} dir;
+		struct {
+			int ind, x, y;
+		} throw;
+		int ind;
+	} p;
+};
+
+// The primary creature structure
 struct creature {
 	chtype ch;
 
 	// iternalish stuff
 	int nofree;
 	int step;
+	int count_down;
+	action sched;
 
 	// position in world
 	int x, y;
@@ -63,11 +123,14 @@ struct creature {
 	int sight;
 	int reflex;
 	int throw;
+	int speed;
 
 	// triggers
 	trigger on_spawn;
 	trigger on_death;
 	trigger on_lvlup;
+	trigger on_act_comp;
+	trigger on_act_fail;
 };
 
 //
@@ -101,16 +164,22 @@ void crtr_spawn(creature *, zone *);
 void crtr_free(creature *);
 
 //
-// Moves the given creature by the given x and y (not to the given x, y)
-// Returns 1 on success, 0 on failure
-//
-int crtr_move(creature *, int, int);
-
-//
 // Teleports a creature to a given (x, y, z), if possible
 // Returns 1 on success, 0 on failure
 //
 int crtr_tele(creature *, int, int, zone *);
+
+//
+// Checks if can teleport to a location
+// Returns 1 on success, 0 on failure
+//
+int crtr_can_tele(creature *, int, int, zone *);
+
+//
+// Simply wraps to crtr_tele, but relative to current creature position
+// Returns 1 on success, 0 on failure
+//
+int crtr_move(creature *, int, int);
 
 //
 // Gives a creature XP points
@@ -140,7 +209,7 @@ int crtr_attack(creature *, creature *);
 void crtr_unequip(creature *, slot);
 
 //
-// Equips an item to the creature
+// Equips an item to the creature (not through an action)
 // Returns 1 if successful, 0 if failed
 //
 int crtr_equip(creature *, item *, slot);
@@ -157,13 +226,32 @@ void crtr_step(creature *, int);
 item * crtr_rm_item(creature *, int);
 
 //
-// Causes a creature to throw an item
-//
-int crtr_throw_item(creature *, int, int, int);
-
-//
 // Tests if a creature can dodge something
 //
 int crtr_dodges(creature *, int);
+
+//
+// The following functions are called when an action is completed
+// Typically they should only be called as a result of calling crtr_act_*
+//
+void crtr_try_move(creature *, int, int);
+void crtr_try_aa_move(creature *, int, int); // move w/ auto attack
+void crtr_try_pickup(creature *, int);
+void crtr_try_drop(creature *, int);
+void crtr_try_consume(creature *, int);
+void crtr_try_equip(creature *, int);
+void crtr_try_throw(creature *, int, int, int); // item then dx, dy
+
+//
+// The following functions schedule actions to happen
+// If an item need be specified, it is by index (of the creature except w/ pickup)
+//
+void crtr_act_move(creature *, int, int);
+void crtr_act_aa_move(creature *, int, int);
+void crtr_act_pickup(creature *, int);
+void crtr_act_drop(creature *, int);
+void crtr_act_consume(creature *, int);
+void crtr_act_equip(creature *, int);
+void crtr_act_throw(creature *, int, int, int);
 
 #endif

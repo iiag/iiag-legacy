@@ -41,6 +41,7 @@ void crtr_init(creature * c, chtype ch)
 
 	c->nofree = 0;
 	c->step = 1;
+	c->count_down = 0;
 
 	c->x = c->y = 0;
 	c->z = NULL;
@@ -63,6 +64,7 @@ void crtr_init(creature * c, chtype ch)
 	c->sight   = 15;
 	c->reflex  = 1;
 	c->throw   = 20;
+	c->speed   = 7;
 
 	c->inv = inv_new(5000);
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
@@ -70,6 +72,8 @@ void crtr_init(creature * c, chtype ch)
 	trigger_init(c->on_spawn);
 	trigger_init(c->on_death);
 	trigger_init(c->on_lvlup);
+	trigger_init(c->on_act_comp);
+	trigger_init(c->on_act_fail);
 }
 
 //
@@ -94,6 +98,7 @@ creature * crtr_copy(const creature * p)
 	c->ability       = copy_str(p->ability);
 	c->fctn          = p->fctn;
 
+	// TODO schedule
 	// TODO inventory
 
 	c->level   = p->level;
@@ -107,10 +112,14 @@ creature * crtr_copy(const creature * p)
 	c->attack      = p->attack;
 	c->ac          = p->ac;
 	c->sight       = p->sight;
+	c->throw       = p->throw;
+	c->speed       = p->speed;
 
 	c->on_spawn = p->on_spawn;
 	c->on_death = p->on_death;
 	c->on_lvlup = p->on_lvlup;
+	c->on_act_comp = p->on_act_comp;
+	c->on_act_fail = p->on_act_fail;
 
 	return c;
 }
@@ -132,7 +141,7 @@ void crtr_spawn(creature * c, zone * z)
 		assert(timeout--); // FIXME
 	} while (!crtr_tele(c, x, y, z));
 
-	trigger_pull(&c->on_spawn, c);
+	trigger_pull(&c->on_spawn, c, NULL);
 }
 
 //
@@ -147,6 +156,10 @@ void crtr_free(creature * c)
 			tileof(c)->crtr = NULL;
 		}
 
+		inv_free(c->inv);
+		free(c->generic_name);
+		free(c->specific_name);
+		free(c->ability);
 		free(c);
 	}
 }
@@ -161,9 +174,9 @@ void crtr_free(creature * c)
 //
 int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
-	tile * t = zone_at(z, x, y);
+	//tile * t = zone_at(z, x, y);
 
-	if (t != NULL && t->crtr == NULL && !t->impassible) {
+	if (crtr_can_tele(crtr, x, y, z)) {
 		z->tiles[x][y].crtr = crtr;
 
 		if (crtr->z != NULL) {
@@ -188,6 +201,15 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 }
 
 //
+// Checks if a creature can move/teleport into a space
+//
+int crtr_can_tele(creature * crtr, int x, int y, zone * z)
+{
+	tile * t = zone_at(z, x, y);
+	return t != NULL && t->crtr == NULL && !t->impassible;
+}
+
+//
 // Simply wraps to crtr_tele, but relative
 //
 int crtr_move(creature * crtr, int dx, int dy)
@@ -209,7 +231,7 @@ void crtr_xp_up(creature * c, int xp)
 		c->level++;
 		c->need_xp = req_xp(c);
 
-		trigger_pull(&c->on_lvlup, NULL);
+		trigger_pull(&c->on_lvlup, c, NULL);
 		crtr_xp_up(c, 0);
 	}
 }
@@ -244,6 +266,7 @@ int crtr_equip(creature * c, item * it, slot sl)
 	return 0;
 }
 
+
 //
 // The attacker attacks the defender (attack vs ac)
 // Does not free any resources when the defender is killed
@@ -264,7 +287,7 @@ int crtr_attack(creature * attacker, creature * defender)
 		if (xp < 0) xp = 0;
 
 		crtr_xp_up(attacker, xp);
-		trigger_pull(&defender->on_death, "violence");
+		trigger_pull(&defender->on_death, defender, "violence");
 
 		return DEAD;
 	}
@@ -299,8 +322,7 @@ int crtr_disposition(const creature * a, const creature * b)
 //
 static void beast_ai(creature * c)
 {
-	creature * tar;
-	int x, y, s, dam, show;
+	int x, y, s;
 	int dx, dy;
 	int tx = 0;
 	int ty = 0;
@@ -345,32 +367,15 @@ static void beast_ai(creature * c)
 		else if (c->y < ty) dy = 1;
 		else dy = 0;
 
-		if (c->x + dx == tx && c->y + dy == ty) {
-			tar = c->z->tiles[tx][ty].crtr;
-			dam = crtr_attack(c, tar);
-
-			show = tileof(c)->show && tileof(tar)->show;
-
-			switch (dam) {
-			case DEAD:
-				if (show && (plyr_is_me(c) || plyr_is_me(tar))) memo("%s kills %s", crtr_name(c), crtr_name(tar));
-				zone_update(tar->z, tar->x, tar->y);
-				wrefresh(dispscr);
-				crtr_free(tar);
-				break;
-			case 0:
-				if (show && (plyr_is_me(c) || plyr_is_me(tar))) memo("%s misses %s.", crtr_name(c), crtr_name(tar));
-				break;
-			default:
-				if (show && (plyr_is_me(c) || plyr_is_me(tar))) memo("%s hits %s for %d damage.", crtr_name(c), crtr_name(tar), dam);
-			}
-		} else {
-			if (!crtr_move(c, dx, dy)) {
-				if (!dx || !crtr_move(c, dx, 0)) {
-					crtr_move(c, 0, dy);
-				}
+		if (!crtr_can_tele(c, c->x+dx, c->y+dy, c->z)) {
+			if (dx && crtr_can_tele(c, c->x+dx, 0, c->z)) {
+				dy = 0;
+			} else if (dy) {
+				dx = 0;
 			}
 		}
+
+		crtr_act_aa_move(c, dx, dy);
 	}
 }
 
@@ -386,6 +391,8 @@ void crtr_step(creature * c, int step)
 	zone * z;
 
 	if (c->step != step) {
+		c->step = step;
+
 		assert(c->health > 0);
 		assert(c->stamina > 0);
 
@@ -394,7 +401,7 @@ void crtr_step(creature * c, int step)
 		if (c->stamina <= 0) {
 			// FIXME
 			if (plyr_is_me(c)) {
-				plyr_ev_death("starvation");
+				plyr_ev_death(c, "starvation");
 			} else {
 				memo("%s dies of starvation", crtr_name(c));
 
@@ -410,11 +417,38 @@ void crtr_step(creature * c, int step)
 			return;
 		}
 
-		if (!plyr_is_me(c)) {
-			beast_ai(c);
+		// handle ai when can perform action
+		if (!c->count_down) {
+			if (!plyr_is_me(c)) {
+				beast_ai(c);
+			}
 		}
 
-		c->step = step;
+		// actions upkeep
+		if (c->count_down && !--c->count_down) {
+			// action completed!
+			switch (c->sched.type) {
+			case ACT_MOVE:
+				crtr_try_move(c, c->sched.p.dir.x, c->sched.p.dir.y);
+			case ACT_AA_MOVE:
+				crtr_try_aa_move(c, c->sched.p.dir.x, c->sched.p.dir.y);
+				break;
+			case ACT_PICKUP:
+				crtr_try_pickup(c, c->sched.p.ind);
+				break;
+			case ACT_DROP:
+				crtr_try_drop(c, c->sched.p.ind);
+				break;
+			case ACT_CONSUME:
+				crtr_try_consume(c, c->sched.p.ind);
+			case ACT_EQUIP:
+				crtr_try_equip(c, c->sched.p.ind);
+				break;
+			case ACT_THROW:
+				crtr_try_throw(c, c->sched.p.throw.ind, c->sched.p.throw.x, c->sched.p.throw.y);
+				break;
+			}
+		}
 	}
 }
 
@@ -434,23 +468,6 @@ item * crtr_rm_item(creature * c, int i)
 }
 
 //
-// Causes a creature to throw an item
-// Returns 1 on success, 0 on failure
-//
-int crtr_throw_item(creature * c, int i, int dx, int dy)
-{
-	assert(c->inv->size > i);
-	assert(c->inv->itms[i] != NULL);
-
-	if (item_throw(c->inv->itms[i], c->x, c->y, c->z, dx, dy, c->throw)) {
-		crtr_rm_item(c, i);
-		return 1;
-	}
-
-	return 0;
-}
-
-//
 // Tests if a creature can dodge an item
 //
 int crtr_dodges(creature * c, int difficulty)
@@ -459,4 +476,209 @@ int crtr_dodges(creature * c, int difficulty)
 	if (difficulty < 0) difficulty = 0;
 	roll = random() % c->reflex;
 	return difficulty < roll || roll == c->reflex;
+}
+
+//
+// The following functions are typically called when actions are completed
+//
+void crtr_try_move(creature * c, int dx, int dy)
+{
+	if (crtr_move(c, dx, dy)) {
+		trigger_pull(&c->on_act_comp, c, NULL);
+	} else {
+		trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_MOVE);
+	}
+}
+
+void crtr_try_aa_move(creature * c, int dx, int dy)
+{
+	int dam;
+	tile * t;
+	creature * d;
+
+	assert(dx || dy);
+
+	if (!crtr_move(c, dx, dy)) {
+		t = zone_at(c->z, c->x + dx, c->y + dy);
+
+		// auto attack
+		if (t != NULL && t->crtr != NULL) {
+			d = t->crtr;
+			assert(c != d);
+
+			switch (dam = crtr_attack(c, d)) {
+			case DEAD:
+				// TODO memos should probably be in player.c
+				if (plyr_is_me(c)) memo("You slay the %s.", crtr_name(d));
+
+				crtr_free(d);
+				zone_update(c->z, c->x + dx, c->y + dy);
+				wrefresh(dispscr);
+				break;
+			case 0:
+				if (plyr_is_me(c)) memo("You miss.");
+				if (plyr_is_me(d)) memo("You dodge the %s's attack.", crtr_name(c));
+				break;
+			default:
+				if (plyr_is_me(c)) memo("You hit for %d damage.", dam);
+				if (plyr_is_me(d)) memo("You are hit by %s for %d damage.", crtr_name(c), dam);
+				break;
+			}
+		} else {
+			trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_AA_MOVE);
+			return;
+		}
+	}
+
+	trigger_pull(&c->on_act_comp, c, NULL);
+}
+
+void crtr_try_pickup(creature * c, int i)
+{
+	int j;
+	tile * t = tileof(c);
+
+	if (t->inv->size > i && t->inv->itms[i] != NULL) {
+		if ((j = inv_add(c->inv, t->inv->itms[i])) != INVALID) {
+			t->inv->itms[i]->i = j;
+			inv_rm(t->inv, i);
+
+			trigger_pull(&c->on_act_comp, c, c->inv->itms[j]);
+		} else {
+			trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_PICKUP_HEAVY);
+		}
+	} else {
+		trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_PICKUP_PRESENT);
+	}
+}
+
+void crtr_try_drop(creature * c, int i)
+{
+	int j;
+	tile * t = tileof(c);
+
+	if (c->inv->size > i && c->inv->itms[i] != NULL) {
+		if ((j = inv_add(t->inv, c->inv->itms[i])) != INVALID) {
+			c->inv->itms[i]->i = j;
+			inv_rm(c->inv, i);
+
+			trigger_pull(&c->on_act_comp, c, t->inv->itms[j]);
+		} else {
+			trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_DROP_HEAVY);
+		}
+	} else {
+		trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_DROP_PRESENT);
+	}
+}
+
+void crtr_try_consume(creature * c, int i)
+{
+	item * it;
+
+	if (c->inv->size > i && c->inv->itms[i] != NULL) {
+		if (c->inv->itms[i]->type & ITEM_CONSUMABLE) {
+			it = crtr_rm_item(c, i);
+
+			c->health  += it->restore_health;
+			c->stamina += it->restore_stamina;
+
+			if (c->health  > c->max_health ) c->health  = c->max_health;
+			if (c->stamina > c->max_stamina) c->stamina = c->max_stamina;
+
+			trigger_pull(&c->on_act_comp, c, it);
+			item_free(it);
+		} else {
+			trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_CONSUME_ABLE);
+		}
+	} else {
+		trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_CONSUME_PRESENT);
+	}
+}
+
+void crtr_try_equip(creature * c, int i)
+{
+	item * it;
+
+	if (c->inv->size > i && c->inv->itms[i] != NULL) {
+		if (c->inv->itms[i]->type & ITEM_EQUIPABLE) {
+			it = c->inv->itms[i];
+			crtr_equip(c, it, it->slot);
+
+			trigger_pull(&c->on_act_comp, c, it);
+		} else {
+			trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_EQUIP_ABLE);
+		}
+	} else {
+		trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_EQUIP_PRESENT);
+	}
+}
+
+void crtr_try_throw(creature * c, int i, int dx, int dy)
+{
+	assert(c->inv->size > i);
+	assert(c->inv->itms[i] != NULL);
+
+	if (i < c->inv->size && c->inv->itms[i] != NULL) {
+		if (item_throw(c->inv->itms[i], c->x, c->y, c->z, dx, dy, c->throw)) {
+			crtr_rm_item(c, i);
+			trigger_pull(&c->on_act_comp, c, NULL);
+			return;
+		}
+	}
+
+	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_THROW);
+}
+
+//
+// The following function schedule creature actions
+//
+#define ACT_TMPLT(T) \
+	assert(!c->count_down); \
+	c->count_down = c->speed; \
+	c->sched.type = T
+
+void crtr_act_move(creature * c, int x, int y)
+{
+	ACT_TMPLT(ACT_MOVE);
+	c->sched.p.dir.x = x;
+	c->sched.p.dir.y = y;
+}
+
+void crtr_act_aa_move(creature * c, int x, int y)
+{
+	ACT_TMPLT(ACT_AA_MOVE);
+	c->sched.p.dir.x = x;
+	c->sched.p.dir.y = y;
+}
+
+void crtr_act_pickup(creature * c, int i)
+{
+	ACT_TMPLT(ACT_PICKUP);
+	c->sched.p.ind = i;
+}
+
+void crtr_act_drop(creature * c, int i)
+{
+	ACT_TMPLT(ACT_DROP);
+	c->sched.p.ind = i;
+}
+
+void crtr_act_consume(creature * c, int i)
+{
+	ACT_TMPLT(ACT_CONSUME);
+	c->sched.p.ind = i;
+}
+
+void crtr_act_equip(creature * c, int i)
+{
+	ACT_TMPLT(ACT_EQUIP);
+	c->sched.p.ind = i;
+}
+
+void crtr_act_throw(creature * c, int i, int x, int y)
+{
+	ACT_TMPLT(ACT_THROW);
+	c->sched.p.throw.ind = i;
+	c->sched.p.throw.x   = x;
+	c->sched.p.throw.y   = y;
 }

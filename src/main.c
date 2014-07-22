@@ -76,7 +76,6 @@ int main(int argc, char ** argv)
 	update_status();
 
 	for (;;) {
-continue_loop:
 		c = get_ctrl();
 		reset_memos();
 
@@ -92,11 +91,11 @@ continue_loop:
 		case CTRL_DRIGHT: plyr_act_move( 1,  1); break;
 
 		// scrolling
-		case CTRL_SCRL_CENTER: scroll_center(PLYR.x, PLYR.y); zone_draw(PLYR.z); goto continue_loop;
-		case CTRL_SCRL_LEFT:   scroll_disp(-1,  0);           zone_draw(PLYR.z); goto continue_loop;
-		case CTRL_SCRL_RIGHT:  scroll_disp( 1,  0);           zone_draw(PLYR.z); goto continue_loop;
-		case CTRL_SCRL_UP:     scroll_disp( 0, -1);           zone_draw(PLYR.z); goto continue_loop;
-		case CTRL_SCRL_DOWN:   scroll_disp( 0,  1);           zone_draw(PLYR.z); goto continue_loop;
+		case CTRL_SCRL_CENTER: scroll_center(PLYR.x, PLYR.y); zone_draw(PLYR.z); break;
+		case CTRL_SCRL_LEFT:   scroll_disp(-1,  0);           zone_draw(PLYR.z); break;
+		case CTRL_SCRL_RIGHT:  scroll_disp( 1,  0);           zone_draw(PLYR.z); break;
+		case CTRL_SCRL_UP:     scroll_disp( 0, -1);           zone_draw(PLYR.z); break;
+		case CTRL_SCRL_DOWN:   scroll_disp( 0,  1);           zone_draw(PLYR.z); break;
 
 		// actions
 		case CTRL_DISP_INV: plyr_act_inv();      break;
@@ -113,10 +112,10 @@ continue_loop:
 
 		default:
 			memo("Unknown key press");
-			goto continue_loop;
+			break;
 		}
 
-		step();
+		while (PLYR.count_down) step();
 	}
 
 cleanup:
