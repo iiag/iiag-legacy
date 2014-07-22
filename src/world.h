@@ -14,7 +14,7 @@
 typedef struct {
 	int era, year, month;
 	int mday, wday;
-	int hour, min;
+	int hour, min, steps;
 } world_time_t;
 
 typedef struct {

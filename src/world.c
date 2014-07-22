@@ -82,23 +82,28 @@ void step_world(void)
 	step = !step;
 
 	// update time
-	world.tm.min += 5;
+	world.tm.steps += 1;
 
-	while (world.tm.min >= 60) {
-		world.tm.min -= 60;
-		world.tm.hour++;
+	while (world.tm.steps >= 600) {
+		world.tm.steps -= 600;
+		world.tm.min++;
 
-		if (world.tm.hour >= 24) {
-			world.tm.hour -= 24;
-			world.tm.mday++;
-			world.tm.wday = (world.tm.wday + 1) % 7 + 1;
+		if (world.tm.min >= 60) {
+			world.tm.min -= 60;
+			world.tm.hour++;
 
-			if (world.tm.mday > 30 + (world.tm.month & 1)) {
-				world.tm.mday -= 30 + (world.tm.month & 1);
-				world.tm.month++;
+			if (world.tm.hour >= 24) {
+				world.tm.hour -= 24;
+				world.tm.mday++;
+				world.tm.wday = (world.tm.wday + 1) % 7 + 1;
 
-				if (world.tm.month > 12)
-					world.tm.year++;
+				if (world.tm.mday > 30 + (world.tm.month & 1)) {
+					world.tm.mday -= 30 + (world.tm.month & 1);
+					world.tm.month++;
+
+					if (world.tm.month > 12)
+						world.tm.year++;
+				}
 			}
 		}
 	}
@@ -110,8 +115,8 @@ void step_world(void)
 //
 void get_time(char * to, int max)
 {
-	snprintf(to, max, "%02d:%02d %d/%d/%d Era %d",
-		world.tm.hour, world.tm.min,
+	snprintf(to, max, "%02d:%02d:%02d.%01d %d/%d/%d Era %d",
+		world.tm.hour, world.tm.min, world.tm.steps/10, world.tm.steps%10,
 		world.tm.month, world.tm.mday, world.tm.year,
 		world.tm.era);
 }

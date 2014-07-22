@@ -64,7 +64,7 @@ void crtr_init(creature * c, chtype ch)
 	c->sight   = 15;
 	c->reflex  = 1;
 	c->throw   = 20;
-	c->speed   = 7;
+	c->speed   = 14;
 
 	c->inv = inv_new(5000);
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
