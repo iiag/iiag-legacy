@@ -126,6 +126,8 @@ static void generate(zone * z)
 		if (timeout) {
 			item_tele(it, x, y, z);
 			zone_update(z, x, y);
+		} else {
+			item_free(it);
 		}
 	}
 
@@ -138,6 +140,11 @@ static void generate(zone * z)
 			zone_update(z, cr->x, cr->y);
 		}
 	}
+
+	// cleanup
+	for (x = 0; x < z->width; x++) free(walls[x]);
+	free(walls);
+	free(rv);
 }
 
 zone * zone_new(int w, int h)
