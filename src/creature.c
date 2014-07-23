@@ -444,6 +444,7 @@ void crtr_step(creature * c, int step)
 				break;
 			case ACT_CONSUME:
 				crtr_try_consume(c, c->sched.p.ind);
+				break;
 			case ACT_EQUIP:
 				crtr_try_equip(c, c->sched.p.ind);
 				break;
