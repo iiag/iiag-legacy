@@ -15,7 +15,11 @@ typedef struct creature creature;
 #include "trigger.h"
 #include "inventory.h"
 
+// used for return value of attack
 #define DEAD (-1)
+
+// special value of 'creature.refs'
+#define NOFREE (-1)
 
 extern const char * slot_names[];
 
@@ -92,7 +96,8 @@ struct creature {
 	chtype ch;
 
 	// iternalish stuff
-	int nofree;
+	int refs;
+	int deceased; // creature is dead but references remain
 	int step;
 	int count_down;
 	action sched;
@@ -162,6 +167,11 @@ void crtr_spawn(creature *, zone *);
 // Frees a creature allocated with crtr_new
 //
 void crtr_free(creature *);
+
+//
+// Marks a creature as dead an frees the creature if necessary
+//
+void crtr_death(creature *, char *);
 
 //
 // Teleports a creature to a given (x, y, z), if possible

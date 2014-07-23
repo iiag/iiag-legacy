@@ -39,8 +39,9 @@ void crtr_init(creature * c, chtype ch)
 
 	c->ch = ch;
 
-	c->nofree = 0;
-	c->step = 1;
+	c->refs = 1;
+	c->deceased = 0;
+	c->step = -1;
 	c->count_down = 0;
 
 	c->x = c->y = 0;
@@ -92,6 +93,9 @@ creature * crtr_new(chtype ch)
 creature * crtr_copy(const creature * p)
 {
 	creature * c = crtr_new(p->ch);
+
+	// There should be no reason for coping a deceased creature
+	assert(!p->deceased);
 
 	c->specific_name = copy_str(p->specific_name);
 	c->generic_name  = copy_str(p->generic_name);
@@ -150,11 +154,8 @@ void crtr_spawn(creature * c, zone * z)
 //
 void crtr_free(creature * c)
 {
-	if (!c->nofree) {
-		if (c->z != NULL) {
-			assert(tileof(c)->crtr == c);
-			tileof(c)->crtr = NULL;
-		}
+	if (c->refs != NOFREE && !--c->refs) {
+		assert(c->deceased);
 
 		inv_free(c->inv);
 		free(c->generic_name);
@@ -162,6 +163,24 @@ void crtr_free(creature * c)
 		free(c->ability);
 		free(c);
 	}
+}
+
+//
+// Wraps to crtr_free and pulls the on_death trigger
+//
+void crtr_death(creature * c, char * meth)
+{
+	c->deceased = 1;
+	trigger_pull(&c->on_death, c, meth);
+
+	if (c->z != NULL) {
+		assert(tileof(c)->crtr == c);
+		tileof(c)->crtr = NULL;
+	}
+	zone_update(c->z, c->x, c->y);
+	if (c->z == PLYR.z) wrefresh(dispscr);
+
+	crtr_free(c);
 }
 
 //
@@ -286,8 +305,9 @@ int crtr_attack(creature * attacker, creature * defender)
 		xp = (defender->level + XP_LEVEL_DIFF) - attacker->level;
 		if (xp < 0) xp = 0;
 
+		defender->refs++;
 		crtr_xp_up(attacker, xp);
-		trigger_pull(&defender->on_death, defender, "violence");
+		crtr_death(defender, "violence");
 
 		return DEAD;
 	}
@@ -387,9 +407,6 @@ static void beast_ai(creature * c)
 //
 void crtr_step(creature * c, int step)
 {
-	int x, y;
-	zone * z;
-
 	if (c->step != step) {
 		c->step = step;
 
@@ -399,21 +416,7 @@ void crtr_step(creature * c, int step)
 		// stamina upkeep
 		c->stamina -= 1;
 		if (c->stamina <= 0) {
-			// FIXME
-			if (plyr_is_me(c)) {
-				plyr_ev_death(c, "starvation");
-			} else {
-				memo("%s dies of starvation", crtr_name(c));
-
-				x = c->x;
-				y = c->y;
-				z = c->z;
-
-				crtr_free(c);
-				zone_update(z, x, y);
-				wrefresh(dispscr);
-			}
-
+			crtr_death(c, "starvation");
 			return;
 		}
 

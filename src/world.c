@@ -63,7 +63,7 @@ void init_world(void)
 	world.plyr.on_lvlup.c_func    = (trigger_cfunc)plyr_ev_lvlup;
 	world.plyr.on_act_comp.c_func = (trigger_cfunc)plyr_ev_act_comp;
 	world.plyr.on_act_fail.c_func = (trigger_cfunc)plyr_ev_act_fail;
-	world.plyr.nofree = 1;
+	world.plyr.refs = NOFREE;
 
 	crtr_spawn(&world.plyr, z);
 	zone_update(z, world.plyr.x, world.plyr.y);
