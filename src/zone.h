@@ -10,6 +10,7 @@ typedef struct zone zone;
 
 #define TILE_MAX_WEIGHT 1000
 
+#include "util.h"
 #include "creature.h"
 #include "inventory.h"
 
@@ -24,6 +25,7 @@ struct tile {
 struct zone {
 	int width, height; // width and height of zone
 	tile ** tiles;     // array of tiles in the zone
+	vector_t crtrs;    // list of all creatures in the zone
 };
 
 //
@@ -57,9 +59,14 @@ void zone_draw(zone *);
 tile * zone_at(zone *, int, int);
 
 //
-// This function is called once every "step", i.e. once between user actions
+// Removes the creature from the tile and creature list
 //
-void zone_step(zone *, int);
+void zone_rm_crtr(zone *, creature *);
+
+//
+// This function is called once every "step"
+//
+void zone_step(zone *, long);
 
 //
 // Takes a two (x, y) pairs and a max distance and checks if the tiles are

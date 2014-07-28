@@ -41,8 +41,8 @@ void crtr_init(creature * c, chtype ch)
 
 	c->refs = 1;
 	c->deceased = 0;
-	c->step = -1;
-	c->count_down = 0;
+	c->act = NULL;
+	c->z_ind = -1;
 
 	c->x = c->y = 0;
 	c->z = NULL;
@@ -102,7 +102,6 @@ creature * crtr_copy(const creature * p)
 	c->ability       = copy_str(p->ability);
 	c->fctn          = p->fctn;
 
-	// TODO schedule
 	// TODO inventory
 
 	c->level   = p->level;
@@ -126,6 +125,17 @@ creature * crtr_copy(const creature * p)
 	c->on_act_fail = p->on_act_fail;
 
 	return c;
+}
+
+//
+// Increments the reference count and returns the creature
+//
+creature * crtr_clone(creature * x)
+{
+	if (x->refs != NOFREE) {
+		x->refs++;
+	}
+	return x;
 }
 
 //
@@ -170,17 +180,12 @@ void crtr_free(creature * c)
 //
 void crtr_death(creature * c, char * meth)
 {
+	assert(c->z != NULL);
+
 	c->deceased = 1;
 	trigger_pull(&c->on_death, c, meth);
 
-	if (c->z != NULL) {
-		assert(tileof(c)->crtr == c);
-		tileof(c)->crtr = NULL;
-	}
-	zone_update(c->z, c->x, c->y);
-	if (c->z == PLYR.z) wrefresh(dispscr);
-
-	crtr_free(c);
+	zone_rm_crtr(c->z, c);
 }
 
 //
@@ -193,22 +198,38 @@ void crtr_death(creature * c, char * meth)
 //
 int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
-	//tile * t = zone_at(z, x, y);
-
 	if (crtr_can_tele(crtr, x, y, z)) {
 		z->tiles[x][y].crtr = crtr;
 
-		if (crtr->z != NULL) {
-			tileof(crtr)->crtr = NULL;
+		if (crtr->z != z) {
+			// remove from old zone
+			if (crtr->z != NULL) {
+				zone_rm_crtr(crtr->z, crtr);
+			}
 
-			// redraw the tiles
-			if (crtr->z == world.plyr.z) {
+			// add to new zone creature list
+			if (crtr->z != z) {
+				crtr->z_ind = z->crtrs.cnt;
+				vector_append(&z->crtrs, crtr);
+			}
+		} else if (crtr->z != NULL) {
+			tileof(crtr)->crtr = NULL;
+		}
+
+		// redraw the tiles
+		if (PLYR.z != NULL) {
+			if (crtr->z == PLYR.z) {
+				zone_update(crtr->z, crtr->x, crtr->y);
+				wrefresh(dispscr);
+			}
+
+			if (z == PLYR.z) {
 				zone_update(z, x, y);
-				zone_update(z, crtr->x, crtr->y);
 				wrefresh(dispscr);
 			}
 		}
 
+		// update coordinates
 		crtr->x = x;
 		crtr->y = y;
 		crtr->z = z;
@@ -305,9 +326,8 @@ int crtr_attack(creature * attacker, creature * defender)
 		xp = (defender->level + XP_LEVEL_DIFF) - attacker->level;
 		if (xp < 0) xp = 0;
 
-		defender->refs++;
 		crtr_xp_up(attacker, xp);
-		crtr_death(defender, "violence");
+		crtr_death(crtr_clone(defender), "violence");
 
 		return DEAD;
 	}
@@ -400,59 +420,24 @@ static void beast_ai(creature * c)
 }
 
 //
-// This is called once per game step, i.e. once every time for each creature
-//   when the player presses a significant key
+// This is called once per game step
 //
-// TODO trigger death event properly
-//
-void crtr_step(creature * c, int step)
+void crtr_step(creature * c, long steps)
 {
-	if (c->step != step) {
-		c->step = step;
+	assert(!c->deceased);
+	assert(c->health > 0);
+	assert(c->stamina > 0);
 
-		assert(c->health > 0);
-		assert(c->stamina > 0);
+	// stamina upkeep
+	c->stamina -= steps;
+	if (c->stamina <= 0) {
+		crtr_death(c, "starvation");
+		return;
+	}
 
-		// stamina upkeep
-		c->stamina -= 1;
-		if (c->stamina <= 0) {
-			crtr_death(c, "starvation");
-			return;
-		}
-
-		// handle ai when can perform action
-		if (!c->count_down) {
-			if (!plyr_is_me(c)) {
-				beast_ai(c);
-			}
-		}
-
-		// actions upkeep
-		if (c->count_down && !--c->count_down) {
-			// action completed!
-			switch (c->sched.type) {
-			case ACT_MOVE:
-				crtr_try_move(c, c->sched.p.dir.x, c->sched.p.dir.y);
-			case ACT_AA_MOVE:
-				crtr_try_aa_move(c, c->sched.p.dir.x, c->sched.p.dir.y);
-				break;
-			case ACT_PICKUP:
-				crtr_try_pickup(c, c->sched.p.ind);
-				break;
-			case ACT_DROP:
-				crtr_try_drop(c, c->sched.p.ind);
-				break;
-			case ACT_CONSUME:
-				crtr_try_consume(c, c->sched.p.ind);
-				break;
-			case ACT_EQUIP:
-				crtr_try_equip(c, c->sched.p.ind);
-				break;
-			case ACT_THROW:
-				crtr_try_throw(c, c->sched.p.throw.ind, c->sched.p.throw.x, c->sched.p.throw.y);
-				break;
-			}
-		}
+	// handle ai when can perform action
+	if (c->act == NULL && !plyr_is_me(c)) {
+		beast_ai(c);
 	}
 }
 
@@ -516,8 +501,6 @@ void crtr_try_aa_move(creature * c, int dx, int dy)
 				if (plyr_is_me(c)) memo("You slay the %s.", crtr_name(d));
 
 				crtr_free(d);
-				zone_update(c->z, c->x + dx, c->y + dy);
-				wrefresh(dispscr);
 				break;
 			case 0:
 				if (plyr_is_me(c)) memo("You miss.");
@@ -637,52 +620,61 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 // The following function schedule creature actions
 //
 #define ACT_TMPLT(T) \
-	assert(!c->count_down); \
-	c->count_down = c->speed; \
-	c->sched.type = T
+	assert(c->act == NULL); \
+	action * a = malloc(sizeof(action)); \
+	c->act = a; \
+	a->c = crtr_clone(c); \
+	a->type = T
 
 void crtr_act_move(creature * c, int x, int y)
 {
 	ACT_TMPLT(ACT_MOVE);
-	c->sched.p.dir.x = x;
-	c->sched.p.dir.y = y;
+	a->p.dir.x = x;
+	a->p.dir.y = y;
+	schedule(a, c->speed);
 }
 
 void crtr_act_aa_move(creature * c, int x, int y)
 {
 	ACT_TMPLT(ACT_AA_MOVE);
-	c->sched.p.dir.x = x;
-	c->sched.p.dir.y = y;
+	a->p.dir.x = x;
+	a->p.dir.y = y;
+	schedule(a, c->speed);
 }
 
 void crtr_act_pickup(creature * c, int i)
 {
 	ACT_TMPLT(ACT_PICKUP);
-	c->sched.p.ind = i;
+	a->p.ind = i;
+	schedule(a, c->speed);
 }
 
 void crtr_act_drop(creature * c, int i)
 {
 	ACT_TMPLT(ACT_DROP);
-	c->sched.p.ind = i;
+	a->p.ind = i;
+	schedule(a, c->speed);
 }
 
 void crtr_act_consume(creature * c, int i)
 {
 	ACT_TMPLT(ACT_CONSUME);
-	c->sched.p.ind = i;
+	a->p.ind = i;
+	schedule(a, c->speed);
 }
 
 void crtr_act_equip(creature * c, int i)
 {
 	ACT_TMPLT(ACT_EQUIP);
-	c->sched.p.ind = i;
+	a->p.ind = i;
+	schedule(a, c->speed);
 }
 
 void crtr_act_throw(creature * c, int i, int x, int y)
 {
 	ACT_TMPLT(ACT_THROW);
-	c->sched.p.throw.ind = i;
-	c->sched.p.throw.x   = x;
-	c->sched.p.throw.y   = y;
+	a->p.throw.ind = i;
+	a->p.throw.x   = x;
+	a->p.throw.y   = y;
+	schedule(a, c->speed);
 }

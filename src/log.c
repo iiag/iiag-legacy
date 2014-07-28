@@ -9,6 +9,7 @@
 #include "log.h"
 
 const char * log_file = "iiag.log";
+static clock_t sclock;
 
 void wrlog(const char * fmt, ...)
 {
@@ -35,4 +36,16 @@ void wrlog(const char * fmt, ...)
 
 	fputc('\n', logf);
 	fflush(logf);
+}
+
+void start_timer(void)
+{
+	sclock = clock();
+}
+
+void end_timer(const char * name)
+{
+	clock_t cnt = clock() - sclock;
+	double sec = (double)cnt / (double)CLOCKS_PER_SEC;
+	wrlog("Timer %s: %g seconds (%d clocks)", name, sec, cnt);
 }

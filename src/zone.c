@@ -10,6 +10,7 @@
 #include "walls.h"
 #include "world.h"
 #include "config.h"
+#include "player.h"
 #include "display.h"
 #include "inventory.h"
 
@@ -100,7 +101,6 @@ static void generate(zone * z)
 		}
 	}
 
-
 	// draw walls
 	for (x = 0; x < z->width; x++) {
 		for (y = 0; y < z->height; y++) {
@@ -167,6 +167,7 @@ zone * zone_new(int w, int h)
 		}
 	}
 
+	vector_init(&z->crtrs);
 	generate(z);
 
 	return z;
@@ -186,6 +187,27 @@ void zone_free(zone * z)
 
 	free(z->tiles);
 	free(z);
+}
+
+void zone_rm_crtr(zone * z, creature * c)
+{
+	assert(c->z == z);
+	assert(c == z->crtrs.arr[c->z_ind]);
+	assert(z->crtrs.cnt > c->z_ind);
+
+	// remove from crtrs list
+	z->crtrs.arr[c->z_ind] = z->crtrs.arr[--z->crtrs.cnt];
+	((creature *)z->crtrs.arr[c->z_ind])->z_ind = c->z_ind;
+
+	// remove from tile
+	assert(tileof(c)->crtr == c);
+	tileof(c)->crtr = NULL;
+
+	zone_update(c->z, c->x, c->y);
+	if (c->z == PLYR.z) wrefresh(dispscr);
+
+	c->z = NULL;
+	crtr_free(c);
 }
 
 void zone_draw_tile(zone * z, int x, int y)
@@ -246,16 +268,12 @@ tile * zone_at(zone * z, int x, int y)
 	return &z->tiles[x][y];
 }
 
-void zone_step(zone * z, int step)
+void zone_step(zone * z, long steps)
 {
-	int x, y;
+	int i;
 
-	for (x = 0; x < z->width; x++) {
-		for (y = 0; y < z->height; y++) {
-			if (z->tiles[x][y].crtr != NULL) {
-				crtr_step(z->tiles[x][y].crtr, step);
-			}
-		}
+	for (i = 0; i < z->crtrs.cnt; i++) {
+		crtr_step(z->crtrs.arr[i], steps);
 	}
 }
 

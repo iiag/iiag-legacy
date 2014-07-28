@@ -2,6 +2,7 @@
 // player.c
 //
 
+#include <assert.h>
 #include <stdlib.h>
 #include "input.h"
 #include "config.h"
@@ -185,7 +186,9 @@ void plyr_ev_lvlup(void)
 
 void plyr_ev_act_comp(creature * p, item * it)
 {
-	switch (p->sched.type) {
+	assert(p->act != NULL);
+
+	switch (p->act->type) {
 	case ACT_MOVE:
 	case ACT_AA_MOVE:
 		update_vis();
@@ -208,9 +211,11 @@ void plyr_ev_act_comp(creature * p, item * it)
 
 void plyr_ev_act_fail(creature * p, void * how)
 {
+	assert(p->act != NULL);
+
 	switch ((action_fail)how) {
 	case ACT_FAIL_PICKUP_HEAVY:
-		memo("The %s is too heavy to pick up.", p->inv->itms[p->sched.p.ind]->name);
+		memo("The %s is too heavy to pick up.", p->inv->itms[p->act->p.ind]->name);
 		break;
 	case ACT_FAIL_PICKUP_PRESENT:
 	case ACT_FAIL_DROP_PRESENT:
@@ -220,7 +225,7 @@ void plyr_ev_act_fail(creature * p, void * how)
 		memo("It seems to have vanished!");
 		break;
 	case ACT_FAIL_DROP_HEAVY:
-		memo("The %s is too heavy to drop, silly you.", p->inv->itms[p->sched.p.ind]->name);
+		memo("The %s is too heavy to drop, silly you.", p->inv->itms[p->act->p.ind]->name);
 		break;
 	case ACT_FAIL_CONSUME_ABLE:
 		memo("Thats wierd... it seems that that is no longer consumable.");

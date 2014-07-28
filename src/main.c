@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include "log.h"
 #include "item.h"
 #include "input.h"
 #include "world.h"
@@ -75,6 +76,7 @@ int main(int argc, char ** argv)
 	zone_draw(PLYR.z);
 	update_status();
 
+	step();
 	for (;;) {
 		c = get_ctrl();
 		reset_memos();
@@ -115,7 +117,11 @@ int main(int argc, char ** argv)
 			break;
 		}
 
-		while (PLYR.count_down) step();
+		while (PLYR.act != NULL) {
+			start_timer();
+			step();
+			end_timer("step length");
+		}
 	}
 
 cleanup:
