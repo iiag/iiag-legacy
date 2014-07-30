@@ -135,8 +135,8 @@ void step_world(void)
 		// update time
 		world.tm.steps += step_diff;
 
-		while (world.tm.steps >= 600) {
-			world.tm.steps -= 600;
+		while (world.tm.steps >= 6000) {
+			world.tm.steps -= 6000;
 			world.tm.min++;
 
 			if (world.tm.min >= 60) {
@@ -172,8 +172,8 @@ void step_world(void)
 //
 void get_time(char * to, int max)
 {
-	snprintf(to, max, "%02d:%02d:%02d.%01d %d/%d/%d Era %d",
-		world.tm.hour, world.tm.min, world.tm.steps/10, world.tm.steps%10,
+	snprintf(to, max, "%02d:%02d:%02d.%02d %d/%d/%d Era %d",
+		world.tm.hour, world.tm.min, world.tm.steps/100, world.tm.steps%100,
 		world.tm.month, world.tm.mday, world.tm.year,
 		world.tm.era);
 }

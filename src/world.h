@@ -75,4 +75,12 @@ void schedule(action *, long);
 //
 action * pop_action(void);
 
+// macros for easy of writing times
+#define STEPS_PER_SEC 100
+#define SEC(X)   ((X) * STEPS_PER_SEC)
+#define MIN(X)   (SEC ((X) * 60))
+#define HOUR(X)  (MIN ((X) * 60))
+#define DAYS(X)  (HOUR((X) * 24))
+#define YEARS(X) (DAYS((X) * 365))
+
 #endif
