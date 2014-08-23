@@ -24,7 +24,7 @@ static void update_status(void)
 {
 	char time[100];
 
-	statline(0, " Hp: %d/%d | Stm: %.2f%% | Wt: %d.%d/%d.%d | Xp: %d/%d | Lvl: %d",
+	statline(0, " Hp: %d/%d | Stm: %.2f%% | Wt: %d.%d/%d.%d deben | Xp: %d/%d | Lvl: %d",
 		PLYR.health, PLYR.max_health,
 		100. * (double)PLYR.stamina / (double)PLYR.max_stamina,
 		PLYR.inv->weight / 100, PLYR.inv->weight % 100,
@@ -54,7 +54,6 @@ static void sig_handler(int rc)
 	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
-
 
 int main(int argc, char ** argv)
 {

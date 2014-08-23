@@ -67,7 +67,7 @@ void crtr_init(creature * c, chtype ch)
 	c->throw   = 20;
 	c->speed   = SEC(1.4);
 
-	c->inv = inv_new(5000);
+	c->inv = inv_new(25000);
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
 
 	trigger_init(c->on_spawn);
