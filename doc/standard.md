@@ -7,15 +7,15 @@ adjusted from the ancient Egyptian system of measurement.
 Length
 ------
 
-Each space in the game world is 2 royal cubits long.
+Each space in the game world is 2 royal cubits (𓇓𓏏𓈖 𓂣 ) long.
 
 Weight
 ------
 
-The standard unit of weight is a new kingdom deben. The new kingdom one is
-used because it is larger than the old/middle kingdom one. This is the displayed
-value, but the unit specified internally (in config files and the like) is
-specified in hundredths of deben.
+The standard unit of weight is a new kingdom deben (𓄲 𓈖 𓊌). The new kingdom one
+is used because it is larger than the old/middle kingdom one. This is the displayed
+value, but the unit specified internally (in config files and the like) is specified
+in hundredths of deben.
 
 Time
 ----
