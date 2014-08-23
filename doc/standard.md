@@ -22,7 +22,8 @@ Time
 
 In game time is divided normally, with the addition of eras. Seasons and months
 have yet to be implemented, which will probably follow arbitrarily decided months
-and seasons or the ancient Egyptian model.
+and seasons or the ancient Egyptian model. In-game steps (used to specified speeds
+in config files) are specified in hundredths of seconds.
 
 Conversion Table
 ----------------
