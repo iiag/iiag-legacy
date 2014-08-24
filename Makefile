@@ -39,5 +39,6 @@ clean:
 install: all
 	mkdir -p $(DESTDIR)
 	cp iiag $(DESTDIR)
+	cp -r script $(DESTDIR)
 
 -include $(DEPS)
