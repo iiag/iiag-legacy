@@ -2,12 +2,13 @@
 # Makefile
 #
 
-SHELL  = bash
-TARGET = iiag
-CC     = gcc
-LUAV   = lua
-CCFL  := -c -g -Wall `pkg-config --cflags $(LUAV)`
-LDFL  := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
+SHELL   = bash
+TARGET  = iiag
+CC      = gcc
+LUAV    = lua
+DESTDIR = /usr/bin
+CCFL   := -c -g -Wall `pkg-config --cflags $(LUAV)`
+LDFL   := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 
 SRCS := main.c world.c zone.c display.c log.c inventory.c util.c item.c \
         creature.c player.c vector.c trigger.c config.c faction.c input.c \
@@ -34,5 +35,9 @@ clean:
 	rm -rf obj
 	rm -rf dep
 	rm -f $(TARGET)
+
+install: all
+	mkdir -p $(DESTDIR)
+	cp iiag $(DESTDIR)
 
 -include $(DEPS)
