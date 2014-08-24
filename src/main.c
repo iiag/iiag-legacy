@@ -108,13 +108,15 @@ int main(int argc, char ** argv)
 		case CTRL_THROW:    plyr_act_throw();    break;
 
 		// miscellaneous
-		case CTRL_SKIP_TURN: break;
+		case CTRL_SKIP_TURN: plyr_act_idle();	 break;
 		case CTRL_QUIT: goto cleanup;
 
 		default:
 			memo("Unknown key press");
 			break;
 		}
+
+		if(config.real_time)	usleep(500000);
 
 		while (PLYR.act != NULL) {
 			start_timer();

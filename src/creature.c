@@ -678,3 +678,9 @@ void crtr_act_throw(creature * c, int i, int x, int y)
 	a->p.throw.y   = y;
 	schedule(a, c->speed);
 }
+
+void crtr_act_idle(creature * c)
+{
+	ACT_TMPLT(ACT_IDLE);
+	schedule(a, c->speed);
+}
