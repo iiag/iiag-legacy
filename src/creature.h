@@ -215,5 +215,6 @@ void crtr_act_drop(creature *, int);
 void crtr_act_consume(creature *, int);
 void crtr_act_equip(creature *, int);
 void crtr_act_throw(creature *, int, int, int);
+void crtr_act_idle(creature * c);
 
 #endif

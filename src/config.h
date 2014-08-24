@@ -49,6 +49,7 @@ typedef struct config {
 	int forget_walls;
 	int show_all;
 	int all_alone;
+	int real_time;
 	int throw_anim_delay;
 	int ctrl[TOTAL_CONTROLS];
 } config_t;

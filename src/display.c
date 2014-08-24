@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "world.h"
 #include "display.h"
+#include "config.h"
 
 #define NONE (-1)
 
@@ -47,6 +48,14 @@ void init_disp(void)
 	keypad(dispscr, TRUE);
 	keypad(memoscr, TRUE);
 	keypad(statscr, TRUE);
+
+	if(config.real_time){
+		//nodelay(stdscr, TRUE);
+		//nodelay(dispscr, TRUE);
+		nodelay(memoscr, TRUE);
+		//nodelay(statscr, TRUE);
+	}
+
 }
 
 void end_disp(void)

@@ -159,6 +159,11 @@ void plyr_act_equip(void)
 	redraw();
 }
 
+void plyr_act_idle(void)
+{
+	crtr_act_idle(&PLYR);
+}
+
 //
 // The following functions are called through the event system
 //

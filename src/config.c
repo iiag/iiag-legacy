@@ -15,7 +15,7 @@
 config_t config = {
 	NULL,
 	"script/init.lua",
-	0, 0, 0,
+	0, 0, 0, 0,
 	20,
 
 	{
@@ -69,6 +69,7 @@ static const struct field cfg_fields[] = {
 	{ BOOLEAN, "show-all",         &config.show_all         },
 	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
+	{ BOOLEAN, "real-time",        &config.real_time        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
 
 	// movement controls
@@ -274,6 +275,8 @@ static void print_help()
 	"        The initial lua script to run.\n"
 	"    -l\n"
 	"        Turn on all alone mode, for debugging purposes.\n"
+	"    -r\n"
+	"        Turn on all real time mode.\n"
 	"    -s\n"
 	"        Show everything.\n"
 	"\n"
@@ -307,6 +310,9 @@ void init_config(int argc, char ** argv)
 				break;
 			case 'l':
 				config.all_alone = 1;
+				break;
+			case 'r':
+				config.real_time = 1;
 				break;
 			default:
 				wrlog("Ignoring unknown flag '%s'", argv[i]);
