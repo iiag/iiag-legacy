@@ -6,7 +6,7 @@ SHELL   = bash
 TARGET  = iiag
 CC      = gcc
 LUAV    = lua
-DESTDIR = /usr/bin
+DESTDIR = /opt/iiag
 CCFL   := -c -g -Wall `pkg-config --cflags $(LUAV)`
 LDFL   := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 
