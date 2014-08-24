@@ -12,21 +12,20 @@
 int get_ctrl(void)
 {
 	int i;
-	int c= ERR;
-	if(config.real_time){
-		int d= ERR;
-		do{
+	int c = ERR;
+	if (config.real_time) {
+		int d = ERR;
+		do {
 			c = d;
 			d = wgetch(memoscr);
-		}while(d != ERR);
-	}else
-	c = wgetch(memoscr);
+		} while(d != ERR);
+	} else c = wgetch(memoscr);
 
 	for (i = 0; i < TOTAL_CONTROLS; i++) {
 		if (config.ctrl[i] == c) return i;
 	}
 
-	if(c == ERR)	return CTRL_SKIP_TURN;
+	if (c == ERR) return CTRL_SKIP_TURN;
 
 	return CTRL_INVALID;
 }
