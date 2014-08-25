@@ -8,7 +8,7 @@
 typedef struct tile tile;
 typedef struct zone zone;
 
-#define TILE_MAX_WEIGHT 1000
+#define TILE_MAX_WEIGHT 50000
 
 #include "util.h"
 #include "creature.h"
