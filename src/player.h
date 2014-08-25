@@ -12,15 +12,26 @@
 #define plyr_is_me(C) ((C) == &PLYR)
 
 // player willed actions
-void plyr_act_pickup(void);
-void plyr_act_drop(void);
-void plyr_act_inv(void);
-void plyr_act_equipped(void);
-void plyr_act_move(int, int);
-void plyr_act_consume(void);
-void plyr_act_equip(void);
-void plyr_act_throw(void);
-void plyr_act_idle(void);
+void plyr_act_pickup(int, char **);
+void plyr_act_drop(int, char **);
+void plyr_act_inv(int, char **);
+void plyr_act_equipped(int, char **);
+void plyr_act_move_left(int, char **);
+void plyr_act_move_right(int, char **);
+void plyr_act_move_up(int, char **);
+void plyr_act_move_down(int, char **);
+void plyr_act_consume(int, char **);
+void plyr_act_equip(int, char **);
+void plyr_act_throw(int, char **);
+void plyr_act_idle(int, char **);
+
+// magical movement of the world (aka scrolling)
+void scroll_view_center(int, char **);
+void scroll_view_left(int, char **);
+void scroll_view_right(int, char **);
+void scroll_view_up(int, char **);
+void scroll_view_down(int, char **);
+
 
 // the inevitable
 void plyr_ev_birth(void);

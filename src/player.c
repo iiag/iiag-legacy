@@ -39,7 +39,7 @@ static void redraw(void)
 //
 // The following functions are called through the command interface
 //
-void plyr_act_pickup(void)
+void plyr_act_pickup(int argc, char ** argv)
 {
 	int i;
 
@@ -58,7 +58,7 @@ void plyr_act_pickup(void)
 	}
 }
 
-void plyr_act_drop(void)
+void plyr_act_drop(int argc, char ** argv)
 {
 	int i = prompt_inv("You dropped what?", PLYR.inv, &PLYR);
 
@@ -71,13 +71,13 @@ void plyr_act_drop(void)
 	redraw();
 }
 
-void plyr_act_inv(void)
+void plyr_act_inv(int argc, char ** argv)
 {
 	prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
 	redraw();
 }
 
-void plyr_act_equipped(void)
+void plyr_act_equipped(int argc, char ** argv)
 {
 	int i;
 
@@ -96,12 +96,27 @@ void plyr_act_equipped(void)
 	wrefresh(dispscr);
 }
 
-void plyr_act_move(int dx, int dy)
+void plyr_act_move_left(int argc, char ** argv)
 {
-	crtr_act_aa_move(&PLYR, dx, dy);
+	crtr_act_aa_move(&PLYR, -1, 0);
 }
 
-void plyr_act_consume(void)
+void plyr_act_move_right(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 1, 0);
+}
+
+void plyr_act_move_up(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 0, -1);
+}
+
+void plyr_act_move_down(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 0, 1);
+}
+
+void plyr_act_consume(int argc, char ** argv)
 {
 	int i;
 
@@ -120,7 +135,7 @@ void plyr_act_consume(void)
 	redraw();
 }
 
-void plyr_act_throw(void)
+void plyr_act_throw(int argc, char ** argv)
 {
 	int i, dx, dy;
 
@@ -140,7 +155,7 @@ void plyr_act_throw(void)
 	redraw();
 }
 
-void plyr_act_equip(void)
+void plyr_act_equip(int argc, char ** argv)
 {
 	int i;
 
@@ -159,10 +174,45 @@ void plyr_act_equip(void)
 	redraw();
 }
 
-void plyr_act_idle(void)
+void plyr_act_idle(int argc, char ** argv)
 {
 	crtr_act_idle(&PLYR);
 }
+
+//
+// The following functions move the view around
+//
+
+void scroll_view_center(int argc, char ** argv)
+{
+	scroll_center(PLYR.x, PLYR.y);
+	zone_draw(PLYR.z);
+}
+
+void scroll_view_left(int argc, char ** argv)
+{
+	scroll_disp(-1, 0);
+	zone_draw(PLYR.z);
+}
+
+void scroll_view_right(int argc, char ** argv)
+{
+	scroll_disp(1, 0);
+	zone_draw(PLYR.z);
+}
+
+void scroll_view_up(int argc, char ** argv)
+{
+	scroll_disp(0, -1);
+	zone_draw(PLYR.z);
+}
+
+void scroll_view_down(int argc, char ** argv)
+{
+	scroll_disp(0, 1);
+	zone_draw(PLYR.z);
+}
+
 
 //
 // The following functions are called through the event system
