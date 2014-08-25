@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include "input.h"
 #include "config.h"
 #include "player.h"
@@ -175,7 +176,22 @@ void plyr_ev_birth(void)
 
 void plyr_ev_death(creature * p, const char * reasons)
 {
-	memo("You die of %s, how unfortunate. Press q to exit.", reasons);
+	int i, was_quaz = 0;
+	for (i = 0; i < MAX_SLOTS; i++) {
+		if (PLYR.slots[i] == NULL) continue;
+		if (PLYR.slots[i]->mat == NULL) break;
+		if (strcmp(PLYR.slots[i]->mat->name, "quaz") == 0) {
+			was_quaz = 1;
+			break;
+		}
+	}
+
+	if (was_quaz) {
+		memo("Quaz o quaz, wherefore art thou forsaking me!? Press q to exit.");
+	} else {
+		memo("You die of %s, how unfortunate. Press q to exit.", reasons);
+	}
+
 	while (wgetch(memoscr) != 'q');
 	end_disp();
 	exit(0);
