@@ -50,8 +50,6 @@ void init_commands()
 	insert(CTRL_THROW,     plyr_act_throw,    &arraysz);
 	insert(CTRL_SKIP_TURN, plyr_act_idle,     &arraysz);
 
-
-
 	// sort the array or something.
 
 }

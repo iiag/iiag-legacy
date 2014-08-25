@@ -179,39 +179,7 @@ void plyr_act_idle(int argc, char ** argv)
 	crtr_act_idle(&PLYR);
 }
 
-//
-// The following functions move the view around
-//
 
-void scroll_view_center(int argc, char ** argv)
-{
-	scroll_center(PLYR.x, PLYR.y);
-	zone_draw(PLYR.z);
-}
-
-void scroll_view_left(int argc, char ** argv)
-{
-	scroll_disp(-1, 0);
-	zone_draw(PLYR.z);
-}
-
-void scroll_view_right(int argc, char ** argv)
-{
-	scroll_disp(1, 0);
-	zone_draw(PLYR.z);
-}
-
-void scroll_view_up(int argc, char ** argv)
-{
-	scroll_disp(0, -1);
-	zone_draw(PLYR.z);
-}
-
-void scroll_view_down(int argc, char ** argv)
-{
-	scroll_disp(0, 1);
-	zone_draw(PLYR.z);
-}
 
 
 //

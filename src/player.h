@@ -25,13 +25,6 @@ void plyr_act_equip(int, char **);
 void plyr_act_throw(int, char **);
 void plyr_act_idle(int, char **);
 
-// magical movement of the world (aka scrolling)
-void scroll_view_center(int, char **);
-void scroll_view_left(int, char **);
-void scroll_view_right(int, char **);
-void scroll_view_up(int, char **);
-void scroll_view_down(int, char **);
-
 
 // the inevitable
 void plyr_ev_birth(void);
