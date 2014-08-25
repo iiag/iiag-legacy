@@ -20,6 +20,11 @@
 #include "creature.h"
 #include "inventory.h"
 #include "lua/lua.h"
+#include "commands.h"
+
+extern command_t * command_list;
+extern int num_commands;
+
 
 static void update_status(void)
 {
@@ -56,6 +61,7 @@ static void sig_handler(int rc)
 	exit(rc);
 }
 
+
 int main(int argc, char ** argv)
 {
 	int c;
@@ -70,6 +76,7 @@ int main(int argc, char ** argv)
 
 	init_disp();
 	init_world();
+	init_commands();
 
 	plyr_ev_birth();
 	scroll_center(PLYR.x, PLYR.y);
@@ -80,6 +87,9 @@ int main(int argc, char ** argv)
 	for (;;) {
 		c = get_ctrl();
 		reset_memos();
+
+		execute(c);
+
 
 		switch (c) {
 		// movement
@@ -100,7 +110,7 @@ int main(int argc, char ** argv)
 		case CTRL_SCRL_DOWN:   scroll_disp( 0,  1);           zone_draw(PLYR.z); break;
 
 		// actions
-		case CTRL_DISP_INV: plyr_act_inv();      break;
+		//case CTRL_DISP_INV: plyr_act_inv();      break;
 		case CTRL_DISP_EQP: plyr_act_equipped(); break;
 		case CTRL_PICKUP:   plyr_act_pickup();   break;
 		case CTRL_DROP:     plyr_act_drop();     break;
