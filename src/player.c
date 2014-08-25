@@ -116,6 +116,26 @@ void plyr_act_move_down(int argc, char ** argv)
 	crtr_act_aa_move(&PLYR, 0, 1);
 }
 
+void plyr_act_move_upleft(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, -1, -1);
+}
+
+void plyr_act_move_upright(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 1, -1);
+}
+
+void plyr_act_move_downleft(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, -1, 1);
+}
+
+void plyr_act_move_downright(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 1, 1);
+}
+
 void plyr_act_consume(int argc, char ** argv)
 {
 	int i;

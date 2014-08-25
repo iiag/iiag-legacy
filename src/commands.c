@@ -28,10 +28,14 @@ void init_commands()
 	// TODO: Don't hard code this!
 	// TODO: Replace all functions with ones that take argc+argv
 	// Movement
-	insert(CTRL_LEFT,  plyr_act_move_left,  &arraysz);
-	insert(CTRL_RIGHT, plyr_act_move_right, &arraysz);
-	insert(CTRL_UP,    plyr_act_move_up,    &arraysz);
-	insert(CTRL_DOWN,  plyr_act_move_down,  &arraysz);
+	insert(CTRL_LEFT,   plyr_act_move_left,       &arraysz);
+	insert(CTRL_RIGHT,  plyr_act_move_right,      &arraysz);
+	insert(CTRL_UP,     plyr_act_move_up,         &arraysz);
+	insert(CTRL_DOWN,   plyr_act_move_down,       &arraysz);
+	insert(CTRL_ULEFT,  plyr_act_move_upleft,     &arraysz);
+	insert(CTRL_URIGHT, plyr_act_move_upright,    &arraysz);
+	insert(CTRL_DLEFT,  plyr_act_move_downleft,   &arraysz);
+	insert(CTRL_DRIGHT, plyr_act_move_downright,  &arraysz);
 
 	// Scrolling
 	insert(CTRL_SCRL_CENTER, scroll_view_center, &arraysz);
