@@ -100,3 +100,12 @@ cform {
 	char = 'S';
 	sight = 1;
 }
+
+cform {
+	name = 'land fiish';
+	max_health = 4;
+	attack = 0;
+	ac = 1;
+	char = 'y';
+	sight = 2;
+}
