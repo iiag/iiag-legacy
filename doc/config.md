@@ -31,7 +31,7 @@ Field Types
  Type Name | Description
 -----------|-------------
  String    | A string value that is terminated with an Space. Note an equal sign also terminates the string. Escape characters (the backslash `\`) can be used to allow a space or equal sign to exist in the string.
- Boolean   | Either `true` or `false`. If neither, it default sto `false` and logs an error.
+ Boolean   | Either `true` or `false`. If neither, it defaults to `false` and logs an error.
  Integer   | A decimal numerical value that represents an integer.
  Control   | A value representing a key to press on the keyboard in order to utilize a control in game. The format is usually `a` for the A-key, `A` for shift+A-key, and so on. Digits are used for literial keycode values. The special values `%left%`, `%right%`, `%up%`, and `%down%` can be used to represent the arrow-keys.
 
