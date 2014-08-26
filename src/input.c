@@ -94,7 +94,21 @@ char * prompt_command(void)
 	wmove(memoscr, 0, 0);
 	waddch(memoscr, ':');
 
-	while ((string[i++] = c = wgetch(memoscr)), waddch(memoscr, string[i-1]), wrefresh(memoscr), 10 != c); // because ncurses is stupid
+	while ('\n' != c) {
+		string[i] = c = wgetch(memoscr);
+		
+		if ((c == 127)) {
+			if (i == 0) { wmove(memoscr, 0, 1); continue; }
 
+			wmove(memoscr, 0, i);
+			string[--i] = '\0';
+			waddch(memoscr, ' ');
+			wrefresh(memoscr);
+			continue;
+		}
+
+		waddch(memoscr, string[i++]);
+		wrefresh(memoscr);
+	}
 	return string;
 }
