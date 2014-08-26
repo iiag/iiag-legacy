@@ -24,7 +24,7 @@ static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *a
 	cmdstrlen = strlen(cmdstr) + 1; // to include NULL
 
 	command_list[num_commands].cmdstr = malloc(sizeof(char)*cmdstrlen);
-	strncpy(command_list[num_commands].cmdstr, cmdstr, cmdstrlen); 
+	strncpy(command_list[num_commands].cmdstr, cmdstr, cmdstrlen);
 	num_commands++;
 }
 
@@ -68,7 +68,7 @@ void init_commands(void)
 	insert(CTRL_SCRL_RIGHT,  "scroll_right",  scroll_view_right,  &arraysz);
 	insert(CTRL_SCRL_UP,     "scroll_up",     scroll_view_up,     &arraysz);
 	insert(CTRL_SCRL_DOWN,   "scroll_down",   scroll_view_down,   &arraysz);
-	
+
 	// Actions
 	insert(CTRL_DISP_INV,  "inventory", plyr_act_inv,      &arraysz);
 	insert(CTRL_DISP_EQP,  "equipment", plyr_act_equipped, &arraysz);
@@ -80,7 +80,6 @@ void init_commands(void)
 	insert(CTRL_SKIP_TURN, "idle",      plyr_act_idle,     &arraysz);
 
 	// sort the array or something.
-
 }
 
 // TODO: Fix this
@@ -93,14 +92,11 @@ void deinit_commands(void)
 	}
 
 	free(command_list);
-
 }
-
 
 void execute(int keypress)
 {
 	int i;
-
 
 	// TODO: Change this to binary search?
 	for (i = 0; i < num_commands; i++) {
