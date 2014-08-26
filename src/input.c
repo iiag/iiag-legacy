@@ -101,8 +101,9 @@ char * prompt_command(void)
 			if (i == 0) { wmove(memoscr, 0, 1); continue; }
 
 			wmove(memoscr, 0, i);
-			string[--i] = '\0';
 			waddch(memoscr, ' ');
+			wmove(memoscr, 0, i);
+			string[--i] = '\0';
 			wrefresh(memoscr);
 			continue;
 		}
