@@ -38,6 +38,7 @@ enum {
 	// miscellaneous
 	CTRL_SKIP_TURN,
 	CTRL_QUIT,
+	CTRL_COMMAND,	
 
 	TOTAL_CONTROLS
 };

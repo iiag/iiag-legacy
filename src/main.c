@@ -90,9 +90,12 @@ int main(int argc, char ** argv)
 
 		if (CTRL_QUIT == c) {
 			goto cleanup;
+		} else if (CTRL_COMMAND == c) {
+			command_mode();
+		} else {
+			execute(c);
 		}
 
-		execute(c);
 
 		// TODO this delay should probably sync to game time
 		if (config.real_time) usleep(500000);
@@ -105,7 +108,6 @@ int main(int argc, char ** argv)
 	}
 
 cleanup:
-	deinit_commands();
 	end_disp();
 	return 0;
 }

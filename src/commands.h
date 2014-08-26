@@ -6,5 +6,6 @@ typedef struct {
 
 void init_commands(void);
 void deinit_commands(void);
-void execute(int);
 
+void execute(int);
+void command_mode(void);

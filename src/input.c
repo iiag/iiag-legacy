@@ -85,3 +85,16 @@ int prompt_inv(const char * prompt, inventory * inv, creature * c)
 	wrefresh(dispscr);
 	return ch2ind(wgetch(dispscr));
 }
+
+char * prompt_command(void)
+{
+	int c,i = 0;
+	char * string = calloc(1,255); // TODO: Not this
+
+	wmove(memoscr, 0, 0);
+	waddch(memoscr, ':');
+
+	while ((string[i++] = c = wgetch(memoscr)), waddch(memoscr, string[i-1]), wrefresh(memoscr), 10 != c); // because ncurses is stupid
+
+	return string;
+}

@@ -5,6 +5,7 @@
 #include "display.h"
 #include "player.h"
 #include "config.h"
+#include "input.h"
 
 command_t * command_list;
 int num_commands;
@@ -25,6 +26,21 @@ static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *a
 	command_list[num_commands].cmdstr = malloc(sizeof(char)*cmdstrlen);
 	strncpy(command_list[num_commands].cmdstr, cmdstr, cmdstrlen); 
 	num_commands++;
+}
+
+// TODO: This
+static void run_command(char * cmd, int argc, char ** argv)
+{
+	int i;
+
+	for (i = 0; i < num_commands; i++) {
+		if (!strcmp(cmd, command_list[i].cmdstr)) {
+			command_list[i].command(argc, argv);
+			return;
+		}
+	}
+	memo("Command '%s' unrecognized!", cmd);
+
 }
 
 void init_commands(void)
@@ -67,6 +83,7 @@ void init_commands(void)
 
 }
 
+// TODO: Fix this
 void deinit_commands(void)
 {
 	int i;
@@ -96,5 +113,35 @@ void execute(int keypress)
 	memo("Unknown key press");
 	return;
 }
+
+void command_mode(void)
+{
+	char * string;
+	int i;
+
+	string = prompt_command();
+
+	for (i = 0; i < strlen(string); i++) {
+		if (('\n' == string[i]) || (' ' == string[i])) {
+			string[i++] = '\0';
+			break;
+		} else if ('\0' == string[i]) {
+			goto exec;
+		}
+	}
+
+	// TODO: Convert space-delimited string to list of strings
+
+exec:
+	run_command(string, 0, NULL);
+/*
+	for (i = 0; i < argc; i++) {
+		free(argv[i]);
+	}
+	free(argv);
+*/
+	free(string);
+}
+
 
 
