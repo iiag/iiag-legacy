@@ -22,5 +22,6 @@ int prompt_dir(const char *, int *, int *);
 //
 int prompt_inv(const char *, inventory *, struct creature *);
 
+char * prompt_command(void);
 
 #endif

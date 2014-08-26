@@ -85,3 +85,32 @@ int prompt_inv(const char * prompt, inventory * inv, creature * c)
 	wrefresh(dispscr);
 	return ch2ind(wgetch(dispscr));
 }
+
+char * prompt_command(void)
+{
+	int c,i = 0;
+	char * string = calloc(1,100); // TODO: Remove magic number porbably
+
+	wmove(memoscr, 0, 0);
+	waddch(memoscr, ':');
+
+	while ('\n' != c) {
+		string[i] = c = wgetch(memoscr);
+		
+		if ((c == 127)) {
+			if (i == 0) { wmove(memoscr, 0, 1); continue; }
+
+			wmove(memoscr, 0, i);
+			string[--i] = '\0';
+			waddch(memoscr, ' ');
+			wrefresh(memoscr);
+			continue;
+		}
+
+		if (i == 99) continue;
+
+		waddch(memoscr, string[i++]);
+		wrefresh(memoscr);
+	}
+	return string;
+}

@@ -48,6 +48,7 @@ config_t config = {
 		// miscellaneous controls
 		' ', // skip turn
 		'q', // quit
+		':', // command mode
 	},
 };
 
@@ -88,6 +89,9 @@ static const struct field cfg_fields[] = {
 	{ CONTROL, "ctrl-scrl-down",   config.ctrl + CTRL_SCRL_DOWN   },
 	{ CONTROL, "ctrl-scrl-left",   config.ctrl + CTRL_SCRL_LEFT   },
 	{ CONTROL, "ctrl-scrl-right",  config.ctrl + CTRL_SCRL_RIGHT  },
+
+	// Miscellaneous
+	{ CONTROL, "ctrl-command", config.ctrl + CTRL_COMMAND },
 };
 
 ///// Configuration file parsing /////

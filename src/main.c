@@ -20,6 +20,11 @@
 #include "creature.h"
 #include "inventory.h"
 #include "lua/lua.h"
+#include "commands.h"
+
+extern command_t * command_list;
+extern int num_commands;
+
 
 static void update_status(void)
 {
@@ -56,6 +61,7 @@ static void sig_handler(int rc)
 	exit(rc);
 }
 
+
 int main(int argc, char ** argv)
 {
 	int c;
@@ -70,6 +76,7 @@ int main(int argc, char ** argv)
 
 	init_disp();
 	init_world();
+	init_commands();
 
 	plyr_ev_birth();
 	scroll_center(PLYR.x, PLYR.y);
@@ -81,41 +88,14 @@ int main(int argc, char ** argv)
 		c = get_ctrl();
 		reset_memos();
 
-		switch (c) {
-		// movement
-		case CTRL_LEFT:   plyr_act_move(-1,  0); break;
-		case CTRL_DOWN:   plyr_act_move( 0,  1); break;
-		case CTRL_UP:     plyr_act_move( 0, -1); break;
-		case CTRL_RIGHT:  plyr_act_move( 1,  0); break;
-		case CTRL_ULEFT:  plyr_act_move(-1, -1); break;
-		case CTRL_URIGHT: plyr_act_move( 1, -1); break;
-		case CTRL_DLEFT:  plyr_act_move(-1,  1); break;
-		case CTRL_DRIGHT: plyr_act_move( 1,  1); break;
-
-		// scrolling
-		case CTRL_SCRL_CENTER: scroll_center(PLYR.x, PLYR.y); zone_draw(PLYR.z); break;
-		case CTRL_SCRL_LEFT:   scroll_disp(-1,  0);           zone_draw(PLYR.z); break;
-		case CTRL_SCRL_RIGHT:  scroll_disp( 1,  0);           zone_draw(PLYR.z); break;
-		case CTRL_SCRL_UP:     scroll_disp( 0, -1);           zone_draw(PLYR.z); break;
-		case CTRL_SCRL_DOWN:   scroll_disp( 0,  1);           zone_draw(PLYR.z); break;
-
-		// actions
-		case CTRL_DISP_INV: plyr_act_inv();      break;
-		case CTRL_DISP_EQP: plyr_act_equipped(); break;
-		case CTRL_PICKUP:   plyr_act_pickup();   break;
-		case CTRL_DROP:     plyr_act_drop();     break;
-		case CTRL_CONSUME:  plyr_act_consume();  break;
-		case CTRL_EQUIP:    plyr_act_equip();    break;
-		case CTRL_THROW:    plyr_act_throw();    break;
-
-		// miscellaneous
-		case CTRL_SKIP_TURN: plyr_act_idle(); break;
-		case CTRL_QUIT: goto cleanup;
-
-		default:
-			memo("Unknown key press");
-			break;
+		if (CTRL_QUIT == c) {
+			goto cleanup;
+		} else if (CTRL_COMMAND == c) {
+			command_mode();
+		} else {
+			execute(c);
 		}
+
 
 		// TODO this delay should probably sync to game time
 		if (config.real_time) usleep(500000);
