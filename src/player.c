@@ -137,6 +137,48 @@ void plyr_act_move_downright(int argc, char ** argv)
 	crtr_act_aa_move(&PLYR, 1, 1);
 }
 
+void plyr_act_enter(int argc, char ** argv)
+{
+	int ox, oy;
+	zone * oz;
+	tile * t = tileof(&PLYR);
+
+	if (t->linked) {
+		// TODO generalize
+
+		if (t->link_z == NULL) {
+			ox = PLYR.x;
+			oy = PLYR.y;
+			oz = PLYR.z;
+
+			// generate new zone
+			vector_append(&world.zones, zone_new(150, 50)); // TODO why 150,50?
+			t->link_z = world.zones.arr[world.zones.cnt-1];
+
+			// place player randomly
+			crtr_spawn(&PLYR, t->link_z);
+			t->link_x = PLYR.x;
+			t->link_y = PLYR.y;
+
+			// link back
+			t = tileof(&PLYR);
+			t->linked = 1;
+			t->link_x = ox;
+			t->link_y = oy;
+			t->link_z = oz;
+			t->ch = '@';
+			t->show_ch = '@';
+		} else {
+			assert(crtr_tele(&PLYR, t->link_x, t->link_y, t->link_z));
+		}
+
+		update_vis();
+		zone_draw(PLYR.z);
+	} else {
+		memo("I see no visible method of doing that.");
+	}
+}
+
 void plyr_act_consume(int argc, char ** argv)
 {
 	int i;

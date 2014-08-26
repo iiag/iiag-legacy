@@ -55,6 +55,7 @@ static void set_wall_char(int ** walls, zone * z, int x, int y)
 	}
 
 	z->tiles[x][y].ch = wall_chars[ch];
+	z->tiles[x][y].show_ch = z->tiles[x][y].ch;
 }
 
 
@@ -97,6 +98,8 @@ static void generate(zone * z)
 				if (in_room(rv + i, x, y)) break;
 			}
 			z->tiles[x][y].ch = '.';
+			z->tiles[x][y].show_ch = '.';
+			z->tiles[x][y].linked = 0;
 			walls[x][y] = (i == rc);
 		}
 	}
@@ -139,6 +142,20 @@ static void generate(zone * z)
 			crtr_spawn(cr, z);
 			zone_update(z, cr->x, cr->y);
 		}
+	}
+
+	// place random zone jumpers
+	for (i = 0; i < 4; i++) {
+		do {
+			x = random() % z->width;
+			y = random() % z->height;
+			timeout--;
+		} while (z->tiles[x][y].impassible);
+
+		z->tiles[x][y].linked = 1;
+		z->tiles[x][y].link_z = NULL;
+		z->tiles[x][y].ch = '@';
+		z->tiles[x][y].show_ch = '@';
 	}
 
 	// cleanup
@@ -215,7 +232,7 @@ void zone_draw_tile(zone * z, int x, int y)
 	if (z->tiles[x][y].show == 1 || config.show_all
 		|| (z->tiles[x][y].show && z->tiles[x][y].impassible)
 	) {
-		disp_put(x, y, z->tiles[x][y].ch);
+		disp_put(x, y, z->tiles[x][y].show_ch);
 	} else {
 		disp_put(x, y, ' ');
 	}
@@ -226,7 +243,7 @@ void zone_update(zone * z, int x, int y)
 	int i;
 	int weight = -1;
 	item * it;
-	chtype ch = '.';
+	chtype ch = z->tiles[x][y].ch;
 
 	if (z->tiles[x][y].crtr == NULL || z->tiles[x][y].crtr->health <= 0) {
 		for (i = 0; i < z->tiles[x][y].inv->size; i++) {
@@ -241,7 +258,7 @@ void zone_update(zone * z, int x, int y)
 		ch = z->tiles[x][y].crtr->ch;
 	}
 
-	z->tiles[x][y].ch = ch;
+	z->tiles[x][y].show_ch = ch;
 	zone_draw_tile(z, x, y);
 }
 

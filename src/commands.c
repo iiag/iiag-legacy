@@ -61,6 +61,7 @@ void init_commands(void)
 	insert(CTRL_URIGHT, "move_udown",  plyr_act_move_upright,    &arraysz);
 	insert(CTRL_DLEFT,  "move_dleft",  plyr_act_move_downleft,   &arraysz);
 	insert(CTRL_DRIGHT, "move_dright", plyr_act_move_downright,  &arraysz);
+	insert(CTRL_ENTER,  "enter",       plyr_act_enter,           &arraysz);
 
 	// Scrolling
 	insert(CTRL_SCRL_CENTER, "scroll_center", scroll_view_center, &arraysz);
