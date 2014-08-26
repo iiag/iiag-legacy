@@ -45,7 +45,7 @@ static void run_command(char * cmd, int argc, char ** argv)
 
 void init_commands(void)
 {
-	int arraysz = 20;
+	int arraysz = 25;
 	command_list = malloc(sizeof(command_t) * arraysz);
 	num_commands = 0;
 
