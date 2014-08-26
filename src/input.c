@@ -89,7 +89,7 @@ int prompt_inv(const char * prompt, inventory * inv, creature * c)
 char * prompt_command(void)
 {
 	int c,i = 0;
-	char * string = calloc(1,255); // TODO: Not this
+	char * string = calloc(1,100); // TODO: Remove magic number porbably
 
 	wmove(memoscr, 0, 0);
 	waddch(memoscr, ':');
@@ -106,6 +106,8 @@ char * prompt_command(void)
 			wrefresh(memoscr);
 			continue;
 		}
+
+		if (i == 99) continue;
 
 		waddch(memoscr, string[i++]);
 		wrefresh(memoscr);
