@@ -2,6 +2,7 @@
 // input.c
 //
 
+#include <stdlib.h>
 #include "input.h"
 #include "config.h"
 #include "display.h"
