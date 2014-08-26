@@ -15,11 +15,15 @@ typedef struct zone zone;
 #include "inventory.h"
 
 struct tile {
-	chtype ch;
+	chtype ch, show_ch;
 	int show;
 	int impassible;  // whether the tile is pasible or not
 	creature * crtr; // creture that may be on the tile
 	inventory * inv; // inventory of the tile
+
+	int linked;
+	int link_x, link_y;
+	zone * link_z;
 };
 
 struct zone {
