@@ -25,7 +25,6 @@ static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *a
 	num_commands++;
 }
 
-// TODO: This
 static void run_command(char * cmd, int argc, char ** argv)
 {
 	int i;
