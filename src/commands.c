@@ -114,6 +114,7 @@ void command_mode(void)
 	int i,j;
 
 	string = prompt_command();
+	if (NULL == string) return;
 	strsz = strlen(string);
 
 	// Find the end of the first word (the command)

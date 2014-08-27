@@ -100,7 +100,7 @@ char * prompt_command(void)
 	while ('\n' != c) {
 		string[i] = c = wgetch(memoscr);
 		
-		if ((c == 127)) {
+		if ((c == 127)) { // Backspace
 			if (i == 0) { wmove(memoscr, 0, 1); continue; }
 
 			wmove(memoscr, 0, i);
@@ -111,7 +111,16 @@ char * prompt_command(void)
 			continue;
 		}
 
-		if (i == MAX_CMD_ENTRY - 1) continue;
+		// Cancel command input
+		if (c == 27) { // Escape
+			wmove(memoscr, 0, 0);
+			for (c = 0; c < i + 1; c++) {
+				waddch(memoscr, ' ');
+			}
+			wrefresh(memoscr);
+			free(string);
+			return NULL;
+		}
 
 		waddch(memoscr, string[i++]);
 		wrefresh(memoscr);
