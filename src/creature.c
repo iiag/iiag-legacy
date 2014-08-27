@@ -94,7 +94,7 @@ creature * crtr_copy(const creature * p)
 {
 	creature * c = crtr_new(p->ch);
 
-	// There should be no reason for coping a deceased creature
+	// There should be no reason for copying a deceased creature
 	assert(!p->deceased);
 
 	c->specific_name = copy_str(p->specific_name);
