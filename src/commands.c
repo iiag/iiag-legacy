@@ -14,10 +14,7 @@ int num_commands;
 static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *arraysz)
 {
 	int cmdstrlen;
-/*
-	if (num_commands >= *arraysz)
-		if (NULL == realloc(command_list, sizeof(command_t) * ((*arraysz) <<= 2))) return; // FIXME: Handle issue here
-*/
+
 	command_list[num_commands].command = command;
 	command_list[num_commands].keyval = keyval;
 
@@ -28,7 +25,6 @@ static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *a
 	num_commands++;
 }
 
-// TODO: This
 static void run_command(char * cmd, int argc, char ** argv)
 {
 	int i;
@@ -45,13 +41,13 @@ static void run_command(char * cmd, int argc, char ** argv)
 
 void init_commands(void)
 {
-	int arraysz = 25;
+	int arraysz = 25; // Set this to at least the number of commands
 	command_list = malloc(sizeof(command_t) * arraysz);
 	num_commands = 0;
 
 
-	// TODO: Don't hard code this!
-	// TODO: Replace all functions with ones that take argc+argv
+	// OPTIMIZE: Don't hard code this!
+	// OPTIMIZE: Sort this by keypress
 	// Movement
 	insert(CTRL_LEFT,   "move_left",   plyr_act_move_left,       &arraysz);
 	insert(CTRL_RIGHT,  "move_right",  plyr_act_move_right,      &arraysz);
@@ -83,7 +79,6 @@ void init_commands(void)
 	// sort the array or something.
 }
 
-// TODO: Fix this
 void deinit_commands(void)
 {
 	int i;
@@ -99,7 +94,7 @@ void execute(int keypress)
 {
 	int i;
 
-	// TODO: Change this to binary search?
+	// OPTIMIZE: Change this to binary search?
 	for (i = 0; i < num_commands; i++) {
 		if (command_list[i].keyval == keypress) {
 			command_list[i].command(0, NULL);
@@ -114,29 +109,41 @@ void execute(int keypress)
 void command_mode(void)
 {
 	char * string;
-	int i;
+	char ** argv = NULL;
+	int argc = 0, strsz;
+	int i,j;
 
 	string = prompt_command();
+	strsz = strlen(string);
 
-	for (i = 0; i < strlen(string); i++) {
-		if (('\n' == string[i]) || (' ' == string[i])) {
+	// Find the end of the first word (the command)
+	for (i = 0; i < strsz; i++) {
+		// Trigger if there are no args
+		if (('\n' == string[i]) || ('\0' == string[i])) {
+			string[i++] = '\0';
+			goto exec;
+		}
+		// Trigger if there are args, move to parser
+		else if (' ' == string[i]) {
 			string[i++] = '\0';
 			break;
-		} else if ('\0' == string[i]) {
-			goto exec;
+		}
+	}
+	
+	argv = malloc(sizeof(char*)*3); // OPTIMIZE: Allow for more than three args?
+
+	for (j = i++; i < strsz; i++) {
+		if (('\n' == string[i]) || (' ' == string[i])) {
+			string[i] = '\0';
+			argv[argc++] = string + j;
+			j = i + 1;
 		}
 	}
 
-	// TODO: Convert space-delimited string to list of strings
-
 exec:
-	run_command(string, 0, NULL);
-/*
-	for (i = 0; i < argc; i++) {
-		free(argv[i]);
-	}
-	free(argv);
-*/
+	run_command(string, argc, argv);
+
+	if (NULL != argv) free(argv);
 	free(string);
 }
 

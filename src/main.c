@@ -110,5 +110,6 @@ int main(int argc, char ** argv)
 
 cleanup:
 	end_disp();
+	deinit_commands();
 	return 0;
 }
