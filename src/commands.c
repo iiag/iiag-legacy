@@ -45,7 +45,7 @@ static void run_command(char * cmd, int argc, char ** argv)
 
 void init_commands(void)
 {
-	int arraysz = 25;
+	int arraysz = 25; // Set this to at least the number of commands
 	command_list = malloc(sizeof(command_t) * arraysz);
 	num_commands = 0;
 
@@ -114,29 +114,41 @@ void execute(int keypress)
 void command_mode(void)
 {
 	char * string;
-	int i;
+	char ** argv = NULL;
+	int argc = 0, strsz;
+	int i,j;
 
 	string = prompt_command();
+	strsz = strlen(string);
 
-	for (i = 0; i < strlen(string); i++) {
-		if (('\n' == string[i]) || (' ' == string[i])) {
+	// Find the end of the first word (the command)
+	for (i = 0; i < strsz; i++) {
+		// Trigger if there are no args
+		if (('\n' == string[i]) || ('\0' == string[i])) {
+			string[i++] = '\0';
+			goto exec;
+		}
+		// Trigger if there are args, move to parser
+		else if (' ' == string[i]) {
 			string[i++] = '\0';
 			break;
-		} else if ('\0' == string[i]) {
-			goto exec;
+		}
+	}
+	
+	argv = malloc(sizeof(char*)*3); // OPTIMIZE: Allow for more than three args?
+
+	for (j = i++; i < strsz; i++) {
+		if (('\n' == string[i]) || (' ' == string[i])) {
+			string[i] = '\0';
+			argv[argc++] = string + j;
+			j = i + 1;
 		}
 	}
 
-	// TODO: Convert space-delimited string to list of strings
-
 exec:
-	run_command(string, 0, NULL);
-/*
-	for (i = 0; i < argc; i++) {
-		free(argv[i]);
-	}
-	free(argv);
-*/
+	run_command(string, argc, argv);
+
+	if (NULL != argv) free(argv);
 	free(string);
 }
 
