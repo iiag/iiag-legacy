@@ -14,10 +14,7 @@ int num_commands;
 static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *arraysz)
 {
 	int cmdstrlen;
-/*
-	if (num_commands >= *arraysz)
-		if (NULL == realloc(command_list, sizeof(command_t) * ((*arraysz) <<= 2))) return; // FIXME: Handle issue here
-*/
+
 	command_list[num_commands].command = command;
 	command_list[num_commands].keyval = keyval;
 
