@@ -46,8 +46,7 @@ void init_commands(void)
 	num_commands = 0;
 
 
-	// TODO: Don't hard code this!
-	// TODO: Replace all functions with ones that take argc+argv
+	// OPTIMIZE: Don't hard code this!
 	// Movement
 	insert(CTRL_LEFT,   "move_left",   plyr_act_move_left,       &arraysz);
 	insert(CTRL_RIGHT,  "move_right",  plyr_act_move_right,      &arraysz);
