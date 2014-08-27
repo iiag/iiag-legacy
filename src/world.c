@@ -47,6 +47,9 @@ void assure_world(void)
 		world.acts_cnt = 0;
 		world.acts_alloc = 16;
 
+		// load name data
+		world.eth = load_ethnicity("names/misriyyun");
+
 		first = 0;
 	}
 }

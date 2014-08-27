@@ -27,6 +27,7 @@ struct tile {
 };
 
 struct zone {
+	char * name;
 	int width, height; // width and height of zone
 	tile ** tiles;     // array of tiles in the zone
 	vector_t crtrs;    // list of all creatures in the zone

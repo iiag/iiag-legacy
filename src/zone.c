@@ -76,6 +76,8 @@ static void generate(zone * z)
 		first = 0;
 	}
 
+	z->name = place_name(world.eth);
+
 	// generate rooms
 	rc = random() % ((z->width * z->height) / ROOM_INFREQ) + ROOM_MIN;
 	rv = malloc(sizeof(room) * rc);

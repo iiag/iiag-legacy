@@ -39,9 +39,10 @@ static void update_status(void)
 		PLYR.level
 	);
 
-	statline(1, " Attack: %d | AC: %d",
+	statline(1, " Attack: %d | AC: %d | Location: %s",
 		PLYR.attack,
-		PLYR.ac
+		PLYR.ac,
+		PLYR.z->name
 	);
 
 	get_time(time, 100);
