@@ -169,7 +169,9 @@ void plyr_act_enter(int argc, char ** argv)
 			t->ch = '@';
 			t->show_ch = '@';
 		} else {
-			assert(crtr_tele(&PLYR, t->link_x, t->link_y, t->link_z));
+			if (!crtr_tele(&PLYR, t->link_x, t->link_y, t->link_z)) {
+				memo("Your way appears to be blocked?");
+			}
 		}
 
 		update_vis();
