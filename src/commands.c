@@ -47,6 +47,7 @@ void init_commands(void)
 
 
 	// OPTIMIZE: Don't hard code this!
+	// OPTIMIZE: Sort this by keypress
 	// Movement
 	insert(CTRL_LEFT,   "move_left",   plyr_act_move_left,       &arraysz);
 	insert(CTRL_RIGHT,  "move_right",  plyr_act_move_right,      &arraysz);
@@ -93,7 +94,7 @@ void execute(int keypress)
 {
 	int i;
 
-	// TODO: Change this to binary search?
+	// OPTIMIZE: Change this to binary search?
 	for (i = 0; i < num_commands; i++) {
 		if (command_list[i].keyval == keypress) {
 			command_list[i].command(0, NULL);
