@@ -140,7 +140,7 @@ char ind2ch(int i)
 	if (i < 26) return 'a' + i;
 	if (i < 52) return 'A' + i - 26;
 	if (i < 62) return '0' + i - 52;
-	assert(0); // TODO
+	assert(0); // TODO: Handle inventories with more than 62 items
 }
 
 //
@@ -153,5 +153,5 @@ int  ch2ind(char c)
 	if (c <= '9') return (int)c + 52 - '0';
 	if (c <= 'Z') return (int)c + 26 - 'A';
 	if (c <= 'z') return (int)c - 'a';
-	assert(0); // TODO
+	assert(0); // TODO: Handle inventories with more than 62 items
 }

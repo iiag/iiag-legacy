@@ -7,6 +7,7 @@ extern int client_socket;
 
 typedef struct socket_node socket_node;
 
+int list_altr;
 struct socket_node{
 	int sock;
 	creature player;

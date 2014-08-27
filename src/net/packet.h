@@ -69,7 +69,7 @@ struct creature_subpacket{
 };
 
 struct tile_packet{
-	chtype ch;
+	chtype ch,show_ch;
 	int itemnum;
 	short crtr;
 	int impassible;

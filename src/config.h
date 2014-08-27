@@ -18,6 +18,7 @@ enum {
 	CTRL_URIGHT,
 	CTRL_DLEFT,
 	CTRL_DRIGHT,
+	CTRL_ENTER,
 
 	// scrolling
 	CTRL_SCRL_CENTER,
@@ -38,7 +39,7 @@ enum {
 	// miscellaneous
 	CTRL_SKIP_TURN,
 	CTRL_QUIT,
-	CTRL_COMMAND,	
+	CTRL_COMMAND,
 
 	TOTAL_CONTROLS
 };

@@ -7,6 +7,8 @@
 #include "config.h"
 #include "display.h"
 
+#define MAX_CMD_ENTRY 100
+
 //
 // Gets a keypress and translates it into a control value
 //
@@ -90,7 +92,7 @@ int prompt_inv(const char * prompt, inventory * inv, creature * c)
 char * prompt_command(void)
 {
 	int c,i = 0;
-	char * string = calloc(1,100); // TODO: Remove magic number porbably
+	char * string = calloc(1,MAX_CMD_ENTRY);
 
 	wmove(memoscr, 0, 0);
 	waddch(memoscr, ':');
@@ -98,7 +100,7 @@ char * prompt_command(void)
 	while ('\n' != c) {
 		string[i] = c = wgetch(memoscr);
 		
-		if ((c == 127)) {
+		if ((c == 127)) { // Backspace
 			if (i == 0) { wmove(memoscr, 0, 1); continue; }
 
 			wmove(memoscr, 0, i);
@@ -109,7 +111,16 @@ char * prompt_command(void)
 			continue;
 		}
 
-		if (i == 99) continue;
+		// Cancel command input
+		if (c == 27) { // Escape
+			wmove(memoscr, 0, 0);
+			for (c = 0; c < i + 1; c++) {
+				waddch(memoscr, ' ');
+			}
+			wrefresh(memoscr);
+			free(string);
+			return NULL;
+		}
 
 		waddch(memoscr, string[i++]);
 		wrefresh(memoscr);

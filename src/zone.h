@@ -15,14 +15,19 @@ typedef struct zone zone;
 #include "inventory.h"
 
 struct tile {
-	chtype ch;
+	chtype ch, show_ch;
 	int show;
 	int impassible;  // whether the tile is pasible or not
 	creature * crtr; // creture that may be on the tile
 	inventory * inv; // inventory of the tile
+
+	int linked;
+	int link_x, link_y;
+	zone * link_z;
 };
 
 struct zone {
+	char * name;
 	int width, height; // width and height of zone
 	tile ** tiles;     // array of tiles in the zone
 	vector_t crtrs;    // list of all creatures in the zone

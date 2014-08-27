@@ -13,25 +13,19 @@
 void write_spawn_packet(int sock){
 	if(sock == -1) return;
 
-	int t1, t2;
-
 	packet_header head;
 	spawn_packet p;
 
 	head.type=0;
 	head.length=sizeof(spawn_packet);
 
-	t1 = full_write(sock,&head,sizeof(head));
-	t2 = full_write(sock,&p,head.length);
+	full_write(sock,&head,sizeof(head));
+	full_write(sock,&p,head.length);
 
-	if(t1 == -1 || t2 == -1)
-		cleanup_socket(sock);
 }
 
 void write_command_packet(int sock, int c){
 	if(sock == -1) return;
-
-	int t1, t2;
 
 	packet_header head;
 	command_packet p;
@@ -40,11 +34,9 @@ void write_command_packet(int sock, int c){
 	head.length=sizeof(command_packet);
 	p.c=c;
 
-	t1 = full_write(sock,&head,sizeof(head));
-	t2 = full_write(sock,&p,head.length);
+	full_write(sock,&head,sizeof(head));
+	full_write(sock,&p,head.length);
 
-	if(t1 == -1 || t2 == -1)
-		cleanup_socket(sock);
 }
 
 void write_tile_packet(int sock, tile* t, int x, int y){
@@ -56,6 +48,7 @@ void write_tile_packet(int sock, tile* t, int x, int y){
 	tile_packet p;
 
 	p.ch=t->ch;
+	p.show_ch=t->show_ch;
 	p.itemnum=inv_count(t->inv);
 	p.impassible=t->impassible;
 	p.x=x;
@@ -85,12 +78,13 @@ void write_tile_packet(int sock, tile* t, int x, int y){
 void write_tile_packet2(int sock, tile* t, int x, int y){
 	if(sock == -1) return;
 
-	int t1, t2, i;
+	int i;
 
 	packet_header head;
 	tile_packet p;
 
 	p.ch=t->ch;
+	p.show_ch=t->show_ch;
 	p.itemnum=inv_count(t->inv);
 	p.crtr=(t->crtr?1:0);
 	p.impassible=t->impassible;
@@ -99,8 +93,8 @@ void write_tile_packet2(int sock, tile* t, int x, int y){
 	head.type=3;
 	head.length=sizeof(tile_packet)+p.itemnum*sizeof(item_subpacket)+p.crtr*sizeof(creature_subpacket);
 
-	t1 = full_write(sock,&head,sizeof(head));
-	t2 = full_write(sock,&p,sizeof(tile_packet));
+	full_write(sock,&head,sizeof(head));
+	full_write(sock,&p,sizeof(tile_packet));
 
 	item_subpacket* item_sub;
 	creature_subpacket* crtr_sub;
@@ -118,9 +112,6 @@ void write_tile_packet2(int sock, tile* t, int x, int y){
 		free(crtr_sub);
 	}
 		
-	if(t1 == -1 || t2 == -1)
-		cleanup_socket(sock);
-
 }
 
 item_subpacket* make_item_subpacket(item* c){
@@ -315,9 +306,10 @@ void handle_tile2(socket_node* s, void* pack, int len){
 	}
 	//wrlog("s");
 
-	if(t->impassible)
+	//if(t->impassible){
 		z->tiles[t->x][t->y].ch=t->ch;
-	else
+		z->tiles[t->x][t->y].show_ch=t->show_ch;
+	//}else
 		zone_update(z, t->x, t->y);
 
 }

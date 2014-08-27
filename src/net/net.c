@@ -85,6 +85,7 @@ int setup_listener(int port){
 void cleanup_socket(int socket){
 #ifdef SERVER
 list_delete(&server_sockets,socket);
+list_altr=1;
 #else
 client_socket=-1;
 #endif
@@ -145,7 +146,7 @@ int read_packet(int socket, socket_node* s){
 int full_write(int sock, void* start, int len){
 	int sent=0;
 	int tmp;
-	wrlog("sending");
+
 	while(sent<len){
 		tmp=send(sock,start+sent,len-sent,MSG_NOSIGNAL);
 
@@ -153,12 +154,14 @@ int full_write(int sock, void* start, int len){
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
 			wrlog("error encountered %i", errno);
+			close(sock);
+			cleanup_socket(sock);
 			return -1;
 		}
 
 		sent+=tmp;
 	}
-	wrlog("sent");
+
 	return sent;
 }
 
@@ -195,10 +198,14 @@ void list_delete(socket_node** node, int s){
 
 void server_listen(socket_node* node){
 	socket_node* n=node;
+	list_altr=0;
 
 	while(n != NULL){
 	while(!read_packet(n->sock,n));
 	
+	//list status changed aborting
+	if(list_altr)
+		return;
 	n=n->next;
 	}
 
@@ -206,9 +213,17 @@ void server_listen(socket_node* node){
 
 void server_tile_update(tile* t, int x, int y){
 	socket_node* n=server_sockets;
+	list_altr=0;
 
 	while(n != NULL){
+	wrlog("ptr %p %p",n, server_sockets);
 	write_tile_packet2(n->sock,t,x,y);
+
+	//if list is altered try again
+	if(list_altr){
+		server_tile_update(t,x,y);
+		return;
+	}
 	
 	n=n->next;
 	}

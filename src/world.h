@@ -10,6 +10,7 @@ typedef struct action_node action_node;
 #include "item.h"
 #include "util.h"
 #include "zone.h"
+#include "names.h"
 #include "creature.h"
 #include "generator.h"
 
@@ -39,6 +40,9 @@ typedef struct {
 	action_node * acts;
 	int acts_cnt;
 	int acts_alloc;
+
+	// for name generation
+	ethnicity * eth;
 } world_t;
 
 // The singleton world object
