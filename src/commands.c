@@ -78,7 +78,6 @@ void init_commands(void)
 	// sort the array or something.
 }
 
-// TODO: Fix this
 void deinit_commands(void)
 {
 	int i;
