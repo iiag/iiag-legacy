@@ -244,7 +244,8 @@ void plyr_ev_lvlup(void)
 }
 
 void plyr_ev_act_comp(creature * p, item * it)
-{
+{	
+
 	assert(p->act != NULL);
 
 	switch (p->act->type) {

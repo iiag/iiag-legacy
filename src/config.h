@@ -51,6 +51,7 @@ typedef struct config {
 	int show_all;
 	int all_alone;
 	int real_time;
+	int multiplayer;
 	int throw_anim_delay;
 	int ctrl[TOTAL_CONTROLS];
 } config_t;

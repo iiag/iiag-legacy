@@ -11,6 +11,7 @@
 #include "player.h"
 #include "display.h"
 #include "creature.h"
+#include "config.h"
 
 // lower => levelup faster
 #define LEVELING_CONSTANT 4
@@ -65,6 +66,7 @@ void crtr_init(creature * c, chtype ch)
 	c->sight   = 15;
 	c->reflex  = 1;
 	c->throw   = 20;
+	c->ai	   = 1;
 	c->speed   = SEC(1.4);
 
 	c->inv = inv_new(25000);
@@ -117,6 +119,8 @@ creature * crtr_copy(const creature * p)
 	c->sight       = p->sight;
 	c->throw       = p->throw;
 	c->speed       = p->speed;
+	c->ai	       = p->ai;
+	c->gen_id      = p->gen_id;
 
 	c->on_spawn = p->on_spawn;
 	c->on_death = p->on_death;
@@ -200,7 +204,7 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
 	if (crtr_can_tele(crtr, x, y, z)) {
 		z->tiles[x][y].crtr = crtr;
-
+wrlog("1");
 		if (crtr->z != z) {
 			// remove from old zone
 			if (crtr->z != NULL) {
@@ -215,7 +219,7 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 		} else if (crtr->z != NULL) {
 			tileof(crtr)->crtr = NULL;
 		}
-
+//wrlog("2");
 		// redraw the tiles
 		if (PLYR.z != NULL) {
 			if (crtr->z == PLYR.z) {
@@ -228,7 +232,7 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 				wrefresh(dispscr);
 			}
 		}
-
+//wrlog("3");
 		// update coordinates
 		crtr->x = x;
 		crtr->y = y;
@@ -414,8 +418,8 @@ static void beast_ai(creature * c)
 				dx = 0;
 			}
 		}
-
-		crtr_act_aa_move(c, dx, dy);
+		if(!config.multiplayer)
+			crtr_act_aa_move(c, dx, dy);
 	}
 }
 

@@ -64,6 +64,7 @@ void init_world(void)
 	z = zone_new(150, 50);
 	vector_append(&world.zones, z);
 
+	#ifndef SERVER
 	world.plyr.on_death.c_func    = (trigger_cfunc)plyr_ev_death;
 	world.plyr.on_lvlup.c_func    = (trigger_cfunc)plyr_ev_lvlup;
 	world.plyr.on_act_comp.c_func = (trigger_cfunc)plyr_ev_act_comp;
@@ -72,6 +73,7 @@ void init_world(void)
 
 	crtr_spawn(&world.plyr, z);
 	zone_update(z, world.plyr.x, world.plyr.y);
+	#endif
 }
 
 //

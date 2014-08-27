@@ -76,6 +76,10 @@ struct creature {
 	int throw;
 	int speed;
 
+	//id for serialization
+	int gen_id;
+	int ai;
+
 	// triggers
 	trigger on_spawn;
 	trigger on_death;

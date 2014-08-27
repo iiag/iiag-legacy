@@ -21,6 +21,7 @@
 #include "inventory.h"
 #include "lua/lua.h"
 #include "commands.h"
+#include "net/net.h"
 
 extern command_t * command_list;
 extern int num_commands;
@@ -73,10 +74,16 @@ int main(int argc, char ** argv)
 
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);
+	signal(SIGABRT,  sig_handler);
 
 	init_disp();
 	init_world();
 	init_commands();
+
+	if(config.multiplayer){
+		client_connect("127.0.0.1",13699);
+		write_spawn_packet(client_socket);	
+	}
 
 	plyr_ev_birth();
 	scroll_center(PLYR.x, PLYR.y);
@@ -95,16 +102,21 @@ int main(int argc, char ** argv)
 		} else {
 			execute(c);
 		}
-
+		
+		if(c != CTRL_SKIP_TURN)
+		write_command_packet(client_socket,c);
 
 		// TODO this delay should probably sync to game time
 		if (config.real_time) usleep(500000);
 
+		
 		while (PLYR.act != NULL) {
 			start_timer();
 			step();
 			end_timer("step length");
 		}
+		if(config.multiplayer)
+			while(!read_packet(client_socket, NULL));
 	}
 
 cleanup:

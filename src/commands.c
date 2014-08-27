@@ -4,7 +4,6 @@
 #include "config.h"
 #include "display.h"
 #include "player.h"
-#include "config.h"
 #include "input.h"
 
 command_t * command_list;

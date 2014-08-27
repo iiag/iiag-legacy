@@ -15,7 +15,7 @@
 config_t config = {
 	NULL,
 	"script/init.lua",
-	0, 0, 0, 0,
+	0, 0, 0, 0, 0,
 	20,
 
 	{
@@ -316,6 +316,10 @@ void init_config(int argc, char ** argv)
 				config.all_alone = 1;
 				break;
 			case 'r':
+				config.real_time = 1;
+				break;
+			case 'n':
+				config.multiplayer = 1;
 				config.real_time = 1;
 				break;
 			default:

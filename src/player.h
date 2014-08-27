@@ -9,7 +9,11 @@
 #include "creature.h"
 
 #define PLYR world.plyr
-#define plyr_is_me(C) ((C) == &PLYR)
+#ifdef SERVER
+	#define plyr_is_me(C) (C->ai == 0)
+#else
+	#define plyr_is_me(C) ((C) == &PLYR)
+#endif
 
 // player willed actions
 void plyr_act_pickup(int, char **);

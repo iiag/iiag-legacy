@@ -101,6 +101,36 @@ item * inv_rm(inventory * inv, int i)
 }
 
 //
+//
+//
+int inv_count(inventory* inv){
+	int i;
+	int count=0;
+	for (i = 0; i < inv->size; i++) {
+		if (inv->itms[i] != NULL)
+			count++;
+	}
+
+return count;
+}
+
+//
+//
+//
+void inv_clear(inventory * inv)
+{
+	int i;
+	for (i = 0; i < inv->size; i++) {
+	if (inv->itms[i] == NULL) continue;
+
+	item * ret = inv->itms[i];
+	inv->itms[i] = NULL;
+	item_free(ret);
+	}
+	inv->weight = 0;
+}
+
+//
 // Converts an index to a character
 //
 // TODO fix for indexs >= 62

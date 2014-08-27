@@ -147,29 +147,66 @@ static void * gensub(gclass_t * cl, int x)
 	return NULL;
 }
 
-static void * gen(gclass_t * cl, int lvl)
+static void * gen(gclass_t * cl, int lvl, int x)
 {
 	cache_tree(cl, lvl);
 	assert(cl->max_freq);
-	return gensub(cl, random() % cl->max_freq);
+	return gensub(cl, x/*random() % cl->max_freq*/);
 }
 
 item * gen_item(gclass_t * cl, int lvl)
 {
 	gclass_t * mat_cl;
 	item * it;
+	int x,x2;	
 
-	it = item_copy(gen(cl, lvl));
+	x = random() % cl->max_freq;
+
+	it = item_copy(gen(cl, lvl, x));
 
 	if (it->mat_class != NULL) {
 		mat_cl = get_gclass(it->mat_class, world.gmats);
-		item_apply_mat(it, gen(mat_cl, lvl));
+		x2 = random() % mat_cl->max_freq;
+		item_apply_mat(it, gen(mat_cl, lvl, x2));
 	}
+
+	it->gen_id=x;
+	it->gen_mat_id=x2;
+
+	return it;
+}
+
+item * gen_item_from_id(gclass_t * cl, int lvl, int x, int x2)
+{
+	gclass_t * mat_cl;
+	item * it;	
+
+	it = item_copy(gen(cl, lvl, x));
+
+	if (it->mat_class != NULL) {
+		mat_cl = get_gclass(it->mat_class, world.gmats);
+		item_apply_mat(it, gen(mat_cl, lvl, x2));
+	}
+
+	it->gen_id=x;
+	it->gen_mat_id=x2;
 
 	return it;
 }
 
 creature * gen_crtr(gclass_t * cl, int lvl)
 {
-	return crtr_copy(gen(cl, lvl));
+	int x;
+	x = random() % cl->max_freq;
+	return gen_crtr_from_id(cl,lvl,x);
+}
+
+creature * gen_crtr_from_id(gclass_t * cl, int lvl, int x)
+{
+	creature* c;
+
+	c = crtr_copy(gen(cl, lvl, x));
+	c->gen_id=x;
+
+	return c;
 }

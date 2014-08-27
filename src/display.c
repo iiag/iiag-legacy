@@ -87,6 +87,7 @@ void reset_memos(void)
 
 void memo(const char * fmt, ...)
 {
+	#ifndef SERVER
 	int dummy __attribute__((unused));;
 	va_list vl;
 	va_start(vl, fmt);
@@ -103,6 +104,7 @@ void memo(const char * fmt, ...)
 	wrefresh(memoscr);
 
 	va_end(vl);
+	#endif
 }
 
 void statline(int ln, const char * fmt, ...)
