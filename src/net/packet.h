@@ -46,6 +46,7 @@ struct creature_subpacket{
 
 	//id for serialization
 	int gen_id;
+	int x,y;
 
 	// item fields
 	//no item serialization for now
@@ -81,14 +82,15 @@ item_subpacket* make_item_subpacket(item* c);
 
 void write_spawn_packet(int sock);
 void write_command_packet(int sock, int c);
-void write_tile_packet(int sock, tile* t, int x, int y);
+//void write_tile_packet(int sock, tile* t, int x, int y);
 void write_tile_packet2(int sock, tile* t, int x, int y);
-//void write_creature_packet(int sock, creature* c);
+void write_player_packet(int sock, creature* c);
 
 void handle_spawn(socket_node* s,void* pack, int len);
 void handle_command(socket_node* s,void* pack, int len);
-void handle_tile(socket_node* s,void* pack, int len);
+//void handle_tile(socket_node* s,void* pack, int len);
 void handle_tile2(socket_node* s,void* pack, int len);
+void handle_player(socket_node* s,void* pack, int len);
 
 void (*packet_handlers[])(socket_node* s, void* pack, int len);
 

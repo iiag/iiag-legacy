@@ -202,9 +202,17 @@ void crtr_death(creature * c, char * meth)
 //
 int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
+
+	/*#ifdef SERVER
+		zone* old_zone;
+		int old_x,old_y;
+		old_zone=crtr->z;
+		old_x=crtr->x;
+		old_y=crtr->y;
+	#endif*/
 	if (crtr_can_tele(crtr, x, y, z)) {
 		z->tiles[x][y].crtr = crtr;
-wrlog("1");
+
 		if (crtr->z != z) {
 			// remove from old zone
 			if (crtr->z != NULL) {
@@ -219,7 +227,7 @@ wrlog("1");
 		} else if (crtr->z != NULL) {
 			tileof(crtr)->crtr = NULL;
 		}
-//wrlog("2");
+
 		// redraw the tiles
 		if (PLYR.z != NULL) {
 			if (crtr->z == PLYR.z) {
@@ -232,11 +240,16 @@ wrlog("1");
 				wrefresh(dispscr);
 			}
 		}
-//wrlog("3");
+
 		// update coordinates
 		crtr->x = x;
 		crtr->y = y;
 		crtr->z = z;
+		
+		/*#ifdef SERVER
+			if(old_zone)
+				server_tile_update(&(old_zone->tiles[old_x][old_y]), old_x, old_y);
+		#endif*/
 
 		return 1;
 	}
@@ -418,7 +431,7 @@ static void beast_ai(creature * c)
 				dx = 0;
 			}
 		}
-		if(!config.multiplayer)
+		//if(!config.multiplayer)
 			crtr_act_aa_move(c, dx, dy);
 	}
 }

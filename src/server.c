@@ -37,7 +37,6 @@ static void sig_handler(int rc)
 
 int main(int argc, char ** argv)
 {
-	//int c;
 
 	init_config(argc, argv);
 	init_lua();
@@ -58,13 +57,17 @@ int main(int argc, char ** argv)
 	setup_listener(13699);
 
 	for (;;) {
+		start_timer();
 		server_update_clients();
 		step_world();
+		end_timer("step length");
 		usleep(500000);
 		try_accept();
 		server_listen(server_sockets);
 		//if(server_sockets!=NULL)
 		//write_test_packet(server_sockets->sock);
+
+
 		
 	}
 

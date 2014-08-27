@@ -264,11 +264,7 @@ void zone_update(zone * z, int x, int y)
 
 	z->tiles[x][y].show_ch = ch;
 	
-	#ifdef SERVER
-	server_tile_update(&(z->tiles[x][y]),x,y);
-	#else
 	zone_draw_tile(z, x, y);
-	#endif
 }
 
 void zone_draw(zone * z)

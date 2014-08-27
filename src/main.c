@@ -75,7 +75,6 @@ int main(int argc, char ** argv)
 
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);
-	signal(SIGABRT,  sig_handler);
 
 	init_disp();
 	init_world();

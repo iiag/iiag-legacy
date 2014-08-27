@@ -10,6 +10,7 @@
 #include "net.h"
 #include "packet.h"
 #include "../log.h"
+#include "../world.h"
 
 int listening_socket = -1;
 int client_socket = -1;
@@ -133,8 +134,17 @@ int read_packet(int socket, socket_node* s){
 
 	while(13){
 		count= read(socket,packet+total,head.length-total);
-		total+=count;
 
+		if(count == -1){
+			if(errno == EAGAIN || errno == EWOULDBLOCK)
+				continue;
+			wrlog("error encountered %i", errno);
+			close(socket);
+			cleanup_socket(socket);
+			return -1;
+		}
+
+		total+=count;
 		if(total>=head.length)
 			break;
 	}
@@ -185,6 +195,8 @@ void list_delete(socket_node** node, int s){
 	while(*n!=NULL){
 		
 		if((*n)->sock==s){
+			//zone_rm_crtr((*n)->player.z, &((*n)->player);
+
 			tmp=*n;
 			*n=(*n)->next;
 			free(tmp);
@@ -231,14 +243,32 @@ void server_tile_update(tile* t, int x, int y){
 }
 
 void server_update_clients(){
-	/*socket_node* n=server_sockets;
+	socket_node* n=server_sockets;
+	zone* z = world.zones.arr[0];
+	int i,x,y;
 
 	while(n != NULL){
-	if(n->player.act==NULL)
-	crtr_act_idle(&(n->player));
-	
-	n=n->next;
+
+		write_player_packet(n->sock,&(n->player));
+
+	for(x=0;x<z->width;x++)
+	for(y=0;y<z->height;y++)
+		if((!z->tiles[x][y].impassible) && z->tiles[x][y].crtr!=&(n->player))
+		write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
+
+	/*for(i=0;i<z->crtrs.cnt;i++){
+		x=((creature*)z->crtrs.arr[i])->x;
+		y=((creature*)z->crtrs.arr[i])->y;
+		write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
 	}*/
+
+	//list status changed aborting
+	if(list_altr)
+		return;
+	n=n->next;
+	}
+
+	
 
 }
 
