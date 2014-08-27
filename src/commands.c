@@ -107,7 +107,7 @@ void execute(int keypress)
 		}
 	}
 
-	memo("Unknown key press");
+	memo("Unknown key press %d", keypress);
 	return;
 }
 
