@@ -15,6 +15,8 @@
 	#define plyr_is_me(C) ((C) == &PLYR)
 #endif
 
+void update_vis(void);
+
 // player willed actions
 void plyr_act_pickup(int, char **);
 void plyr_act_drop(int, char **);

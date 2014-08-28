@@ -113,7 +113,6 @@ int main(int argc, char ** argv)
 		// TODO this delay should probably sync to game time
 		if (config.real_time) usleep(250000);
 
-		
 		while (PLYR.act != NULL) {
 			start_timer();
 			step();

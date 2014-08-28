@@ -14,7 +14,7 @@
 
 #define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])
 
-static void update_vis(void)
+void update_vis(void)
 {
 	int x, y, show;
 

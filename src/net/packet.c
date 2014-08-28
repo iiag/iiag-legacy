@@ -202,6 +202,9 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	//s->player.on_act_fail.c_func = (trigger_cfunc)plyr_ev_act_fail;
 	s->player.refs = NOFREE;
 	s->player.ai = 0;
+	
+	//speed til time scale is fixed!
+	s->player.speed = SEC(0.5);
 
 	zone* z = world.zones.arr[0];
 	crtr_spawn(&(s->player), z);
@@ -258,7 +261,7 @@ void handle_player(socket_node* s, void* pack, int len){
 	crtr_tele(&PLYR, p->x,p->y, world.zones.arr[0]);
 	subpack2crtr(&PLYR,p);
 	zone_update(world.zones.arr[0], p->x,p->y);
-
+	update_vis();
 
 	inv_clear(PLYR.inv);
 
