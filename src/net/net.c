@@ -256,10 +256,19 @@ void server_update_clients(){
 		z = n->player.z;
 		write_player_packet(n->sock,&(n->player));
 
+		if(list_altr)
+			return;
+
+		if(z)
 		for(x=0;x<z->width;x++)
 		for(y=0;y<z->height;y++)
-			if((!z->tiles[x][y].impassible) && z->tiles[x][y].crtr!=&(n->player))
-			write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
+			if((!z->tiles[x][y].impassible) && z->tiles[x][y].crtr!=&(n->player)){
+				write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
+
+				//list status changed aborting
+				if(list_altr)
+					return;
+			}
 
 	//attempts at reducing the number of tile updates
 	/*for(i=0;i<z->crtrs.cnt;i++){
@@ -268,9 +277,6 @@ void server_update_clients(){
 		write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
 	}*/
 
-	//list status changed aborting
-	if(list_altr)
-		return;
 	n=n->next;
 	}
 

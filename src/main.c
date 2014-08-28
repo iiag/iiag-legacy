@@ -81,7 +81,7 @@ int main(int argc, char ** argv)
 	init_commands();
 
 	if(config.multiplayer){
-		client_connect("127.0.0.1",13699);
+		client_connect(config.ip,config.port);
 		write_spawn_packet(client_socket);
 	
 		//wait for response
@@ -111,7 +111,7 @@ int main(int argc, char ** argv)
 		write_command_packet(client_socket,c);
 
 		// TODO this delay should probably sync to game time
-		if (config.real_time) usleep(500000);
+		if (config.real_time) usleep(250000);
 
 		
 		while (PLYR.act != NULL) {

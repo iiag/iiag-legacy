@@ -54,14 +54,14 @@ int main(int argc, char ** argv)
 	zone_draw(PLYR.z);*/
 
 	step_world();
-	setup_listener(13699);
+	setup_listener(config.port);
 
 	for (;;) {
 		start_timer();
 		server_update_clients();
 		step_world();
 		end_timer("step length");
-		usleep(500000);
+		usleep(250000);
 		try_accept();
 		server_listen(server_sockets);
 		//if(server_sockets!=NULL)

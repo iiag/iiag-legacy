@@ -48,6 +48,8 @@ enum {
 typedef struct config {
 	const char * cfg_file;
 	const char * lua_init;
+	const char * ip;
+	int port;
 	int forget_walls;
 	int show_all;
 	int all_alone;

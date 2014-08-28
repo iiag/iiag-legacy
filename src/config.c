@@ -15,6 +15,7 @@
 config_t config = {
 	NULL,
 	"script/init.lua",
+	"127.0.0.1", 13699,
 	0, 0, 0, 0, 0,
 	20,
 
@@ -68,11 +69,13 @@ struct field {
 
 static const struct field cfg_fields[] = {
 	{ STRING,  "lua-init",         &config.lua_init         },
+	{ STRING,  "server-ip",        &config.ip               },
 	{ BOOLEAN, "show-all",         &config.show_all         },
 	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
 	{ BOOLEAN, "real-time",        &config.real_time        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
+	{ INTEGER, "port",             &config.port             },
 
 	// movement controls
 	{ CONTROL, "ctrl-up",     config.ctrl + CTRL_UP     },
@@ -283,6 +286,10 @@ static void print_help()
 	"        Turn on all alone mode, for debugging purposes.\n"
 	"    -r\n"
 	"        Turn on all real time mode.\n"
+	"    -n\n"
+	"        Connect to server for multiplayer.\n"
+	"    -N [ip address]\n"
+	"        Connect to server for multiplayer.\n"
 	"    -s\n"
 	"        Show everything.\n"
 	"\n"
@@ -320,6 +327,8 @@ void init_config(int argc, char ** argv)
 			case 'r':
 				config.real_time = 1;
 				break;
+			case 'N':
+				config.ip = argv[++i];
 			case 'n':
 				config.multiplayer = 1;
 				config.real_time = 1;
