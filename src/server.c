@@ -38,6 +38,9 @@ static void sig_handler(int rc)
 int main(int argc, char ** argv)
 {
 
+	int step;
+	int stall;
+
 	init_config(argc, argv);
 	init_lua();
 
@@ -59,7 +62,15 @@ int main(int argc, char ** argv)
 	for (;;) {
 		start_timer();
 		server_update_clients();
-		step_world();
+		step=world.tm.steps;
+
+		while(abs(world.tm.steps - step) < 100){
+			stall = world.tm.steps;
+			step_world();
+			if(stall == world.tm.steps) break;
+			wrlog("step %i %i",world.tm.steps, step);
+		}
+		
 		try_accept();
 		server_listen(server_sockets);
 		end_timer("step length");

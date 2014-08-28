@@ -204,7 +204,7 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	s->player.ai = 0;
 	
 	//speed til time scale is fixed!
-	s->player.speed = SEC(0.5);
+	//s->player.speed = SEC(0.5);
 
 	zone* z = world.zones.arr[0];
 	crtr_spawn(&(s->player), z);
