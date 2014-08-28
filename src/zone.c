@@ -54,7 +54,7 @@ static void set_wall_char(int ** walls, zone * z, int x, int y)
 		}
 	}
 
-	z->tiles[x][y].ch = wall_chars[ch];
+	z->tiles[x][y].ch = wall_chars[ch] | COLOR_PAIR(COLOR_WALL);
 	z->tiles[x][y].show_ch = z->tiles[x][y].ch;
 }
 
@@ -99,8 +99,8 @@ static void generate(zone * z)
 			for (i = 0; i < rc; i++) {
 				if (in_room(rv + i, x, y)) break;
 			}
-			z->tiles[x][y].ch = '.';
-			z->tiles[x][y].show_ch = '.';
+			z->tiles[x][y].ch = ('.' | A_DIM);
+			z->tiles[x][y].show_ch = ('.' | A_DIM);
 			z->tiles[x][y].linked = 0;
 			walls[x][y] = (i == rc);
 		}

@@ -7,8 +7,10 @@
 #include <string.h>
 #include "input.h"
 #include "config.h"
-#include "player.h"
 #include "display.h"
+#include "net/packet.h"
+#include "player.h"
+
 
 #define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])
 
@@ -50,6 +52,7 @@ void plyr_act_pickup(int argc, char ** argv)
 		i = prompt_inv("Pick up what?", PLYRT.inv, NULL);
 
 		if (PLYRT.inv->size > i && PLYRT.inv->itms[i] != NULL) {
+			net_inv_prompt_data=i;
 			crtr_act_pickup(&PLYR, i);
 		} else {
 			memo("You try to pick it up, but then you realize it does not exist.");
@@ -64,6 +67,7 @@ void plyr_act_drop(int argc, char ** argv)
 	int i = prompt_inv("You dropped what?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
+		net_inv_prompt_data=i;
 		crtr_act_drop(&PLYR, i);
 	} else {
 		memo("There is no such item.");
@@ -189,6 +193,7 @@ void plyr_act_consume(int argc, char ** argv)
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL) {
 		if (PLYR.inv->itms[i]->type & ITEM_CONSUMABLE) {
+			net_inv_prompt_data=i;
 			crtr_act_consume(&PLYR, i);
 		} else {
 			memo("That would upset thy stomach.");
@@ -228,6 +233,7 @@ void plyr_act_equip(int argc, char ** argv)
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL){
 		if (PLYR.inv->itms[i]->type & ITEM_EQUIPABLE){
+			net_inv_prompt_data=i;
 			crtr_act_equip(&PLYR, i);
 		} else {
 			memo("It seems trying to equip that would prove fruitless.");

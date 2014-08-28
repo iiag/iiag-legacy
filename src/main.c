@@ -82,7 +82,11 @@ int main(int argc, char ** argv)
 
 	if(config.multiplayer){
 		client_connect("127.0.0.1",13699);
-		write_spawn_packet(client_socket);	
+		write_spawn_packet(client_socket);
+	
+		//wait for response
+		usleep(600000);
+		while(!read_packet(client_socket, NULL));
 	}
 
 	plyr_ev_birth();

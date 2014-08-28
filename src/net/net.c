@@ -138,10 +138,10 @@ int read_packet(int socket, socket_node* s){
 		if(count == -1){
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
-			wrlog("error encountered %i", errno);
+			wrlog("error reading %i", errno);
 			close(socket);
 			cleanup_socket(socket);
-			return -1;
+			return 1;
 		}
 
 		total+=count;
@@ -153,6 +153,7 @@ int read_packet(int socket, socket_node* s){
 	return 0;
 }
 
+//TODO figure out why the server log is full of writing errors
 int full_write(int sock, void* start, int len){
 	int sent=0;
 	int tmp;
@@ -163,7 +164,7 @@ int full_write(int sock, void* start, int len){
 		if(tmp == -1){
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
-			wrlog("error encountered %i", errno);
+			wrlog("error writing %i", errno);
 			close(sock);
 			cleanup_socket(sock);
 			return -1;
@@ -195,7 +196,10 @@ void list_delete(socket_node** node, int s){
 	while(*n!=NULL){
 		
 		if((*n)->sock==s){
-			//zone_rm_crtr((*n)->player.z, &((*n)->player);
+			if((*n)->player.z && (*n)->player.z->tiles[(*n)->player.x][(*n)->player.y].crtr == &((*n)->player)){
+				(*n)->player.deceased=1;
+				zone_rm_crtr((*n)->player.z, &((*n)->player));
+			}
 
 			tmp=*n;
 			*n=(*n)->next;
@@ -244,18 +248,20 @@ void server_tile_update(tile* t, int x, int y){
 
 void server_update_clients(){
 	socket_node* n=server_sockets;
-	zone* z = world.zones.arr[0];
+	zone* z;// = world.zones.arr[0];
 	int i,x,y;
 
 	while(n != NULL){
-
+		
+		z = n->player.z;
 		write_player_packet(n->sock,&(n->player));
 
-	for(x=0;x<z->width;x++)
-	for(y=0;y<z->height;y++)
-		if((!z->tiles[x][y].impassible) && z->tiles[x][y].crtr!=&(n->player))
-		write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
+		for(x=0;x<z->width;x++)
+		for(y=0;y<z->height;y++)
+			if((!z->tiles[x][y].impassible) && z->tiles[x][y].crtr!=&(n->player))
+			write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
 
+	//attempts at reducing the number of tile updates
 	/*for(i=0;i<z->crtrs.cnt;i++){
 		x=((creature*)z->crtrs.arr[i])->x;
 		y=((creature*)z->crtrs.arr[i])->y;

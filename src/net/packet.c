@@ -9,6 +9,9 @@
 #include <fcntl.h>
 #include <string.h>
 #include "../generator.h"
+#include "../display.h"
+
+int net_inv_prompt_data =-1;
 
 void write_spawn_packet(int sock){
 	if(sock == -1) return;
@@ -33,6 +36,9 @@ void write_command_packet(int sock, int c){
 	head.type=1;
 	head.length=sizeof(command_packet);
 	p.c=c;
+	p.i=net_inv_prompt_data;
+	
+	net_inv_prompt_data =-1;
 
 	full_write(sock,&head,sizeof(head));
 	full_write(sock,&p,head.length);
@@ -42,16 +48,35 @@ void write_command_packet(int sock, int c){
 void write_player_packet(int sock, creature* c){
 	if(sock == -1) return;
 
+	int i,tmp;
 	packet_header head;
 	creature_subpacket* p;
 
-	head.type=4;
-	head.length=sizeof(creature_subpacket);
 	p= make_crtr_subpacket(c);
+	p->item_num=inv_count(c->inv);
 
+	for(i=0;i< MAX_SLOTS; i++)
+		if(c->slots[i])
+			p->slots[i]=c->slots[i]->i;
+		else
+			p->slots[i]=-1;
+
+	head.type=4;
+	head.length=sizeof(creature_subpacket)+p->item_num*sizeof(item_subpacket);
+
+
+	tmp=0;
 	full_write(sock,&head,sizeof(head));
-	full_write(sock,p,head.length);
+	tmp+=full_write(sock,p,sizeof(creature_subpacket));
 
+	item_subpacket* item_sub;
+	for (i = 0; i < c->inv->size; i++) {
+		if (c->inv->itms[i] != NULL){
+			item_sub=make_item_subpacket(c->inv->itms[i]);
+			tmp+=full_write(sock,item_sub,sizeof(item_subpacket));
+			free(item_sub);
+		}
+	}
 	free(p);
 
 }
@@ -110,6 +135,17 @@ item_subpacket* make_item_subpacket(item* c){
 	return ret;
 }
 
+void subpack2item(item* it, item_subpacket* item_sub){
+
+	it->restore_health=item_sub->restore_health;
+	it->restore_stamina=item_sub->restore_stamina;
+	it->modify_attack=item_sub->modify_attack;
+	it->modify_ac=item_sub->modify_ac;
+	it->slot=item_sub->slot;
+	it->gen_id=item_sub->gen_id;
+	it->gen_mat_id=item_sub->gen_mat_id;
+}
+
 creature_subpacket* make_crtr_subpacket(creature* c){
 	creature_subpacket* ret;
 	ret = malloc(sizeof(creature_subpacket));
@@ -118,6 +154,7 @@ creature_subpacket* make_crtr_subpacket(creature* c){
 	ret->xp=c->xp;
 	ret->x=c->x;
 	ret->y=c->y;
+	ret->ai=c->ai;
 	ret->need_xp=c->need_xp;
 	ret->health=c->health;
 	ret->stamina=c->stamina;
@@ -140,6 +177,7 @@ void subpack2crtr(creature* cr, creature_subpacket* crtr_sub){
 	cr->x=crtr_sub->x;
 	cr->y=crtr_sub->y;
 	cr->xp=crtr_sub->xp;
+	cr->ai=crtr_sub->ai;
 	cr->need_xp=crtr_sub->need_xp;
 	cr->health=crtr_sub->health;
 	cr->stamina=crtr_sub->stamina;
@@ -169,18 +207,18 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	crtr_spawn(&(s->player), z);
 	zone_update(z, s->player.x, s->player.y);
 	
-	//wrlog("spawn recived!");
 
 	for(x=0;x<z->width;x++)
 	for(y=0;y<z->height;y++)
+		if(! (x == s->player.x && y == s->player.y) )
 		write_tile_packet2(s->sock,&(z->tiles[x][y]),x,y);
 	
 
 }
 
 void handle_command(socket_node* s, void* pack, int len){
-	//execute(c,((command_packet*)pack)->c);
 	int act = ((command_packet*)pack)->c;
+	int i = ((command_packet*)pack)->i;
 
 	if(!s->player.act){
 		if(act == CTRL_LEFT)	crtr_act_aa_move(&(s->player), -1, 0);
@@ -191,23 +229,54 @@ void handle_command(socket_node* s, void* pack, int len){
 		if(act == CTRL_DLEFT)	crtr_act_aa_move(&(s->player), -1, 1);
 		if(act == CTRL_URIGHT)	crtr_act_aa_move(&(s->player), 1, -1);
 		if(act == CTRL_DRIGHT)	crtr_act_aa_move(&(s->player), 1, 1);
+	
+		if(i != -1){
+			if(act == CTRL_DROP)	crtr_act_drop(&(s->player), i);
+			if(act == CTRL_CONSUME)	crtr_act_consume(&(s->player), i);
+			if(act == CTRL_PICKUP)	crtr_act_pickup(&(s->player), i);
+			if(act == CTRL_EQUIP)	crtr_act_equip(&(s->player), i);		
+		}
 	}
+	
 
 
 }
 
 void handle_player(socket_node* s, void* pack, int len){
-	
+
+	void* subpack=pack+sizeof(creature_subpacket);
 	creature_subpacket* p= pack;
+	item_subpacket* item_sub;
+	int i;
 
 	if(p->health < 1){
 	plyr_ev_death(NULL,"Network lag");
 	}
 	
+	
 
 	crtr_tele(&PLYR, p->x,p->y, world.zones.arr[0]);
-	subpack2crtr(&PLYR,pack);
+	subpack2crtr(&PLYR,p);
 	zone_update(world.zones.arr[0], p->x,p->y);
+
+
+	inv_clear(PLYR.inv);
+
+	for(i=0;i<p->item_num;i++){
+		item_sub = subpack;
+		item* it = gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
+	
+		subpack2item(it,item_sub);
+
+		inv_add(PLYR.inv,it);
+		subpack += sizeof(item_subpacket);
+	}
+
+	for(i=0;i< MAX_SLOTS; i++)
+		if(p->slots[i] != -1)
+			PLYR.slots[i]=PLYR.inv->itms[p->slots[i]];
+		else
+			PLYR.slots[i]=NULL;
 
 }
 
@@ -236,18 +305,12 @@ void handle_tile2(socket_node* s, void* pack, int len){
 		item_sub = subpack;
 		item* it = gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
 	
-		it->restore_health=item_sub->restore_health;
-		it->restore_stamina=item_sub->restore_stamina;
-		it->modify_attack=item_sub->modify_attack;
-		it->modify_ac=item_sub->modify_ac;
-		it->slot=item_sub->slot;
-		it->gen_id=item_sub->gen_id;
-		it->gen_mat_id=item_sub->gen_mat_id;
+		subpack2item(it,item_sub);
 
 		inv_add(z->tiles[t->x][t->y].inv,it);
 		subpack += sizeof(item_subpacket);
 	}
-	//wrlog("%i %p %p",t->crtr, pack+len, subpack);
+
 	if(t->crtr){
 		crtr_sub=subpack;
 
@@ -256,11 +319,14 @@ void handle_tile2(socket_node* s, void* pack, int len){
 		subpack2crtr(cr,crtr_sub);
 		cr->x=t->x;
 		cr->y=t->y;
+		//creature is annother player!
+		if(cr->ai == 0)
+			cr->ch = ('@' | COLOR_PAIR(COLOR_OTHER));
 
 		crtr_tele(cr, t->x, t->y, z);
 		
 	}
-	//wrlog("s");
+
 
 	//if(t->impassible){
 		z->tiles[t->x][t->y].ch=t->ch;
@@ -269,7 +335,7 @@ void handle_tile2(socket_node* s, void* pack, int len){
 		zone_update(z, t->x, t->y);
 
 }
-
+//TODO remove the null from this list, and the 2's from tile functions
 void (*packet_handlers[])(socket_node* s, void* pack, int len) = {
 	handle_spawn,
 	handle_command,

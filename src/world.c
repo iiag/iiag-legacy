@@ -35,7 +35,7 @@ void assure_world(void)
 		world.tm.hour  = 9;
 		world.tm.min   = 0;
 
-		crtr_init(&world.plyr, '@' | A_BOLD);
+		crtr_init(&world.plyr, '@' | A_BOLD | COLOR_PAIR(COLOR_SELF));
 		vector_init(&world.zones);
 
 		world.gcrtrs = new_gclass(NULL);

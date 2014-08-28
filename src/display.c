@@ -28,6 +28,20 @@ WINDOW * statscr;
 void init_disp(void)
 {
 	initscr();
+	if(has_colors()){
+		start_color();
+		if(can_change_color()){
+			//for the blackest of the blacks
+			init_color(COLOR_BLACK, 0, 0, 0);
+		}
+
+		init_pair(COLOR_SELF, COLOR_GREEN, COLOR_BLACK);
+		init_pair(COLOR_OTHER, COLOR_BLUE, COLOR_BLACK);
+		init_pair(COLOR_WALL, COLOR_WHITE, COLOR_BLACK);
+		//init_pair(COLOR_FLOOR, COLOR_GREY, COLOR_BLACK);
+		init_pair(COLOR_ENEMY, COLOR_RED, COLOR_BLACK);
+		init_pair(COLOR_ITEM, COLOR_YELLOW, COLOR_BLACK);
+	}
 	cbreak();
 	noecho();
 	getmaxyx(stdscr, max_height, max_width);

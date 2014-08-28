@@ -22,8 +22,10 @@ struct spawn_packet{
 	char data[32];
 };
 
+extern int net_inv_prompt_data;
 struct command_packet{
 	int c;
+	int i;
 };
 
 struct item_subpacket{
@@ -47,11 +49,13 @@ struct creature_subpacket{
 	//id for serialization
 	int gen_id;
 	int x,y;
+	int ai;
 
 	// item fields
-	//no item serialization for now
+	int item_num;
 	//inventory * inv;
 	//item * slots[MAX_SLOTS];
+	int slots[MAX_SLOTS];
 
 	// level/xp
 	int level;
@@ -82,13 +86,11 @@ item_subpacket* make_item_subpacket(item* c);
 
 void write_spawn_packet(int sock);
 void write_command_packet(int sock, int c);
-//void write_tile_packet(int sock, tile* t, int x, int y);
 void write_tile_packet2(int sock, tile* t, int x, int y);
 void write_player_packet(int sock, creature* c);
 
 void handle_spawn(socket_node* s,void* pack, int len);
 void handle_command(socket_node* s,void* pack, int len);
-//void handle_tile(socket_node* s,void* pack, int len);
 void handle_tile2(socket_node* s,void* pack, int len);
 void handle_player(socket_node* s,void* pack, int len);
 

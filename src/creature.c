@@ -502,6 +502,10 @@ void crtr_try_aa_move(creature * c, int dx, int dy)
 	tile * t;
 	creature * d;
 
+	//movement in muliplayer is impossible!
+	if(config.multiplayer)
+		return;
+
 	assert(dx || dy);
 
 	if (!crtr_move(c, dx, dy)) {
