@@ -8,8 +8,7 @@
 #include <string.h>
 #include "names.h"
 
-static void load_syl(vector_t * v, const char * dir, const char * file)
-{
+static void load_syl(vector_t * v, const char * dir, const char * file) {
 	FILE * f;
 	char str[11];
 	char * cpy;
@@ -39,8 +38,7 @@ static void load_syl(vector_t * v, const char * dir, const char * file)
 	}
 }
 
-ethnicity * load_ethnicity(const char * dir)
-{
+ethnicity * load_ethnicity(const char * dir) {
 	ethnicity * eth = malloc(sizeof(ethnicity));
 
 	eth->gen_max = 3;
@@ -53,8 +51,7 @@ ethnicity * load_ethnicity(const char * dir)
 	return eth;
 }
 
-static void append(char ** str, const vector_t * syl)
-{
+static void append(char ** str, const vector_t * syl) {
 	char * app;
 
 	app = syl->arr[random() % syl->cnt];
@@ -62,8 +59,7 @@ static void append(char ** str, const vector_t * syl)
 	strcat(*str, app);
 }
 
-static char * gen_name(const ethnicity * e, int type)
-{
+static char * gen_name(const ethnicity * e, int type) {
 	int i, max;
 	char * name = malloc(1);
 
@@ -86,12 +82,10 @@ static char * gen_name(const ethnicity * e, int type)
 	return name;
 }
 
-char * place_name(const ethnicity * e)
-{
+char * place_name(const ethnicity * e) {
 	return gen_name(e, NAME_PLACE);
 }
 
-char * person_name(const ethnicity * e)
-{
+char * person_name(const ethnicity * e) {
 	return gen_name(e, NAME_PERSON);
 }

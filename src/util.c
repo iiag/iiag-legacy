@@ -9,14 +9,14 @@
 #include "log.h"
 #include "util.h"
 
-void * choose_random(vector_t * v, int offset, int max)
-{
+void * choose_random(vector_t * v, int offset, int max) {
 	int i, x;
 	int r = random() % max;
 
 	for (i = 0; i < v->cnt; i++) {
 		x = *(int *)((char *)(v->arr[i]) + offset);
-		if (r < x) break;
+		if (r < x)
+			break;
 		r -= x;
 	}
 
@@ -24,14 +24,14 @@ void * choose_random(vector_t * v, int offset, int max)
 	return v->arr[i];
 }
 
-char * read_file(const char * fn)
-{
+char * read_file(const char * fn) {
 	FILE * f;
 	char * buf;
 	size_t size;
 
 	f = fopen(fn, "r");
-	if (f == NULL) return NULL;
+	if (f == NULL)
+		return NULL;
 
 	fseek(f, 0, SEEK_END);
 	size = ftell(f);
@@ -46,11 +46,12 @@ char * read_file(const char * fn)
 	return buf;
 }
 
-char * copy_str(const char * old)//copy string
+char * copy_str(const char * old) //copy string
 {
 	char * str;
 
-	if (old == NULL) return NULL;
+	if (old == NULL)
+		return NULL;
 
 	str = malloc(strlen(old) + 1);
 	strcpy(str, old);

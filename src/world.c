@@ -58,8 +58,7 @@ void assure_world(void)
 // Performs the first initialization of the world
 // Will call assure_world if it has yet to be called
 //
-void init_world(void)
-{
+void init_world(void) {
 	zone * z;
 
 	assure_world();
@@ -80,8 +79,7 @@ void init_world(void)
 //
 // Right now, only steps the player's zone and updates the time
 //
-void step_world(void)
-{
+void step_world(void) {
 	int i;
 	long step, step_diff;
 	action * a;
@@ -173,43 +171,40 @@ void step_world(void)
 // Fills the string to with the time
 // 30 characters should be enough right now
 //
-void get_time(char * to, int max)
-{
+void get_time(char * to, int max) {
 	snprintf(to, max, "%02d:%02d:%02d.%02d %d/%d/%d Era %d",
-		world.tm.hour, world.tm.min, world.tm.steps/100, world.tm.steps%100,
-		world.tm.month, world.tm.mday, world.tm.year,
-		world.tm.era);
+	         world.tm.hour, world.tm.min, world.tm.steps / 100, world.tm.steps % 100,
+	         world.tm.month, world.tm.mday, world.tm.year,
+	         world.tm.era);
 }
 
 //
 // All the following functions have to do with the action heap
 //
-static void swap(action_node * a, action_node * b)
-{
+static void swap(action_node * a, action_node * b) {
 	action_node tmp = *a;
 	*a = *b;
 	*b = tmp;
 }
 
-static int compare(action_node * a, action_node * b)
-{
+static int compare(action_node * a, action_node * b) {
 	// returns 1 if a should be higher in the heap, 0 for b
 	// prioritize the player cause he's special
 
 	assert(a->act != NULL);
 	assert(b->act != NULL);
-	if (a->act->c == &PLYR) return a->step <= b->step;
+	if (a->act->c == &PLYR)
+		return a->step <= b->step;
 	return a->step < b->step;
 }
 
-static void heapify_up(int i)
-{
+static void heapify_up(int i) {
 	action_node * n;
 	action_node * p;
 
 	if (i) {
 		n = world.acts + i;
-		p = world.acts + (i-1)/2; // get the parent
+		p = world.acts + (i - 1) / 2; // get the parent
 
 		if (compare(n, p)) {
 			swap(n, p);
@@ -218,8 +213,7 @@ static void heapify_up(int i)
 	}
 }
 
-static void heapify_down(int i)
-{
+static void heapify_down(int i) {
 	int has_l, has_r;
 	action_node * n;
 	action_node * l;
@@ -227,8 +221,8 @@ static void heapify_down(int i)
 
 	if (i < world.acts_cnt) {
 		n = world.acts + i;
-		l = world.acts + (i+1)*2-1; // get the left child
-		r = world.acts + (i+1)*2  ; // get the right child
+		l = world.acts + (i + 1) * 2 - 1; // get the left child
+		r = world.acts + (i + 1) * 2;     // get the right child
 
 		has_l = l - world.acts < world.acts_cnt;
 		has_r = r - world.acts < world.acts_cnt;
@@ -236,16 +230,14 @@ static void heapify_down(int i)
 		if (has_l && (!has_r || compare(l, r)) && compare(l, n)) {
 			swap(n, l);
 			heapify_down(l - world.acts);
-		}
-		else if (has_r && compare(r, n)) {
+		} else if (has_r && compare(r, n)) {
 			swap(n, r);
 			heapify_down(r - world.acts);
 		}
 	}
 }
 
-void schedule(action * act, long step)
-{
+void schedule(action * act, long step) {
 	action_node * a;
 
 	if (world.acts_cnt == world.acts_alloc) {
@@ -255,13 +247,12 @@ void schedule(action * act, long step)
 
 	a = world.acts + world.acts_cnt;
 	a->step = step + world.step;
-	a->act  = act;
+	a->act = act;
 
 	heapify_up(world.acts_cnt++);
 }
 
-action * pop_action(void)
-{
+action * pop_action(void) {
 	action * a;
 
 	if (world.acts_cnt) {

@@ -24,17 +24,15 @@
 //
 // For a given creature, calculates the required XP to level up
 //
-static int req_xp(creature * c)
-{
-	return (int) (ceil(exp(c->level)) * LEVELING_CONSTANT);
+static int req_xp(creature * c) {
+	return (int)(ceil(exp(c->level)) * LEVELING_CONSTANT);
 }
 
 //
 // Initializes the creature, all values are set
 // Calls form_assign for f
 //
-void crtr_init(creature * c, chtype ch)
-{
+void crtr_init(creature * c, chtype ch) {
 	int i;
 
 	c->ch = ch;
@@ -68,7 +66,8 @@ void crtr_init(creature * c, chtype ch)
 	c->speed   = SEC(1.4);
 
 	c->inv = inv_new(25000);
-	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
+	for (i = 0; i < MAX_SLOTS; i++)
+		c->slots[i] = NULL;
 
 	trigger_init(c->on_spawn);
 	trigger_init(c->on_death);
@@ -80,8 +79,7 @@ void crtr_init(creature * c, chtype ch)
 //
 // Basically allocates and wraps to crtr_init
 //
-creature * crtr_new(chtype ch)
-{
+creature * crtr_new(chtype ch) {
 	creature * c = malloc(sizeof(creature));
 	crtr_init(c, ch);
 	return c;
@@ -130,8 +128,7 @@ creature * crtr_copy(const creature * p)
 //
 // Increments the reference count and returns the creature
 //
-creature * crtr_clone(creature * x)
-{
+creature * crtr_clone(creature * x) {
 	if (x->refs != NOFREE) {
 		x->refs++;
 	}
@@ -144,8 +141,7 @@ creature * crtr_clone(creature * x)
 //
 // TODO fix what happens on timeout
 //
-void crtr_spawn(creature * c, zone * z)
-{
+void crtr_spawn(creature * c, zone * z) {
 	int timeout = SPAWN_TIMEOUT;
 	int x, y;
 
@@ -162,8 +158,7 @@ void crtr_spawn(creature * c, zone * z)
 // Frees the creature if c->nofree not set
 // Will try to remove self from zone
 //
-void crtr_free(creature * c)
-{
+void crtr_free(creature * c) {
 	if (c->refs != NOFREE && !--c->refs) {
 		assert(c->deceased);
 
@@ -178,8 +173,7 @@ void crtr_free(creature * c)
 //
 // Wraps to crtr_free and pulls the on_death trigger
 //
-void crtr_death(creature * c, char * meth)
-{
+void crtr_death(creature * c, char * meth) {
 	assert(c->z != NULL);
 
 	c->deceased = 1;
@@ -196,8 +190,7 @@ void crtr_death(creature * c, char * meth)
 //   impassible
 //   nonexistant
 //
-int crtr_tele(creature * crtr, int x, int y, zone * z)
-{
+int crtr_tele(creature * crtr, int x, int y, zone * z) {
 	if (crtr_can_tele(crtr, x, y, z)) {
 		z->tiles[x][y].crtr = crtr;
 
@@ -243,8 +236,7 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 //
 // Checks if a creature can move/teleport into a space
 //
-int crtr_can_tele(creature * crtr, int x, int y, zone * z)
-{
+int crtr_can_tele(creature * crtr, int x, int y, zone * z) {
 	tile * t = zone_at(z, x, y);
 	return t != NULL && t->crtr == NULL && !t->impassible;
 }
@@ -252,8 +244,7 @@ int crtr_can_tele(creature * crtr, int x, int y, zone * z)
 //
 // Simply wraps to crtr_tele, but relative
 //
-int crtr_move(creature * crtr, int dx, int dy)
-{
+int crtr_move(creature * crtr, int dx, int dy) {
 	int nx = crtr->x + dx;
 	int ny = crtr->y + dy;
 
@@ -263,8 +254,7 @@ int crtr_move(creature * crtr, int dx, int dy)
 //
 // Gives a creature expirence points an
 //
-void crtr_xp_up(creature * c, int xp)
-{
+void crtr_xp_up(creature * c, int xp) {
 	c->xp += xp;
 	if (c->xp > c->need_xp) {
 		// level up!
@@ -291,8 +281,7 @@ void crtr_unequip(creature * c, slot sl)
 //
 // Equips an item, unequips whatever was there first
 //
-int crtr_equip(creature * c, item * it, slot sl)
-{
+int crtr_equip(creature * c, item * it, slot sl) {
 	if (it->type & ITEM_EQUIPABLE) {
 		crtr_unequip(c, sl);
 
@@ -306,25 +295,25 @@ int crtr_equip(creature * c, item * it, slot sl)
 	return 0;
 }
 
-
 //
 // The attacker attacks the defender (attack vs ac)
 // Does not free any resources when the defender is killed
 //
-int crtr_attack(creature * attacker, creature * defender)
-{
+int crtr_attack(creature * attacker, creature * defender) {
 	int damage, xp;
 
 	damage = random() % (attacker->attack + 1);
 	damage -= random() % (defender->ac + 1);
-	if (damage < 0) damage = 0;
+	if (damage < 0)
+		damage = 0;
 
 	defender->health -= damage;
 
 	if (defender->health <= 0) {
 		// death comes to us all
 		xp = (defender->level + XP_LEVEL_DIFF) - attacker->level;
-		if (xp < 0) xp = 0;
+		if (xp < 0)
+			xp = 0;
 
 		crtr_xp_up(attacker, xp);
 		crtr_death(crtr_clone(defender), "violence");
@@ -360,8 +349,7 @@ int crtr_disposition(const creature * a, const creature * b)
 // Attacks creatures based on closeness and disposition, perfering to attack
 //   creatures close and of a negative disposition.
 //
-static void beast_ai(creature * c)
-{
+static void beast_ai(creature * c) {
 	int x, y, s;
 	int dx, dy;
 	int tx = 0;
@@ -385,7 +373,7 @@ static void beast_ai(creature * c)
 					s = -crtr_disposition(c, c->z->tiles[x][y].crtr) + 1;
 					dx = x - c->x;
 					dy = y - c->y;
-					s *= c->sight - (int)(sqrt(dx*dx + dy*dy) + 0.5) + 1;
+					s *= c->sight - (int)(sqrt(dx * dx + dy * dy) + 0.5) + 1;
 
 					if (s > score) {
 						score = s;
@@ -422,8 +410,7 @@ static void beast_ai(creature * c)
 //
 // This is called once per game step
 //
-void crtr_step(creature * c, long steps)
-{
+void crtr_step(creature * c, long steps) {
 	assert(!c->deceased);
 	assert(c->health > 0);
 	assert(c->stamina > 0);
@@ -444,8 +431,7 @@ void crtr_step(creature * c, long steps)
 //
 // If equipped, unequip item, then remove from inventory
 //
-item * crtr_rm_item(creature * c, int i)
-{
+item * crtr_rm_item(creature * c, int i) {
 	item * it = c->inv->itms[i];
 
 	if (item_equipped(it, c)) {
@@ -459,10 +445,10 @@ item * crtr_rm_item(creature * c, int i)
 //
 // Tests if a creature can dodge an item
 //
-int crtr_dodges(creature * c, int difficulty)
-{
+int crtr_dodges(creature * c, int difficulty) {
 	int roll;
-	if (difficulty < 0) difficulty = 0;
+	if (difficulty < 0)
+		difficulty = 0;
 	roll = random() % c->reflex;
 	return difficulty < roll || roll == c->reflex;
 }
@@ -470,8 +456,7 @@ int crtr_dodges(creature * c, int difficulty)
 //
 // The following functions are typically called when actions are completed
 //
-void crtr_try_move(creature * c, int dx, int dy)
-{
+void crtr_try_move(creature * c, int dx, int dy) {
 	if (crtr_move(c, dx, dy)) {
 		trigger_pull(&c->on_act_comp, c, NULL);
 	} else {
@@ -479,8 +464,7 @@ void crtr_try_move(creature * c, int dx, int dy)
 	}
 }
 
-void crtr_try_aa_move(creature * c, int dx, int dy)
-{
+void crtr_try_aa_move(creature * c, int dx, int dy) {
 	int dam;
 	tile * t;
 	creature * d;
@@ -520,8 +504,7 @@ void crtr_try_aa_move(creature * c, int dx, int dy)
 	trigger_pull(&c->on_act_comp, c, NULL);
 }
 
-void crtr_try_pickup(creature * c, int i)
-{
+void crtr_try_pickup(creature * c, int i) {
 	int j;
 	tile * t = tileof(c);
 
@@ -539,8 +522,7 @@ void crtr_try_pickup(creature * c, int i)
 	}
 }
 
-void crtr_try_drop(creature * c, int i)
-{
+void crtr_try_drop(creature * c, int i) {
 	int j;
 	tile * t = tileof(c);
 
@@ -558,8 +540,7 @@ void crtr_try_drop(creature * c, int i)
 	}
 }
 
-void crtr_try_consume(creature * c, int i)
-{
+void crtr_try_consume(creature * c, int i) {
 	item * it;
 
 	if (c->inv->size > i && c->inv->itms[i] != NULL) {
@@ -582,8 +563,7 @@ void crtr_try_consume(creature * c, int i)
 	}
 }
 
-void crtr_try_equip(creature * c, int i)
-{
+void crtr_try_equip(creature * c, int i) {
 	item * it;
 
 	if (c->inv->size > i && c->inv->itms[i] != NULL) {
@@ -600,8 +580,7 @@ void crtr_try_equip(creature * c, int i)
 	}
 }
 
-void crtr_try_throw(creature * c, int i, int dx, int dy)
-{
+void crtr_try_throw(creature * c, int i, int dx, int dy) {
 	assert(c->inv->size > i);
 	assert(c->inv->itms[i] != NULL);
 
@@ -619,68 +598,60 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 //
 // The following function schedule creature actions
 //
-#define ACT_TMPLT(T) \
-	assert(c->act == NULL); \
+#define ACT_TMPLT(T)                         \
+	assert(c->act == NULL);              \
 	action * a = malloc(sizeof(action)); \
-	c->act = a; \
-	a->c = crtr_clone(c); \
+	c->act = a;                          \
+	a->c = crtr_clone(c);                \
 	a->type = T
 
-void crtr_act_move(creature * c, int x, int y)
-{
+void crtr_act_move(creature * c, int x, int y) {
 	ACT_TMPLT(ACT_MOVE);
 	a->p.dir.x = x;
 	a->p.dir.y = y;
 	schedule(a, c->speed);
 }
 
-void crtr_act_aa_move(creature * c, int x, int y)
-{
+void crtr_act_aa_move(creature * c, int x, int y) {
 	ACT_TMPLT(ACT_AA_MOVE);
 	a->p.dir.x = x;
 	a->p.dir.y = y;
 	schedule(a, c->speed);
 }
 
-void crtr_act_pickup(creature * c, int i)
-{
+void crtr_act_pickup(creature * c, int i) {
 	ACT_TMPLT(ACT_PICKUP);
 	a->p.ind = i;
 	schedule(a, c->speed);
 }
 
-void crtr_act_drop(creature * c, int i)
-{
+void crtr_act_drop(creature * c, int i) {
 	ACT_TMPLT(ACT_DROP);
 	a->p.ind = i;
 	schedule(a, c->speed);
 }
 
-void crtr_act_consume(creature * c, int i)
-{
+void crtr_act_consume(creature * c, int i) {
 	ACT_TMPLT(ACT_CONSUME);
 	a->p.ind = i;
 	schedule(a, c->speed);
 }
 
-void crtr_act_equip(creature * c, int i)
-{
+void crtr_act_equip(creature * c, int i) {
 	ACT_TMPLT(ACT_EQUIP);
 	a->p.ind = i;
 	schedule(a, c->speed);
 }
 
-void crtr_act_throw(creature * c, int i, int x, int y)
-{
+void crtr_act_throw(creature * c, int i, int x, int y) {
 	ACT_TMPLT(ACT_THROW);
 	a->p.throw.ind = i;
-	a->p.throw.x   = x;
-	a->p.throw.y   = y;
+	a->p.throw.x = x;
+	a->p.throw.y = y;
 	schedule(a, c->speed);
 }
 
-void crtr_act_idle(creature * c)
-{
+void crtr_act_idle(creature * c) {
 	ACT_TMPLT(ACT_IDLE);
 	schedule(a, c->speed);
 }

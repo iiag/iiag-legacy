@@ -10,8 +10,7 @@
 //
 // Tries to call lua block then C function
 //
-void trigger_pull(const trigger * tr, void * ud1, void * ud2)
-{
+void trigger_pull(const trigger * tr, void * ud1, void * ud2) {
 	// call lua block
 	if (tr->lua_block) {
 		lua_checkstack(prim_lstate, 4);

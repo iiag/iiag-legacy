@@ -8,8 +8,7 @@
 #include "world.h"
 #include "generator.h"
 
-gclass_t * new_gclass(gclass_t * par)
-{
+gclass_t * new_gclass(gclass_t * par) {
 	gclass_t * cl = malloc(sizeof(gclass_t));
 
 	cl->name = NULL;
@@ -23,8 +22,7 @@ gclass_t * new_gclass(gclass_t * par)
 	return cl;
 }
 
-gclass_t * get_gclass(const char * n, gclass_t * rt)
-{
+gclass_t * get_gclass(const char * n, gclass_t * rt) {
 	int i, len;
 	const char * s;
 	gclass_t * cl;
@@ -37,7 +35,7 @@ gclass_t * get_gclass(const char * n, gclass_t * rt)
 		for (i = 0; i < rt->sub.cnt; i++) {
 			cl = rt->sub.arr[i];
 			len = strlen(cl->name);
-			len = len > n-s ? len : n-s;
+			len = len > n - s ? len : n - s;
 
 			if (!strncmp(s, cl->name, len)) {
 				rt = cl;
@@ -51,8 +49,8 @@ gclass_t * get_gclass(const char * n, gclass_t * rt)
 			vector_append(&rt->sub, cl);
 
 			cl->name = malloc(n - s + 1);
-			memcpy(cl->name, s, n-s);
-			cl->name[n-s] = 0;
+			memcpy(cl->name, s, n - s);
+			cl->name[n - s] = 0;
 
 			rt = cl;
 		}
@@ -61,8 +59,7 @@ gclass_t * get_gclass(const char * n, gclass_t * rt)
 	return rt;
 }
 
-void add_gelm(gclass_t * cl, int freq, int lvl, void * stf)
-{
+void add_gelm(gclass_t * cl, int freq, int lvl, void * stf) {
 	gelm_t * e = malloc(sizeof(gelm_t));
 
 	e->lvl = lvl;
@@ -78,8 +75,7 @@ void add_gelm(gclass_t * cl, int freq, int lvl, void * stf)
 	}
 }
 
-static int cache(gclass_t * cl, int lvl)
-{
+static int cache(gclass_t * cl, int lvl) {
 	gelm_t * e;
 	int i, t = 0;
 
@@ -103,8 +99,7 @@ static int cache(gclass_t * cl, int lvl)
 	return cl->max_freq;
 }
 
-static void cache_tree(gclass_t * cl, int lvl)
-{
+static void cache_tree(gclass_t * cl, int lvl) {
 	if (lvl != cl->lvl_cached) {
 		cache(cl, lvl);
 
@@ -117,8 +112,7 @@ static void cache_tree(gclass_t * cl, int lvl)
 	}
 }
 
-static void * gensub(gclass_t * cl, int x)
-{
+static void * gensub(gclass_t * cl, int x) {
 	int i;
 	gelm_t * elm;
 	gclass_t * sub;
@@ -147,15 +141,13 @@ static void * gensub(gclass_t * cl, int x)
 	return NULL;
 }
 
-static void * gen(gclass_t * cl, int lvl)
-{
+static void * gen(gclass_t * cl, int lvl) {
 	cache_tree(cl, lvl);
 	assert(cl->max_freq);
 	return gensub(cl, random() % cl->max_freq);
 }
 
-item * gen_item(gclass_t * cl, int lvl)
-{
+item * gen_item(gclass_t * cl, int lvl) {
 	gclass_t * mat_cl;
 	item * it;
 
@@ -169,7 +161,6 @@ item * gen_item(gclass_t * cl, int lvl)
 	return it;
 }
 
-creature * gen_crtr(gclass_t * cl, int lvl)
-{
+creature * gen_crtr(gclass_t * cl, int lvl) {
 	return crtr_copy(gen(cl, lvl));
 }

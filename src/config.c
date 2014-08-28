@@ -97,8 +97,7 @@ static const struct field cfg_fields[] = {
 };
 
 ///// Configuration file parsing /////
-static int igspaces(FILE * f)
-{
+static int igspaces(FILE * f) {
 	int c;
 
 	do {
@@ -110,9 +109,8 @@ static int igspaces(FILE * f)
 	return c;
 }
 
-static char * get_string(FILE * f)
-{
-	// this is not very elegant
+static char * get_string(FILE * f) {
+// this is not very elegant
 
 #define MAX 512
 
@@ -134,7 +132,8 @@ static char * get_string(FILE * f)
 	}
 
 	str[i] = 0;
-	if (c != EOF) ungetc(c, f);
+	if (c != EOF)
+		ungetc(c, f);
 
 	// return malloced string
 	dest = malloc(strlen(str) + 1);
@@ -144,9 +143,9 @@ static char * get_string(FILE * f)
 #undef MAX
 }
 
-static int get_control(FILE * f)
-{
-	static const struct {
+static int get_control(FILE * f) {
+	static const struct
+	{
 		char * name;
 		int ctrl;
 	} special[] = {
@@ -178,8 +177,7 @@ done:
 	return ctrl;
 }
 
-static int get_boolean(FILE * f, const char * fn)
-{
+static int get_boolean(FILE * f, const char * fn) {
 	int b;
 	char * s = get_string(f);
 
@@ -192,24 +190,21 @@ static int get_boolean(FILE * f, const char * fn)
 	return b;
 }
 
-static int get_integer(FILE * f)
-{
+static int get_integer(FILE * f) {
 	char * s = get_string(f);
 	int v = atoi(s);
 	free(s);
 	return v;
 }
 
-static void expect(char c, FILE * f, const char * fn)
-{
+static void expect(char c, FILE * f, const char * fn) {
 	int g = fgetc(f);
 	if (c != g) {
 		wrlog("%s: Expected %c (%d), got %c (%d)", fn, c, c, g, g);
 	}
 }
 
-static void load_config(const char * file)
-{
+static void load_config(const char * file) {
 	int i;
 	FILE * f;
 	char * name;
@@ -263,36 +258,34 @@ static void load_config(const char * file)
 		free(name);
 	}
 
-	if (f != stdin) fclose(f);
+	if (f != stdin)
+		fclose(f);
 }
 
 ///// Command line argument parsing /////
-static void print_help()
-{
+static void print_help() {
 	fprintf(stderr,
-	"\noptions:\n"
-	"    -c [config file]\n"
-	"        Specify the configuration file to use (- for stdin).\n"
-	"    -f\n"
-	"        Turn on wall forgetting.\n"
-	"    -h\n"
-	"        Display this useful information.\n"
-	"    -i [lua init file]\n"
-	"        The initial lua script to run.\n"
-	"    -l\n"
-	"        Turn on all alone mode, for debugging purposes.\n"
-	"    -r\n"
-	"        Turn on all real time mode.\n"
-	"    -s\n"
-	"        Show everything.\n"
-	"\n"
-	);
+	        "\noptions:\n"
+	        "    -c [config file]\n"
+	        "        Specify the configuration file to use (- for stdin).\n"
+	        "    -f\n"
+	        "        Turn on wall forgetting.\n"
+	        "    -h\n"
+	        "        Display this useful information.\n"
+	        "    -i [lua init file]\n"
+	        "        The initial lua script to run.\n"
+	        "    -l\n"
+	        "        Turn on all alone mode, for debugging purposes.\n"
+	        "    -r\n"
+	        "        Turn on all real time mode.\n"
+	        "    -s\n"
+	        "        Show everything.\n"
+	        "\n");
 
 	exit(0);
 }
 
-void init_config(int argc, char ** argv)
-{
+void init_config(int argc, char ** argv) {
 	int i;
 
 	// handle arguments

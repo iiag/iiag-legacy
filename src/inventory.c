@@ -10,8 +10,7 @@
 //
 // Allocates a new inventory
 //
-inventory * inv_new(int max)
-{
+inventory * inv_new(int max) {
 	inventory * inv = malloc(sizeof(inventory));
 	inv->max_weight = max;
 	inv->size = 0;
@@ -23,8 +22,7 @@ inventory * inv_new(int max)
 //
 // Frees an inventory
 //
-void inv_free(inventory * inv)
-{
+void inv_free(inventory * inv) {
 	int i;
 
 	for (i = 0; i < inv->size; i++) {
@@ -41,8 +39,7 @@ void inv_free(inventory * inv)
 // Adds an item to an inventory
 // Fails if inv_try would fail
 //
-int inv_add(inventory * inv, item * it)
-{
+int inv_add(inventory * inv, item * it) {
 #define REALLOC_SIZE 8
 
 	int i;
@@ -62,8 +59,7 @@ int inv_add(inventory * inv, item * it)
 	// No free slots, must add slots
 	if (inv->size % REALLOC_SIZE == 0) {
 		inv->itms = realloc(inv->itms,
-				(inv->size + REALLOC_SIZE) * sizeof(item *)
-		);
+		                    (inv->size + REALLOC_SIZE) * sizeof(item *));
 	}
 	inv->itms[inv->size] = it;
 
@@ -78,9 +74,9 @@ int inv_add(inventory * inv, item * it)
 //
 // Fails if new weight exceeds max weight
 //
-int inv_try(inventory * inv, item * it)
-{
-	if (inv->max_weight == INFINITE) return 1;
+int inv_try(inventory * inv, item * it) {
+	if (inv->max_weight == INFINITE)
+		return 1;
 	return it->weight + inv->weight <= inv->max_weight;
 }
 
@@ -89,9 +85,9 @@ int inv_try(inventory * inv, item * it)
 //
 // Should we check for the index being outside the inventory
 //
-item * inv_rm(inventory * inv, int i)
-{
-	if (inv->itms[i] == NULL) return NULL;
+item * inv_rm(inventory * inv, int i) {
+	if (inv->itms[i] == NULL)
+		return NULL;
 
 	item * ret = inv->itms[i];
 	inv->weight -= inv->itms[i]->weight;

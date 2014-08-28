@@ -25,46 +25,38 @@
 extern command_t * command_list;
 extern int num_commands;
 
-
-static void update_status(void)
-{
+static void update_status(void) {
 	char time[100];
 
 	statline(0, " Hp: %d/%d | Stm: %.2f%% | Wt: %d.%d/%d.%d deben | Xp: %d/%d | Lvl: %d",
-		PLYR.health, PLYR.max_health,
-		100. * (double)PLYR.stamina / (double)PLYR.max_stamina,
-		PLYR.inv->weight / 100, PLYR.inv->weight % 100,
-		PLYR.inv->max_weight / 100, PLYR.inv->max_weight % 100,
-		PLYR.xp, PLYR.need_xp,
-		PLYR.level
-	);
+	         PLYR.health, PLYR.max_health,
+	         100. * (double)PLYR.stamina / (double)PLYR.max_stamina,
+	         PLYR.inv->weight / 100, PLYR.inv->weight % 100,
+	         PLYR.inv->max_weight / 100, PLYR.inv->max_weight % 100,
+	         PLYR.xp, PLYR.need_xp,
+	         PLYR.level);
 
 	statline(1, " Attack: %d | AC: %d | Location: %s",
-		PLYR.attack,
-		PLYR.ac,
-		PLYR.z->name
-	);
+	         PLYR.attack,
+	         PLYR.ac,
+	         PLYR.z->name);
 
 	get_time(time, 100);
 	statline(2, " %s", time);
 }
 
-static void step(void)
-{
+static void step(void) {
 	step_world();
 	update_status();
 }
 
-static void sig_handler(int rc)
-{
+static void sig_handler(int rc) {
 	end_disp();
 	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
 
-
-int main(int argc, char ** argv)
-{
+int main(int argc, char ** argv) {
 	int c;
 
 	init_config(argc, argv);

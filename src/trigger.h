@@ -5,7 +5,7 @@
 #ifndef TRIGGER_H
 #define TRIGGER_H
 
-typedef void (* trigger_cfunc)(void *, void *);
+typedef void (*trigger_cfunc)(void *, void *);
 
 typedef struct trigger {
 	int lua_block;
@@ -15,7 +15,7 @@ typedef struct trigger {
 //
 // Initializes a trigger to trigger nothing
 //
-#define trigger_init(T) \
+#define trigger_init(T)  \
 	T.lua_block = 0; \
 	T.c_func = NULL
 

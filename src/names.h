@@ -7,7 +7,7 @@
 
 #include "util.h"
 
-#define NAME_PLACE  0
+#define NAME_PLACE 0
 #define NAME_PERSON 1
 
 typedef struct {

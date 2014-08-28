@@ -8,8 +8,7 @@
 
 static faction * first = NULL;
 
-faction * fctn_get(const char * name)
-{
+faction * fctn_get(const char * name) {
 	faction * f;
 
 	for (f = first; f != NULL; f = f->next) {
@@ -26,8 +25,7 @@ faction * fctn_get(const char * name)
 	return f;
 }
 
-int fctn_relto(const faction * f, const faction * to)
-{
+int fctn_relto(const faction * f, const faction * to) {
 	relation * r;
 
 	if (f == NULL) return 0;
@@ -40,8 +38,7 @@ int fctn_relto(const faction * f, const faction * to)
 	return 0;
 }
 
-void fctn_modrel(faction * f, const faction * to, int by)
-{
+void fctn_modrel(faction * f, const faction * to, int by) {
 	relation * r;
 
 	for (r = f->rels; r != NULL; r = r->next) {

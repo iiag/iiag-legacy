@@ -15,8 +15,7 @@
 //
 // Allocates a new item
 //
-item * item_new(unsigned type, chtype ch)
-{
+item * item_new(unsigned type, chtype ch) {
 	item * it = malloc(sizeof(item));
 
 	it->type = type;
@@ -44,8 +43,7 @@ item * item_new(unsigned type, chtype ch)
 //
 // Copies an item, useful for prototype->instance items
 //
-item * item_copy(const item * pt)
-{
+item * item_copy(const item * pt) {
 	item * it = item_new(pt->type, pt->ch);
 
 	it->name            = copy_str(pt->name);
@@ -67,8 +65,7 @@ item * item_copy(const item * pt)
 //
 // Frees an item
 //
-void item_free(item * it)
-{
+void item_free(item * it) {
 	if (it->mat != NULL) {
 		if (!--it->mat->refs) {
 			free(it->mat->name);
@@ -85,8 +82,7 @@ void item_free(item * it)
 // Teleports an item
 // Fails if cannot add to the destination tile inventory
 //
-int item_tele(item * it, int x, int y, zone * z)
-{
+int item_tele(item * it, int x, int y, zone * z) {
 	int i = inv_add(z->tiles[x][y].inv, it);
 
 	if (i != INVALID) {
@@ -106,8 +102,7 @@ int item_tele(item * it, int x, int y, zone * z)
 //
 // Checks if the item is equipped to a creature
 //
-int item_equipped(item * it, creature * c)
-{
+int item_equipped(item * it, creature * c) {
 	return it->type & ITEM_EQUIPABLE && c->slots[it->slot] == it;
 }
 
@@ -118,8 +113,7 @@ int item_equipped(item * it, creature * c)
 // f is the force of the throw, effects duration and damage of the throw
 // Returns 1 on success and 0 on failure of placing the item
 //
-int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
-{
+int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force) {
 	creature * c;
 	int ret, dam;
 	int anim = (z == PLYR.z) && config.throw_anim_delay;
@@ -173,7 +167,6 @@ int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
 		x += dx;
 		y += dy;
 		timeout--;
-
 	}
 
 	x -= dx;
@@ -189,8 +182,7 @@ cleanup:
 //
 // Applies a material to an item
 //
-void item_apply_mat(item * it, material * mt)
-{
+void item_apply_mat(item * it, material * mt) {
 	char * name;
 
 	assert(it->mat == NULL);
