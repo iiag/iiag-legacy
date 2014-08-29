@@ -44,6 +44,7 @@ Fields
  show-all         | boolean | Specifies whether everything is shown to the player or not, like `s`.
  forget-walls     | boolean | Specifies whether wall-forgetting is enabled or not, like `-f`.
  all-alone        | boolean | Specifies whether all-alone mode is enabled, like `-l`.
+ god-mode         | boolean | Specifies whether the player may avoid damage during the game, like `-g`.
  throw-anim-delay | integer | The delay between 'frames' of the throwing animation. 0 indicates the lack of animation
  ctrl-up          | control | How the player moves up.
  ctrl-down        | control | How the player moves down.

@@ -75,6 +75,7 @@ static const struct field cfg_fields[] = {
 	{ BOOLEAN, "show-all",         &config.show_all         },
 	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
+	{ BOOLEAN, "god-mode",         &config.god_mode         },
 	{ BOOLEAN, "real-time",        &config.real_time        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
 
