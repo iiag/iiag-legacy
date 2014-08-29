@@ -15,11 +15,12 @@
 config_t config = {
 	NULL,              // cfg_file
 	"script/init.lua", // lua_init
-	0,  // forget_walls
-	0,  // show_all
-	0,  // all_alone
-	0,  // god_mode
-	0,  // real_time
+	0,                 // forget_walls
+	0,                 // show_all
+	0,                 // all_alone
+	0,                 // god_mode
+	0,                 // real_time
+	LOG_ALL,           // log_level
 	20, // throw_anim_delay
 
 	{
@@ -77,6 +78,7 @@ static const struct field cfg_fields[] = {
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
 	{ BOOLEAN, "god-mode",         &config.god_mode         },
 	{ BOOLEAN, "real-time",        &config.real_time        },
+	{ INTEGER, "log-level",        &config.log_level        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
 
 	// movement controls
@@ -327,6 +329,9 @@ void init_config(int argc, char ** argv)
 				break;
 			case 'r':
 				config.real_time = 1;
+				break;
+			case 'L':
+				config.log_level = (log_level_t) atoi(argv[++i]);
 				break;
 			default:
 				warning("Ignoring unknown flag '%s'", argv[i]);

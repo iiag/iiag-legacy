@@ -45,6 +45,7 @@ Fields
  forget-walls     | boolean | Specifies whether wall-forgetting is enabled or not, like `-f`.
  all-alone        | boolean | Specifies whether all-alone mode is enabled, like `-l`.
  god-mode         | boolean | Specifies whether the player may avoid damage during the game, like `-g`.
+ log-level        | integer | Specifies the verbosity of the log. Valid values are: 0=ALL (no filtering), 1=DEBUG, 2=INFO, 3=NOTICE, 4=WARNING, 5=ERROR. The setting is inclusive.
  throw-anim-delay | integer | The delay between 'frames' of the throwing animation. 0 indicates the lack of animation
  ctrl-up          | control | How the player moves up.
  ctrl-down        | control | How the player moves down.

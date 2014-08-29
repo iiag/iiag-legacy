@@ -8,6 +8,7 @@
 #include <string.h>
 #include "log.h"
 #include "introspection.h"
+#include "config.h"
 
 const char * log_file = "iiag.log";
 static clock_t sclock;
@@ -30,6 +31,8 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 	va_list vl;
 	char loc[64];
 	loc[63]=0;
+	
+	if(loglevel <= config.log_level) return;
 
 	if (logf == NULL) {
 		logf = fopen(log_file, "a");
