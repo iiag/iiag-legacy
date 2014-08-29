@@ -11,4 +11,7 @@ player {
 	max_health = 10;
 	attack = 3;
 	sight = 30;
+	on_spawn = function ()
+		memo("Hello from Lua!")
+	end
 }
