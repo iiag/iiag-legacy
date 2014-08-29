@@ -329,7 +329,7 @@ int crtr_attack(creature * attacker, creature * defender)
 	damage -= random() % (defender->ac + 1);
 	if (damage < 0) damage = 0;
 
-	if(!(config.god_mode && defender == &PLYR)) defender->health -= damage;
+	if(!(config.god_mode && plyr_is_crtr(defender))) defender->health -= damage;
 
 	if (defender->health <= 0) {
 		// death comes to us all
@@ -446,7 +446,7 @@ void crtr_step(creature * c, long steps)
 	}
 
 	// handle ai when can perform action
-	if (c->act == NULL && !plyr_is_me(c)) {
+	if (c->act == NULL && !plyr_is_crtr(c)) {
 		beast_ai(c);
 	}
 }
@@ -508,17 +508,17 @@ void crtr_try_aa_move(creature * c, int dx, int dy)
 			switch (dam = crtr_attack(c, d)) {
 			case DEAD:
 				// TODO memos should probably be in player.c
-				if (plyr_is_me(c)) memo("You slay the %s.", crtr_name(d));
+				if (plyr_is_crtr(c)) memo("You slay the %s.", crtr_name(d));
 
 				crtr_free(d);
 				break;
 			case 0:
-				if (plyr_is_me(c)) memo("You miss.");
-				if (plyr_is_me(d)) memo("You dodge the %s's attack.", crtr_name(c));
+				if (plyr_is_crtr(c)) memo("You miss.");
+				if (plyr_is_crtr(d)) memo("You dodge the %s's attack.", crtr_name(c));
 				break;
 			default:
-				if (plyr_is_me(c)) memo("You hit for %d damage.", dam);
-				if (plyr_is_me(d)) memo("You are hit by %s for %d damage.", crtr_name(c), dam);
+				if (plyr_is_crtr(c)) memo("You hit for %d damage.", dam);
+				if (plyr_is_crtr(d)) memo("You are hit by %s for %d damage.", crtr_name(c), dam);
 				break;
 			}
 		} else {
