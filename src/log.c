@@ -37,6 +37,7 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 	if (logf == NULL) {
 		logf = fopen(log_file, "a");
 		if (logf == NULL) return;
+		fprintf(logf, "===============================================================================\n");
 		wrlog(LOG_INFO, "Opened log file");
 	}
 	
