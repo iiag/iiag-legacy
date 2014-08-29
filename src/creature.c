@@ -11,6 +11,7 @@
 #include "player.h"
 #include "display.h"
 #include "creature.h"
+#include "config.h"
 
 // lower => levelup faster
 #define LEVELING_CONSTANT 4
@@ -319,7 +320,7 @@ int crtr_attack(creature * attacker, creature * defender)
 	damage -= random() % (defender->ac + 1);
 	if (damage < 0) damage = 0;
 
-	defender->health -= damage;
+	if(!(config.god_mode && defender == &PLYR)) defender->health -= damage;
 
 	if (defender->health <= 0) {
 		// death comes to us all

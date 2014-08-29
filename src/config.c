@@ -18,6 +18,7 @@ config_t config = {
 	0,  // forget_walls
 	0,  // show_all
 	0,  // all_alone
+	0,  // god_mode
 	0,  // real_time
 	20, // throw_anim_delay
 
@@ -319,6 +320,9 @@ void init_config(int argc, char ** argv)
 				break;
 			case 'l':
 				config.all_alone = 1;
+				break;
+			case 'g':
+				config.god_mode = 1;
 				break;
 			case 'r':
 				config.real_time = 1;
