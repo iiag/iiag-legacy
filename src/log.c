@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "log.h"
+#include "introspection.h"
 
 const char * log_file = "iiag.log";
 static clock_t sclock;
@@ -27,17 +28,21 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 	char * str;
 	time_t tm;
 	va_list vl;
+	char loc[64];
+	loc[63]=0;
 
 	if (logf == NULL) {
 		logf = fopen(log_file, "a");
 		if (logf == NULL) return;
 		wrlog(LOG_INFO, "Opened log file");
 	}
+	
+	describe_caller(loc, 63);
 
 	time(&tm);
 	str = ctime(&tm);
 	str[strlen(str) - 1] = 0;
-	fprintf(logf, "%s | %s ", str, level_names[loglevel]);
+	fprintf(logf, "%s | %-32s %-7s ", str, loc, level_names[loglevel]);
 
 	va_start(vl, fmt);
 	vfprintf(logf, fmt, vl);

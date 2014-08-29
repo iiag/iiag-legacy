@@ -21,6 +21,7 @@
 #include "inventory.h"
 #include "lua/lua.h"
 #include "commands.h"
+#include "introspection.h"
 
 extern command_t * command_list;
 extern int num_commands;
@@ -67,6 +68,7 @@ int main(int argc, char ** argv)
 {
 	int c;
 
+	init_introspection(argv[0]);
 	init_config(argc, argv);
 	init_lua();
 
