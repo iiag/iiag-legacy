@@ -64,6 +64,6 @@ void start_timer(void)
 void end_timer(const char * name)
 {
 	clock_t cnt = clock() - sclock;
-	double sec = (double)cnt / (double)CLOCKS_PER_SEC;
+	double sec = (double)cnt / CLOCKS_PER_SEC;
 	debug("Timer %s: %g seconds (%d clocks)", name, sec, cnt);
 }
