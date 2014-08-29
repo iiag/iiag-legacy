@@ -27,6 +27,8 @@ void assure_world(void)
 	static int first = 1;
 
 	if (first) {
+		info("Initializing world (assure_world)...");
+		
 		world.tm.era   = 3;
 		world.tm.year  = 329;
 		world.tm.month = 4;
@@ -36,6 +38,7 @@ void assure_world(void)
 		world.tm.min   = 0;
 
 		crtr_init(&world.plyr, '@' | A_BOLD);
+		world.plyr.specific_name="Player"; // XXX Is this a good idea?
 		vector_init(&world.zones);
 
 		world.gcrtrs = new_gclass(NULL);
@@ -66,6 +69,8 @@ void init_world(void)
 
 	z = zone_new(150, 50);
 	vector_append(&world.zones, z);
+	
+	debug("Initializing player triggers...");
 
 	world.plyr.on_death.c_func    = (trigger_cfunc)plyr_ev_death;
 	world.plyr.on_lvlup.c_func    = (trigger_cfunc)plyr_ev_lvlup;

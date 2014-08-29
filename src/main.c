@@ -102,9 +102,9 @@ int main(int argc, char ** argv)
 		if (config.real_time) usleep(500000);
 
 		while (PLYR.act != NULL) {
-			start_timer();
+			// start_timer();
 			step();
-			end_timer("step length");
+			// end_timer("step length");
 		}
 	}
 

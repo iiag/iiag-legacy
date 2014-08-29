@@ -7,6 +7,7 @@
 #include <string.h>
 #include "world.h"
 #include "generator.h"
+#include "log.h"
 
 gclass_t * new_gclass(gclass_t * par)
 {
@@ -165,6 +166,8 @@ item * gen_item(gclass_t * cl, int lvl)
 		mat_cl = get_gclass(it->mat_class, world.gmats);
 		item_apply_mat(it, gen(mat_cl, lvl));
 	}
+	
+	info("Generated a %s", it->name);
 
 	return it;
 }

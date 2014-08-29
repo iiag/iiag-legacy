@@ -41,7 +41,7 @@ Fields
  Field Name       | Type    | Description
 ------------------|---------|-------------
  lua-init         | string  | Specifies the initial lua file to run, like `-i`.
- show-all         | boolean | Specifies whether everything is shown to the player or not, like `s`.
+ show-all         | boolean | Specifies whether everything is shown to the player or not, like `-s`.
  forget-walls     | boolean | Specifies whether wall-forgetting is enabled or not, like `-f`.
  all-alone        | boolean | Specifies whether all-alone mode is enabled, like `-l`.
  god-mode         | boolean | Specifies whether the player may avoid damage during the game, like `-g`.

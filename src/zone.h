@@ -84,4 +84,9 @@ int zone_can_see(zone *, int, int, int, int, int);
 //
 #define tileof(O) (&(O)->z->tiles[(O)->x][(O)->y])
 
+//
+// Safely returns the name of a zone.
+//
+const char *zone_name(zone *);
+
 #endif

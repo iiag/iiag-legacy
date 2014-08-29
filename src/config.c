@@ -190,7 +190,7 @@ static int get_boolean(FILE * f, const char * fn)
 
 	b = !strcmp("true", s);
 	if (!b && strcmp("false", s)) {
-		wrlog("%s: expected 'true' or 'false' instead of '%s'", fn, s);
+		warning("%s: expected 'true' or 'false' instead of '%s'", fn, s);
 	}
 
 	free(s);
@@ -209,7 +209,7 @@ static void expect(char c, FILE * f, const char * fn)
 {
 	int g = fgetc(f);
 	if (c != g) {
-		wrlog("%s: Expected %c (%d), got %c (%d)", fn, c, c, g, g);
+		warning("%s: Expected %c (%d), got %c (%d)", fn, c, c, g, g);
 	}
 }
 
@@ -225,7 +225,7 @@ static void load_config(const char * file)
 	} else {
 		f = fopen(file, "r");
 		if (f == NULL) {
-			wrlog("Could not open config file '%s'", file);
+			warning("Could not open config file '%s'", file);
 			return;
 		}
 	}
@@ -245,7 +245,7 @@ static void load_config(const char * file)
 		expect('=', f, file);
 
 		if (fld == NULL) {
-			wrlog("%s: Unknown field '%s'", file, name);
+			warning("%s: Unknown field '%s'", file, name);
 			free(get_string(f));
 		} else {
 			switch (fld->type) {
@@ -329,10 +329,10 @@ void init_config(int argc, char ** argv)
 				config.real_time = 1;
 				break;
 			default:
-				wrlog("Ignoring unknown flag '%s'", argv[i]);
+				warning("Ignoring unknown flag '%s'", argv[i]);
 			}
 		} else {
-			wrlog("Command line argument '%s' ignored.", argv[i]);
+			warning("Command line argument '%s' ignored.", argv[i]);
 		}
 	}
 

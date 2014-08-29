@@ -342,3 +342,11 @@ int zone_can_see(zone * z, int x0, int y0, int x1, int y1, int dist)
 
 	return 1;
 }
+
+const char *zone_name(zone *z)
+{
+	if (z->name != NULL) {
+		return z->name;
+	}
+	return "(NULL ZONE";
+}

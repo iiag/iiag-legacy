@@ -149,6 +149,8 @@ void crtr_spawn(creature * c, zone * z)
 {
 	int timeout = SPAWN_TIMEOUT;
 	int x, y;
+	
+	info("Spawning %s", crtr_name(c));
 
 	do {
 		x = random() % z->width;
@@ -182,6 +184,8 @@ void crtr_free(creature * c)
 void crtr_death(creature * c, char * meth)
 {
 	assert(c->z != NULL);
+	
+	info("%s died from %s", crtr_name(c), meth);
 
 	c->deceased = 1;
 	trigger_pull(&c->on_death, c, meth);
@@ -237,6 +241,8 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 
 		return 1;
 	}
+	
+	info("%s failed to teleport to %s@%d,%d", crtr_name(crtr), zone_name(z), x, y);
 
 	return 0;
 }
@@ -266,6 +272,7 @@ int crtr_move(creature * crtr, int dx, int dy)
 //
 void crtr_xp_up(creature * c, int xp)
 {
+	info("%s received %d xp", crtr_name(c), xp);
 	c->xp += xp;
 	if (c->xp > c->need_xp) {
 		// level up!
@@ -315,6 +322,8 @@ int crtr_equip(creature * c, item * it, slot sl)
 int crtr_attack(creature * attacker, creature * defender)
 {
 	int damage, xp;
+	
+	info("%s attacks %s", crtr_name(attacker), crtr_name(defender));
 
 	damage = random() % (attacker->attack + 1);
 	damage -= random() % (defender->ac + 1);

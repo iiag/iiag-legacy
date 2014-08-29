@@ -16,11 +16,19 @@ static const char * stringify(lua_State * lstate)
 	return lua_tostring(lstate, 1);
 }
 
-int lcf_wrlog(lua_State * lstate)
-{
-	wrlog(stringify(lstate));
-	return 0;
+#define GEN_LOGLEVEL(LEVEL) int lcf_##LEVEL(lua_State * lstate)\
+{\
+	LEVEL(stringify(lstate));\
+	return 0;\
 }
+
+GEN_LOGLEVEL(debug)
+GEN_LOGLEVEL(info)
+GEN_LOGLEVEL(notice)
+GEN_LOGLEVEL(warning)
+GEN_LOGLEVEL(error)
+
+#undef GEN_LOGLEVEL
 
 int lcf_memo(lua_State * lstate)
 {
