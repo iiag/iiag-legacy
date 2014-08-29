@@ -13,10 +13,13 @@
 
 ///// Default Configuration /////
 config_t config = {
-	NULL,
-	"script/init.lua",
-	0, 0, 0, 0,
-	20,
+	NULL,              // cfg_file
+	"script/init.lua", // lua_init
+	0,  // forget_walls
+	0,  // show_all
+	0,  // all_alone
+	0,  // real_time
+	20, // throw_anim_delay
 
 	{
 		// movement controls
