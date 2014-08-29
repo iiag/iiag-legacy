@@ -2,7 +2,7 @@ chtype wall_chars[256];
 
 void fill_walls(void) {
 	int i = 0;
-	
+
 	wall_chars[i++] = ACS_BLOCK;
 	wall_chars[i++] = '?';
 	wall_chars[i++] = ACS_VLINE;

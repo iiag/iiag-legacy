@@ -24,7 +24,6 @@ void scroll_view_right(int, char **);
 void scroll_view_up(int, char **);
 void scroll_view_down(int, char **);
 
-
 extern WINDOW * memoscr;
 extern WINDOW * dispscr;
 extern WINDOW * statscr;

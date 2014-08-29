@@ -11,8 +11,7 @@
 const char * log_file = "iiag.log";
 static clock_t sclock;
 
-void wrlog(const char * fmt, ...)
-{
+void wrlog(const char * fmt, ...) {
 	static FILE * logf = NULL;
 
 	char * str;
@@ -38,13 +37,11 @@ void wrlog(const char * fmt, ...)
 	fflush(logf);
 }
 
-void start_timer(void)
-{
+void start_timer(void) {
 	sclock = clock();
 }
 
-void end_timer(const char * name)
-{
+void end_timer(const char * name) {
 	clock_t cnt = clock() - sclock;
 	double sec = (double)cnt / (double)CLOCKS_PER_SEC;
 	wrlog("Timer %s: %g seconds (%d clocks)", name, sec, cnt);

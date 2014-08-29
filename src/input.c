@@ -12,8 +12,7 @@
 //
 // Gets a keypress and translates it into a control value
 //
-int get_ctrl(void)
-{
+int get_ctrl(void) {
 	int i;
 	int c = ERR;
 	if (config.real_time) {
@@ -36,8 +35,7 @@ int get_ctrl(void)
 //
 // Prompts for valid directional input
 //
-int prompt_dir(const char * prompt, int * dx, int * dy)
-{
+int prompt_dir(const char * prompt, int * dx, int * dy) {
 	*dx = *dy = 0;
 
 	wmove(dispscr, 0, 0);
@@ -63,8 +61,7 @@ int prompt_dir(const char * prompt, int * dx, int * dy)
 // Displays the inventory with the prompt to the dispscr
 // Waits for a keypress for a item selection
 //
-int prompt_inv(const char * prompt, inventory * inv, creature * c)
-{
+int prompt_inv(const char * prompt, inventory * inv, creature * c) {
 	int i;
 
 	wmove(dispscr, 0, 0);
@@ -73,9 +70,8 @@ int prompt_inv(const char * prompt, inventory * inv, creature * c)
 	for (i = 0; i < inv->size; i++) {
 		if (inv->itms[i] != NULL) {
 			wprintw(dispscr, " %c) %s",
-				ind2ch(i),
-				inv->itms[i]->name
-			);
+			        ind2ch(i),
+			        inv->itms[i]->name);
 
 			if (c != NULL && item_equipped(inv->itms[i], c)) {
 				wprintw(dispscr, " (equipped)");
@@ -89,17 +85,16 @@ int prompt_inv(const char * prompt, inventory * inv, creature * c)
 	return ch2ind(wgetch(dispscr));
 }
 
-char * prompt_command(void)
-{
-	int c,i = 0;
-	char * string = calloc(1,MAX_CMD_ENTRY);
+char * prompt_command(void) {
+	int c, i = 0;
+	char * string = calloc(1, MAX_CMD_ENTRY);
 
 	wmove(memoscr, 0, 0);
 	waddch(memoscr, ':');
 
 	while ('\n' != c) {
 		string[i] = c = wgetch(memoscr);
-		
+
 		if ((c == 127)) { // Backspace
 			if (i == 0) { wmove(memoscr, 0, 1); continue; }
 

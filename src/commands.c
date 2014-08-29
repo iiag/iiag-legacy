@@ -11,8 +11,7 @@ command_t * command_list;
 int num_commands;
 
 // NOTE: cmdstr should be a NULL-terminated string
-static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *arraysz)
-{
+static void insert(int keyval, char * cmdstr, void (*command)(int, char **), int * arraysz) {
 	int cmdstrlen;
 
 	command_list[num_commands].command = command;
@@ -20,13 +19,12 @@ static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *a
 
 	cmdstrlen = strlen(cmdstr) + 1; // to include NULL
 
-	command_list[num_commands].cmdstr = malloc(sizeof(char)*cmdstrlen);
+	command_list[num_commands].cmdstr = malloc(sizeof(char) * cmdstrlen);
 	strncpy(command_list[num_commands].cmdstr, cmdstr, cmdstrlen);
 	num_commands++;
 }
 
-static void run_command(char * cmd, int argc, char ** argv)
-{
+static void run_command(char * cmd, int argc, char ** argv) {
 	int i;
 
 	for (i = 0; i < num_commands; i++) {
@@ -36,15 +34,12 @@ static void run_command(char * cmd, int argc, char ** argv)
 		}
 	}
 	memo("Command '%s' unrecognized!", cmd);
-
 }
 
-void init_commands(void)
-{
+void init_commands(void) {
 	int arraysz = 25; // Set this to at least the number of commands
 	command_list = malloc(sizeof(command_t) * arraysz);
 	num_commands = 0;
-
 
 	// OPTIMIZE: Don't hard code this!
 	// OPTIMIZE: Sort this by keypress
@@ -79,8 +74,7 @@ void init_commands(void)
 	// sort the array or something.
 }
 
-void deinit_commands(void)
-{
+void deinit_commands(void) {
 	int i;
 
 	for (i = 0; i < num_commands; i++) {
@@ -90,8 +84,7 @@ void deinit_commands(void)
 	free(command_list);
 }
 
-void execute(int keypress)
-{
+void execute(int keypress) {
 	int i;
 
 	// OPTIMIZE: Change this to binary search?
@@ -106,15 +99,15 @@ void execute(int keypress)
 	return;
 }
 
-void command_mode(void)
-{
+void command_mode(void) {
 	char * string;
 	char ** argv = NULL;
 	int argc = 0, strsz;
-	int i,j;
+	int i, j;
 
 	string = prompt_command();
-	if (NULL == string) return;
+	if (NULL == string)
+		return;
 	strsz = strlen(string);
 
 	// Find the end of the first word (the command)
@@ -130,8 +123,8 @@ void command_mode(void)
 			break;
 		}
 	}
-	
-	argv = malloc(sizeof(char*)*3); // OPTIMIZE: Allow for more than three args?
+
+	argv = malloc(sizeof(char *) * 3); // OPTIMIZE: Allow for more than three args?
 
 	for (j = i++; i < strsz; i++) {
 		if (('\n' == string[i]) || (' ' == string[i])) {
@@ -144,9 +137,7 @@ void command_mode(void)
 exec:
 	run_command(string, argc, argv);
 
-	if (NULL != argv) free(argv);
+	if (NULL != argv)
+		free(argv);
 	free(string);
 }
-
-
-
