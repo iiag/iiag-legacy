@@ -2,6 +2,7 @@
 #define PACKET_H
 #include "../creature.h"
 #include "../zone.h"
+#include "../world.h"
 #include "net.h"
 #include "../item.h"
 
@@ -86,13 +87,15 @@ item_subpacket* make_item_subpacket(item* c);
 
 void write_spawn_packet(int sock);
 void write_command_packet(int sock, int c);
-void write_tile_packet2(int sock, tile* t, int x, int y);
+void write_tile_packet(int sock, tile* t, int x, int y);
 void write_player_packet(int sock, creature* c);
+void write_time_packet(int sock, world_time_t* t);
 
 void handle_spawn(socket_node* s,void* pack, int len);
 void handle_command(socket_node* s,void* pack, int len);
-void handle_tile2(socket_node* s,void* pack, int len);
+void handle_tile(socket_node* s,void* pack, int len);
 void handle_player(socket_node* s,void* pack, int len);
+void handle_time(socket_node* s,void* pack, int len);
 
 void (*packet_handlers[])(socket_node* s, void* pack, int len);
 

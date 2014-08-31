@@ -285,12 +285,12 @@ void plyr_ev_death(creature * p, const char * reasons)
 	exit(0);
 }
 
-void plyr_ev_lvlup(void)
+void plyr_ev_lvlup(creature * p)
 {
 	memo("Level up!");
-	PLYR.max_health += 5;
-	PLYR.health += 5;
-	PLYR.attack += 1;
+	p->max_health += 5;
+	p->health += 5;
+	p->attack += 1;
 }
 
 void plyr_ev_act_comp(creature * p, item * it)

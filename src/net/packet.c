@@ -27,6 +27,19 @@ void write_spawn_packet(int sock){
 
 }
 
+void write_time_packet(int sock, world_time_t* t){
+	if(sock == -1) return;
+
+	packet_header head;
+
+	head.type=2;
+	head.length=sizeof(world_time_t);
+
+	full_write(sock,&head,sizeof(head));
+	full_write(sock,t,head.length);
+
+}
+
 void write_command_packet(int sock, int c){
 	if(sock == -1) return;
 
@@ -81,7 +94,7 @@ void write_player_packet(int sock, creature* c){
 
 }
 
-void write_tile_packet2(int sock, tile* t, int x, int y){
+void write_tile_packet(int sock, tile* t, int x, int y){
 	if(sock == -1) return;
 
 	int i;
@@ -214,7 +227,7 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	for(x=0;x<z->width;x++)
 	for(y=0;y<z->height;y++)
 		if(! (x == s->player.x && y == s->player.y) )
-		write_tile_packet2(s->sock,&(z->tiles[x][y]),x,y);
+		write_tile_packet(s->sock,&(z->tiles[x][y]),x,y);
 	
 
 }
@@ -283,7 +296,7 @@ void handle_player(socket_node* s, void* pack, int len){
 
 }
 
-void handle_tile2(socket_node* s, void* pack, int len){
+void handle_tile(socket_node* s, void* pack, int len){
 	tile_packet* t= pack;
 
 	zone* z = world.zones.arr[0];
@@ -338,11 +351,17 @@ void handle_tile2(socket_node* s, void* pack, int len){
 		zone_update(z, t->x, t->y);
 
 }
-//TODO remove the null from this list, and the 2's from tile functions
+
+void handle_time(socket_node* s,void* pack, int len){
+
+memcpy(&world.tm,pack,sizeof(world_time_t));
+
+}
+
 void (*packet_handlers[])(socket_node* s, void* pack, int len) = {
 	handle_spawn,
 	handle_command,
-	NULL,
-	handle_tile2,
+	handle_time,
+	handle_tile,
 	handle_player
 };

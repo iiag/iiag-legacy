@@ -15,6 +15,7 @@
 #include "player.h"
 #include "display.h"
 #include "inventory.h"
+#include "config.h"
 
 world_t world;
 
@@ -138,6 +139,7 @@ void step_world(void)
 		}
 
 		// update time
+		if(!config.multiplayer)
 		world.tm.steps += step_diff;
 
 		while (world.tm.steps >= 6000) {

@@ -64,7 +64,7 @@ int main(int argc, char ** argv)
 		server_update_clients();
 		step=world.tm.steps;
 
-		while(abs(world.tm.steps - step) < 100){
+		while(abs(world.tm.steps - step) < 140){
 			stall = world.tm.steps;
 			step_world();
 			if(stall == world.tm.steps) break;

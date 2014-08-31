@@ -13,11 +13,16 @@
 
 ///// Default Configuration /////
 config_t config = {
-	NULL,
-	"script/init.lua",
-	"127.0.0.1", 13699,
-	0, 0, 0, 0, 0,
-	20,
+	NULL,              // cfg_file
+	"script/init.lua", // lua_init
+	"127.0.0.1", 13699,//ip, port
+	0,  // forget_walls
+	0,  // show_all
+	0,  // all_alone
+	0,  // god_mode
+	0,  // real_time
+	0,  // multiplayer
+	20, // throw_anim_delay
 
 	{
 		// movement controls
@@ -73,6 +78,7 @@ static const struct field cfg_fields[] = {
 	{ BOOLEAN, "show-all",         &config.show_all         },
 	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
+	{ BOOLEAN, "god-mode",         &config.god_mode         },
 	{ BOOLEAN, "real-time",        &config.real_time        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
 	{ INTEGER, "port",             &config.port             },
@@ -323,6 +329,9 @@ void init_config(int argc, char ** argv)
 				break;
 			case 'l':
 				config.all_alone = 1;
+				break;
+			case 'g':
+				config.god_mode = 1;
 				break;
 			case 'r':
 				config.real_time = 1;

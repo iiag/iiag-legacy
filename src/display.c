@@ -65,10 +65,7 @@ void init_disp(void)
 	keypad(statscr, TRUE);
 
 	if(config.real_time){
-		//nodelay(stdscr, TRUE);
-		//nodelay(dispscr, TRUE);
 		nodelay(memoscr, TRUE);
-		//nodelay(statscr, TRUE);
 	}
 
 }

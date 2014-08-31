@@ -336,7 +336,7 @@ int crtr_attack(creature * attacker, creature * defender)
 	damage -= random() % (defender->ac + 1);
 	if (damage < 0) damage = 0;
 
-	defender->health -= damage;
+	if(!(config.god_mode && plyr_is_me(defender))) defender->health -= damage;
 
 	if (defender->health <= 0) {
 		// death comes to us all

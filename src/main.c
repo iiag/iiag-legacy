@@ -22,6 +22,7 @@
 #include "lua/lua.h"
 #include "commands.h"
 #include "net/net.h"
+#include "net/packet.h"
 
 extern command_t * command_list;
 extern int num_commands;
@@ -97,7 +98,8 @@ int main(int argc, char ** argv)
 	step();
 	for (;;) {
 		c = get_ctrl();
-		reset_memos();
+		if(c != CTRL_SKIP_TURN && config.multiplayer)
+			reset_memos();
 
 		if (CTRL_QUIT == c) {
 			goto cleanup;
@@ -111,7 +113,8 @@ int main(int argc, char ** argv)
 		write_command_packet(client_socket,c);
 
 		// TODO this delay should probably sync to game time
-		if (config.real_time) usleep(250000);
+		if(config.multiplayer) usleep(50000);
+		else if (config.real_time ) usleep(250000);
 
 		while (PLYR.act != NULL) {
 			start_timer();

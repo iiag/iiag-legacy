@@ -232,8 +232,8 @@ void server_tile_update(tile* t, int x, int y){
 	list_altr=0;
 
 	while(n != NULL){
-	wrlog("ptr %p %p",n, server_sockets);
-	write_tile_packet2(n->sock,t,x,y);
+	//wrlog("ptr %p %p",n, server_sockets);
+	write_tile_packet(n->sock,t,x,y);
 
 	//if list is altered try again
 	if(list_altr){
@@ -249,12 +249,13 @@ void server_tile_update(tile* t, int x, int y){
 void server_update_clients(){
 	socket_node* n=server_sockets;
 	zone* z;// = world.zones.arr[0];
-	int i,x,y;
+	int x,y;
 
 	while(n != NULL){
 		
 		z = n->player.z;
 		write_player_packet(n->sock,&(n->player));
+		write_time_packet(n->sock,&world.tm);
 
 		if(list_altr)
 			return;
@@ -263,7 +264,7 @@ void server_update_clients(){
 		for(x=0;x<z->width;x++)
 		for(y=0;y<z->height;y++)
 			if((!z->tiles[x][y].impassible) && z->tiles[x][y].crtr!=&(n->player)){
-				write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
+				write_tile_packet(n->sock,&(z->tiles[x][y]),x,y);
 
 				//list status changed aborting
 				if(list_altr)

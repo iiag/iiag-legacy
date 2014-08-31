@@ -53,6 +53,7 @@ typedef struct config {
 	int forget_walls;
 	int show_all;
 	int all_alone;
+	int god_mode;
 	int real_time;
 	int multiplayer;
 	int throw_anim_delay;
