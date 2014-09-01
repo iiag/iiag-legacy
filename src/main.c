@@ -98,7 +98,7 @@ int main(int argc, char ** argv)
 	step();
 	for (;;) {
 		c = get_ctrl();
-		if(c != CTRL_SKIP_TURN && config.multiplayer)
+		if(c != CTRL_SKIP_TURN || (!config.multiplayer))
 			reset_memos();
 
 		if (CTRL_QUIT == c) {

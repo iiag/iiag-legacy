@@ -214,3 +214,16 @@ creature * gen_crtr_from_id(gclass_t * cl, int lvl, int x)
 
 	return c;
 }
+
+room * gen_room(gclass_t * cl, int lvl)
+{
+	int x;
+	room * rom;
+
+	x = random() % cl->max_freq;
+	rom = malloc(sizeof(room));
+
+	memcpy(rom,gen(cl, lvl, x),sizeof(room));
+
+	return rom;
+}

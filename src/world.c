@@ -42,6 +42,7 @@ void assure_world(void)
 		world.gcrtrs = new_gclass(NULL);
 		world.gitems = new_gclass(NULL);
 		world.gmats  = new_gclass(NULL);
+		world.grooms = new_gclass(NULL);
 
 		// allocate 16 actions to start
 		world.acts = malloc(sizeof(action_node) * 16);

@@ -14,12 +14,12 @@ LDFL   		:= -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 
 CLIENT_SRCS := main.c world.c zone.c display.c log.c inventory.c util.c item.c \
         creature.c player.c vector.c trigger.c config.c faction.c input.c \
-        generator.c names.c lua/init.c lua/io.c lua/form.c commands.c net/net.c \
+        generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c net/net.c \
 	net/packet.c
 
 SERVER_SRCS := server.c world.c zone.c display.c log.c inventory.c util.c item.c \
         creature.c player.c vector.c trigger.c config.c faction.c input.c \
-        generator.c names.c lua/init.c lua/io.c lua/form.c commands.c net/net.c \
+        generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c net/net.c \
 	net/packet.c
 
 
