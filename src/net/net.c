@@ -17,7 +17,7 @@ int client_socket = -1;
 socket_node* server_sockets = NULL;
 
 //socket creation should probably be moved
-int client_connect(char* ip, int port){
+int client_connect(const char* ip, int port){
 
 	struct sockaddr_in serv_name;
 	int status;
@@ -28,7 +28,7 @@ int client_connect(char* ip, int port){
 		return 1;
 	}
 
-	/* server address */ 
+	/* server address */
 	serv_name.sin_family = AF_INET;
 	inet_aton(ip, &serv_name.sin_addr);
 	serv_name.sin_port = htons(port);

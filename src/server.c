@@ -70,19 +70,15 @@ int main(int argc, char ** argv)
 			if(stall == world.tm.steps) break;
 			wrlog("step %i %i",world.tm.steps, step);
 		}
-		
+
 		try_accept();
 		server_listen(server_sockets);
 		end_timer("step length");
 		usleep(250000);
 		//if(server_sockets!=NULL)
 		//write_test_packet(server_sockets->sock);
-
-
-		
 	}
 
-cleanup:
 	wrlog("Shutting down");
 	return 0;
 }

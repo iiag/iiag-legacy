@@ -97,12 +97,7 @@ void handle_tile(socket_node* s,void* pack, int len);
 void handle_player(socket_node* s,void* pack, int len);
 void handle_time(socket_node* s,void* pack, int len);
 
-void (*packet_handlers[])(socket_node* s, void* pack, int len);
-
-
-
-
-
-
+#define PACKET_HANDLERS_SIZE 5
+void (*packet_handlers[PACKET_HANDLERS_SIZE])(socket_node* s, void* pack, int len);
 
 #endif

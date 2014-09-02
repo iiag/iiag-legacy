@@ -84,7 +84,7 @@ int main(int argc, char ** argv)
 	if(config.multiplayer){
 		client_connect(config.ip,config.port);
 		write_spawn_packet(client_socket);
-	
+
 		//wait for response
 		usleep(600000);
 		while(!read_packet(client_socket, NULL));

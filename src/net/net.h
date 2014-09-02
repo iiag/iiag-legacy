@@ -17,7 +17,7 @@ struct socket_node{
 
 extern socket_node* server_sockets;
 
-int client_connect(char* ip, int port);
+int client_connect(const char* ip, int port);
 int setup_listener(int port);
 int try_accept();
 int read_packet(int socket, socket_node* s);

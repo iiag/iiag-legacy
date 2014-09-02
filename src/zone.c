@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "log.h"
 #include "item.h"
 #include "walls.h"
 #include "world.h"

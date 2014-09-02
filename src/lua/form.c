@@ -216,7 +216,7 @@ int lcf_material(lua_State * lstate)
 int lcf_room(lua_State * lstate)
 {
 	room * rom;
-	wrlog("room loaded");
+
 	assert(lua_istable(lstate, 1));
 
 	rom = malloc(sizeof(room));

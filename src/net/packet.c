@@ -50,7 +50,7 @@ void write_command_packet(int sock, int c){
 	head.length=sizeof(command_packet);
 	p.c=c;
 	p.i=net_inv_prompt_data;
-	
+
 	net_inv_prompt_data =-1;
 
 	full_write(sock,&head,sizeof(head));
@@ -130,13 +130,12 @@ void write_tile_packet(int sock, tile* t, int x, int y){
 		full_write(sock,crtr_sub,sizeof(creature_subpacket));
 		free(crtr_sub);
 	}
-		
 }
 
 item_subpacket* make_item_subpacket(item* c){
 	item_subpacket* ret;
 	ret = malloc(sizeof(item_subpacket));
-	
+
 	ret->restore_health=c->restore_health;
 	ret->restore_stamina=c->restore_stamina;
 	ret->modify_attack=c->modify_attack;
@@ -144,7 +143,7 @@ item_subpacket* make_item_subpacket(item* c){
 	ret->slot=c->slot;
 	ret->gen_id=c->gen_id;
 	ret->gen_mat_id=c->gen_mat_id;
-	
+
 	return ret;
 }
 
@@ -162,7 +161,7 @@ void subpack2item(item* it, item_subpacket* item_sub){
 creature_subpacket* make_crtr_subpacket(creature* c){
 	creature_subpacket* ret;
 	ret = malloc(sizeof(creature_subpacket));
-	
+
 	ret->level=c->level;
 	ret->xp=c->xp;
 	ret->x=c->x;
@@ -180,7 +179,7 @@ creature_subpacket* make_crtr_subpacket(creature* c){
 	ret->throw=c->throw;
 	ret->speed=c->speed;
 	ret->gen_id=c->gen_id;
-	
+
 	return ret;
 }
 
@@ -215,21 +214,18 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	//s->player.on_act_fail.c_func = (trigger_cfunc)plyr_ev_act_fail;
 	s->player.refs = NOFREE;
 	s->player.ai = 0;
-	
+
 	//speed til time scale is fixed!
 	//s->player.speed = SEC(0.5);
 
 	zone* z = world.zones.arr[0];
 	crtr_spawn(&(s->player), z);
 	zone_update(z, s->player.x, s->player.y);
-	
 
 	for(x=0;x<z->width;x++)
 	for(y=0;y<z->height;y++)
 		if(! (x == s->player.x && y == s->player.y) )
 		write_tile_packet(s->sock,&(z->tiles[x][y]),x,y);
-	
-
 }
 
 void handle_command(socket_node* s, void* pack, int len){
@@ -245,17 +241,14 @@ void handle_command(socket_node* s, void* pack, int len){
 		if(act == CTRL_DLEFT)	crtr_act_aa_move(&(s->player), -1, 1);
 		if(act == CTRL_URIGHT)	crtr_act_aa_move(&(s->player), 1, -1);
 		if(act == CTRL_DRIGHT)	crtr_act_aa_move(&(s->player), 1, 1);
-	
+
 		if(i != -1){
 			if(act == CTRL_DROP)	crtr_act_drop(&(s->player), i);
 			if(act == CTRL_CONSUME)	crtr_act_consume(&(s->player), i);
 			if(act == CTRL_PICKUP)	crtr_act_pickup(&(s->player), i);
-			if(act == CTRL_EQUIP)	crtr_act_equip(&(s->player), i);		
+			if(act == CTRL_EQUIP)	crtr_act_equip(&(s->player), i);
 		}
 	}
-	
-
-
 }
 
 void handle_player(socket_node* s, void* pack, int len){
@@ -268,8 +261,6 @@ void handle_player(socket_node* s, void* pack, int len){
 	if(p->health < 1){
 	plyr_ev_death(NULL,"Network lag");
 	}
-	
-	
 
 	crtr_tele(&PLYR, p->x,p->y, world.zones.arr[0]);
 	subpack2crtr(&PLYR,p);
@@ -281,7 +272,7 @@ void handle_player(socket_node* s, void* pack, int len){
 	for(i=0;i<p->item_num;i++){
 		item_sub = subpack;
 		item* it = gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
-	
+
 		subpack2item(it,item_sub);
 
 		inv_add(PLYR.inv,it);
@@ -320,7 +311,7 @@ void handle_tile(socket_node* s, void* pack, int len){
 	for(i=0;i<t->itemnum;i++){
 		item_sub = subpack;
 		item* it = gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
-	
+
 		subpack2item(it,item_sub);
 
 		inv_add(z->tiles[t->x][t->y].inv,it);
@@ -340,7 +331,6 @@ void handle_tile(socket_node* s, void* pack, int len){
 			cr->ch = ('@' | COLOR_PAIR(COLOR_OTHER));
 
 		crtr_tele(cr, t->x, t->y, z);
-		
 	}
 
 
@@ -358,7 +348,7 @@ memcpy(&world.tm,pack,sizeof(world_time_t));
 
 }
 
-void (*packet_handlers[])(socket_node* s, void* pack, int len) = {
+void (*packet_handlers[PACKET_HANDLERS_SIZE])(socket_node* s, void* pack, int len) = {
 	handle_spawn,
 	handle_command,
 	handle_time,
