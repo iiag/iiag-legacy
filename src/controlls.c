@@ -47,9 +47,9 @@ struct str_pairs controls[]={
 	// miscellaneous
 	{ "Skip Turn",        "CTRL_SKIP_TURN", 's' },
 	{ "Display Controls", "CTRL_DISCTRL",   ' ' },
-	{ "Quit",             "CTRL_QUIT",      'q' },
 	{ "Save Controls",    "CTRL_SAVECTRL",  'S' },
 	{ "Load Controls",    "CTRL_LOADCTRL",  'L' },
+	{ "Quit",             "CTRL_QUIT",      'q' },
 	{ "Command Mode",     "CTRL_COMMAND",   ':' }
 }; 
 

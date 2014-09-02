@@ -53,7 +53,10 @@ config_t config = {
 		't', // throw
 
 		// miscellaneous controls
-		' ', // skip turn
+		's', // skip turn
+		' ', // display control
+		'S', // save controls
+		'L', // load controls
 		'q', // quit
 		':', // command mode
 	},

@@ -74,6 +74,10 @@ void init_commands(void)
 	insert(CTRL_EQUIP,     "equip",     plyr_act_equip,    &arraysz);
 	insert(CTRL_THROW,     "throw",     plyr_act_throw,    &arraysz);
 	insert(CTRL_SKIP_TURN, "idle",      plyr_act_idle,     &arraysz);
+	insert(CTRL_SAVECTRL,  "save_ctrl", plyr_act_idle,     &arraysz);
+	insert(CTRL_LOADCTRL,	 "load_ctrl", plyr_act_idle,     &arraysz);
+	insert(CTRL_DISCTRL,   "dis_ctrl",  plyr_act_idle,     &arraysz);
+
 
 	// sort the array or something.
 }
