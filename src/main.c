@@ -20,17 +20,13 @@
 #include "creature.h"
 #include "inventory.h"
 #include "lua/lua.h"
-<<<<<<< HEAD
 #include "controlls.h"
-=======
 #include "commands.h"
 #include "net/net.h"
 #include "net/packet.h"
 
 extern command_t * command_list;
 extern int num_commands;
-
->>>>>>> 2381149fb20bc96a6ffa33ba7a1f693ebc0dcaa3
 
 static void update_status(void)
 {
