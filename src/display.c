@@ -20,6 +20,7 @@ static int scroll_x = 0;
 static int scroll_y = 0;
 
 static int last_col = NONE;
+static int inited_disp = 0;
 
 WINDOW * memoscr;
 WINDOW * dispscr;
@@ -68,11 +69,16 @@ void init_disp(void)
 		nodelay(memoscr, TRUE);
 	}
 
+	inited_disp = 1;
 }
 
 void end_disp(void)
 {
-	endwin();
+	if (inited_disp) {
+		endwin();
+	} else {
+		notice("Tried to end uninitialized display.");
+	}
 }
 
 void disp_put(int x, int y, chtype ch)

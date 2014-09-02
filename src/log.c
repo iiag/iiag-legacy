@@ -31,13 +31,13 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 {
 	static FILE * logf = NULL;
 
-	char * str;
+	char * tstr;
 	time_t tm;
 	va_list vl;
 	char loc[64];
 	loc[63]=0;
 
-	if(loglevel <= config.log_level) return;
+	if(loglevel < config.log_level) return;
 
 	if (logf == NULL) {
 		logf = fopen(log_file, "a");
@@ -48,17 +48,31 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 
 	describe_caller(loc, 63);
 
+	// get the time string
 	time(&tm);
-	str = ctime(&tm);
-	str[strlen(str) - 1] = 0;
-	fprintf(logf, "%s | %-32s %-7s ", str, loc, level_names[loglevel]);
+	tstr = ctime(&tm);
+	tstr[strlen(tstr) - 1] = 0;
 
+	// write to standard log file
 	va_start(vl, fmt);
+
+	fprintf(logf, "%s | %-32s %-7s ", tstr, loc, level_names[loglevel]);
 	vfprintf(logf, fmt, vl);
+	fputc('\n', logf);
+
+	fflush(logf);
 	va_end(vl);
 
-	fputc('\n', logf);
-	fflush(logf);
+	// Also write to stdout on servers
+#ifdef SERVER
+	va_start(vl, fmt);
+
+	fprintf(stderr, "%s | %-32s %-7s ", tstr, loc, level_names[loglevel]);
+	vfprintf(stderr, fmt, vl);
+	fputc('\n', stderr);
+
+	va_end(vl);
+#endif
 }
 
 void start_timer(void)

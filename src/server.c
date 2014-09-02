@@ -49,7 +49,6 @@ int main(int argc, char ** argv)
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);
 
-	init_disp();
 	init_world();
 
 	/*plyr_ev_birth();
@@ -62,7 +61,7 @@ int main(int argc, char ** argv)
 	for (;;) {
 		start_timer();
 		server_update_clients();
-		step=world.tm.steps;
+		step = world.tm.steps;
 
 		while(abs(world.tm.steps - step) < 140){
 			stall = world.tm.steps;

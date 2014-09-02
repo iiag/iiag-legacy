@@ -38,7 +38,8 @@ static void load_syl(vector_t * v, const char * dir, const char * file)
 
 		fclose(f);
 	} else {
-		warning("Could not open file: %s", path);
+		// This is relatively normal, but it could be a typo in a file name
+		notice("Could not open file: %s", path);
 	}
 }
 

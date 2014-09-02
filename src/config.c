@@ -22,7 +22,7 @@ config_t config = {
 	0,                  // god_mode
 	0,                  // real_time
 	0,                  // multiplayer
-	LOG_ALL,            // log_level
+	LOG_INFO,           // log_level
 	20,                 // throw_anim_delay
 
 	{
