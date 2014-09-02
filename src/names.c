@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "names.h"
+#include "log.h"
 
 static void load_syl(vector_t * v, const char * dir, const char * file)
 {
@@ -36,12 +37,16 @@ static void load_syl(vector_t * v, const char * dir, const char * file)
 		}
 
 		fclose(f);
+	} else {
+		warning("Could not open file: %s", path);
 	}
 }
 
 ethnicity * load_ethnicity(const char * dir)
 {
 	ethnicity * eth = malloc(sizeof(ethnicity));
+
+	info("Loading ethnicity from %s", dir);
 
 	eth->gen_max = 3;
 	load_syl(&eth->gen_syl, dir, "gen");

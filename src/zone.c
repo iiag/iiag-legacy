@@ -96,26 +96,25 @@ static void generate(zone * z)
 		room_spot(z,rooms[i],&x1,&y1);
 		room_spot(z,rooms[max],&x2,&y2);
 		wall=0;
-		
+
 		if(x1 == -1 || x2 == -1){
-			wrlog("room timed out!");
+			warning("Room generation timed out!");
 			break;
 		}
-	
+
 		for(;x1 != x2; x1-= sign(x1-x2)){
-			if(z->tiles[x1][y1].impassible) 	wall=1;
+			if(z->tiles[x1][y1].impassible) wall=1;
 			else if (wall) break;
 
 			zone_empty_tile(z,x1,y1);
 		}
 
 		for(;y1 != y2; y1-= sign(y1-y2)){
-			if(z->tiles[x1][y1].impassible) 	wall=1;
+			if(z->tiles[x1][y1].impassible) wall=1;
 			else if (wall) break;
 
 			zone_empty_tile(z,x1,y1);
 		}
-		
 	}
 
 	//do rendering thing
@@ -279,7 +278,6 @@ void zone_update(zone * z, int x, int y)
 
 
 	z->tiles[x][y].show_ch = ch;
-	
 	zone_draw_tile(z, x, y);
 }
 
@@ -362,7 +360,6 @@ int zone_can_see(zone * z, int x0, int y0, int x1, int y1, int dist)
 	return 1;
 }
 
-
 void zone_empty_tile(zone * z, int x, int y){
 
 	z->tiles[x][y].impassible = 0;
@@ -370,5 +367,13 @@ void zone_empty_tile(zone * z, int x, int y){
 	z->tiles[x][y].show_ch = ('.' | A_DIM);
 	z->tiles[x][y].linked = 0;
 
+}
+
+const char *zone_name(zone *z)
+{
+	if (z->name != NULL) {
+		return z->name;
+	}
+	return "(null zone)";
 }
 

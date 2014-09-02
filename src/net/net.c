@@ -103,8 +103,8 @@ int try_accept(){
 	if (sock != -1){
 		list_insert(&server_sockets,sock);
 		fcntl(sock, F_SETFL, O_NONBLOCK);
-		wrlog("new connection");
-		return 1;	
+		info("New connection accepted");
+		return 1;
 	}
 
 	return 0;
@@ -124,7 +124,7 @@ int read_packet(int socket, socket_node* s){
 		return 1;
 
 	if(count != sizeof(packet_header)){
-		wrlog("Fragmented header! %i Closing Connection",count);
+		warning("Fragmented header! %i Closing Connection",count);
 		close(socket);
 		cleanup_socket(socket);
 		return 1;
@@ -138,7 +138,7 @@ int read_packet(int socket, socket_node* s){
 		if(count == -1){
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
-			wrlog("error reading %i", errno);
+			error("Error reading %i", errno);
 			close(socket);
 			cleanup_socket(socket);
 			return 1;
@@ -164,7 +164,7 @@ int full_write(int sock, void* start, int len){
 		if(tmp == -1){
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
-			wrlog("error writing %i", errno);
+			error("Error writing %i", errno);
 			close(sock);
 			cleanup_socket(sock);
 			return -1;
@@ -194,7 +194,6 @@ void list_delete(socket_node** node, int s){
 	socket_node* tmp;
 
 	while(*n!=NULL){
-		
 		if((*n)->sock==s){
 			if((*n)->player.z && (*n)->player.z->tiles[(*n)->player.x][(*n)->player.y].crtr == &((*n)->player)){
 				(*n)->player.deceased=1;
@@ -206,10 +205,9 @@ void list_delete(socket_node** node, int s){
 			free(tmp);
 			return;
 		}
-			
+
 		n=&(*n)->next;
 	}
-
 }
 
 void server_listen(socket_node* node){
@@ -218,7 +216,7 @@ void server_listen(socket_node* node){
 
 	while(n != NULL){
 	while(!read_packet(n->sock,n));
-	
+
 	//list status changed aborting
 	if(list_altr)
 		return;
@@ -232,16 +230,15 @@ void server_tile_update(tile* t, int x, int y){
 	list_altr=0;
 
 	while(n != NULL){
-	//wrlog("ptr %p %p",n, server_sockets);
-	write_tile_packet(n->sock,t,x,y);
+		write_tile_packet(n->sock,t,x,y);
 
-	//if list is altered try again
-	if(list_altr){
-		server_tile_update(t,x,y);
-		return;
-	}
-	
-	n=n->next;
+		//if list is altered try again
+		if(list_altr){
+			server_tile_update(t,x,y);
+			return;
+		}
+
+		n=n->next;
 	}
 
 }
@@ -252,7 +249,6 @@ void server_update_clients(){
 	int x,y;
 
 	while(n != NULL){
-		
 		z = n->player.z;
 		write_player_packet(n->sock,&(n->player));
 		write_time_packet(n->sock,&world.tm);
@@ -261,28 +257,25 @@ void server_update_clients(){
 			return;
 
 		if(z)
-		for(x=0;x<z->width;x++)
-		for(y=0;y<z->height;y++)
-			if((!z->tiles[x][y].impassible) && z->tiles[x][y].crtr!=&(n->player)){
-				write_tile_packet(n->sock,&(z->tiles[x][y]),x,y);
+			for(x=0;x<z->width;x++)
+				for(y=0;y<z->height;y++)
+					if((!z->tiles[x][y].impassible) && z->tiles[x][y].crtr!=&(n->player)){
+						write_tile_packet(n->sock,&(z->tiles[x][y]),x,y);
 
-				//list status changed aborting
-				if(list_altr)
-					return;
-			}
+						//list status changed aborting
+						if(list_altr)
+							return;
+					}
 
-	//attempts at reducing the number of tile updates
-	/*for(i=0;i<z->crtrs.cnt;i++){
-		x=((creature*)z->crtrs.arr[i])->x;
-		y=((creature*)z->crtrs.arr[i])->y;
-		write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
-	}*/
+		//attempts at reducing the number of tile updates
+		/*for(i=0;i<z->crtrs.cnt;i++){
+			x=((creature*)z->crtrs.arr[i])->x;
+			y=((creature*)z->crtrs.arr[i])->y;
+			write_tile_packet2(n->sock,&(z->tiles[x][y]),x,y);
+		}*/
 
-	n=n->next;
+		n=n->next;
 	}
-
-	
-
 }
 
 

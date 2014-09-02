@@ -68,17 +68,17 @@ int main(int argc, char ** argv)
 			stall = world.tm.steps;
 			step_world();
 			if(stall == world.tm.steps) break;
-			wrlog("step %i %i",world.tm.steps, step);
+			debug("Step %i %i", world.tm.steps, step);
 		}
 
 		try_accept();
 		server_listen(server_sockets);
-		end_timer("step length");
+		end_timer("Step length");
 		usleep(250000);
 		//if(server_sockets!=NULL)
 		//write_test_packet(server_sockets->sock);
 	}
 
-	wrlog("Shutting down");
+	info("Server shutdown");
 	return 0;
 }

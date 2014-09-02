@@ -8,3 +8,5 @@ sobj/
 iiag
 iiag_server
 *.kdev4
+*.cfg
+*.kate-swp
