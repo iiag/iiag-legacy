@@ -8,6 +8,7 @@
 #include "world.h"
 #include "display.h"
 #include "generator.h"
+#include "log.h"
 
 gclass_t * new_gclass(gclass_t * par)
 {
@@ -159,7 +160,7 @@ item * gen_item(gclass_t * cl, int lvl)
 {
 	gclass_t * mat_cl;
 	item * it;
-	int x,x2;	
+	int x,x2;
 
 	x = random() % cl->max_freq;
 
@@ -171,6 +172,8 @@ item * gen_item(gclass_t * cl, int lvl)
 		item_apply_mat(it, gen(mat_cl, lvl, x2));
 	}
 
+	info("Generated a %s", it->name);
+
 	it->gen_id=x;
 	it->gen_mat_id=x2;
 	it->ch |= COLOR_PAIR(COLOR_ITEM);
@@ -181,7 +184,7 @@ item * gen_item(gclass_t * cl, int lvl)
 item * gen_item_from_id(gclass_t * cl, int lvl, int x, int x2)
 {
 	gclass_t * mat_cl;
-	item * it;	
+	item * it;
 
 	it = item_copy(gen(cl, lvl, x));
 

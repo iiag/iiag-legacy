@@ -15,12 +15,12 @@ LDFL         := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 CLIENT_SRCS := main.c world.c zone.c display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c input.c \
                generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c \
-               net/net.c net/packet.c
+               introspection.c net/net.c net/packet.c
 
 SERVER_SRCS := server.c world.c zone.c display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c input.c \
                generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c \
-               net/net.c net/packet.c
+               introspection.c net/net.c net/packet.c
 
 
 CLIENT_OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(CLIENT_SRCS)))
@@ -31,7 +31,7 @@ SERVER_OBJS := $(addprefix sobj/,$(patsubst %.c,%.o,$(SERVER_SRCS)))
 SERVER_DEPS := $(addprefix sdep/,$(patsubst %.c,%.d,$(SERVER_SRCS)))
 SERVER_SRCS := $(addprefix src/,$(SERVER_SRCS))
 
-.PHONY: all clean
+.PHONY: all clean install
 
 all: $(CLIENT_TARGET) $(SERVER_TARGET)
 

@@ -5,6 +5,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "log.h"
+
 // controls enumerations
 enum {
 	CTRL_INVALID = -1,
@@ -56,6 +58,7 @@ typedef struct config {
 	int god_mode;
 	int real_time;
 	int multiplayer;
+	log_level_t log_level;
 	int throw_anim_delay;
 	int ctrl[TOTAL_CONTROLS];
 } config_t;

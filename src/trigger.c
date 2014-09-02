@@ -21,11 +21,11 @@ void trigger_pull(const trigger * tr, void * ud1, void * ud2)
 
 		if (lua_isfunction(prim_lstate, -3)) {
 			if (lua_pcall(prim_lstate, 2, 0, 0)) {
-				wrlog("Error in trigger: %s.\n", lua_tostring(prim_lstate, -1));
+				error("In trigger: %s.\n", lua_tostring(prim_lstate, -1));
 				lua_pop(prim_lstate, 3);
 			}
 		} else {
-			wrlog("Error: Trigger index does not point to lua function.");
+			error("Trigger index does not point to lua function.");
 		}
 	}
 
