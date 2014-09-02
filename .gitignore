@@ -5,3 +5,4 @@ dep/
 obj/
 iiag
 *.kdev4
+*.cfg
