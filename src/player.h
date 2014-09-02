@@ -12,17 +12,31 @@
 #define plyr_is_me(C) ((C) == &PLYR)
 
 // player willed actions
-void plyr_act_pickup(void);
-void plyr_act_drop(void);
-void plyr_act_inv(void);
-void plyr_act_equipped(void);
-void plyr_act_move(int, int);
-void plyr_act_consume(void);
-void plyr_act_equip(void);
+void plyr_act_pickup(int, char **);
+void plyr_act_drop(int, char **);
+void plyr_act_inv(int, char **);
+void plyr_act_equipped(int, char **);
+void plyr_act_consume(int, char **);
+void plyr_act_equip(int, char **);
+void plyr_act_throw(int, char **);
+void plyr_act_idle(int, char **);
+
+// player displacement
+void plyr_act_move_left(int, char **);
+void plyr_act_move_right(int, char **);
+void plyr_act_move_up(int, char **);
+void plyr_act_move_down(int, char **);
+void plyr_act_move_upleft(int, char **);
+void plyr_act_move_upright(int, char **);
+void plyr_act_move_downleft(int, char **);
+void plyr_act_move_downright(int, char **);
+void plyr_act_enter(int, char **);
 
 // the inevitable
 void plyr_ev_birth(void);
-void plyr_ev_death(const char *);
+void plyr_ev_death(creature *, const char *);
 void plyr_ev_lvlup(void);
+void plyr_ev_act_comp(creature *, item *);
+void plyr_ev_act_fail(creature *, void *);
 
 #endif

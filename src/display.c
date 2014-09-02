@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include "world.h"
 #include "display.h"
+#include "config.h"
+#include "player.h"
 
 #define NONE (-1)
 
@@ -43,10 +45,18 @@ void init_disp(void)
 		exit(EXIT_FAILURE);
 	}
 
-	keypad(stdscr, TRUE);
+	keypad(stdscr,  TRUE);
 	keypad(dispscr, TRUE);
 	keypad(memoscr, TRUE);
 	keypad(statscr, TRUE);
+
+	if(config.real_time){
+		//nodelay(stdscr, TRUE);
+		//nodelay(dispscr, TRUE);
+		nodelay(memoscr, TRUE);
+		//nodelay(statscr, TRUE);
+	}
+
 }
 
 void end_disp(void)
@@ -131,4 +141,38 @@ void scroll_center(int x, int y)
 
 	if (scroll_x < 0) scroll_x = 0;
 	if (scroll_y < 0) scroll_y = 0;
+}
+
+//
+// The following functions move the view around
+//
+
+void scroll_view_center(int argc, char ** argv)
+{
+	scroll_center(PLYR.x, PLYR.y);
+	zone_draw(PLYR.z);
+}
+
+void scroll_view_left(int argc, char ** argv)
+{
+	scroll_disp(-1, 0);
+	zone_draw(PLYR.z);
+}
+
+void scroll_view_right(int argc, char ** argv)
+{
+	scroll_disp(1, 0);
+	zone_draw(PLYR.z);
+}
+
+void scroll_view_up(int argc, char ** argv)
+{
+	scroll_disp(0, -1);
+	zone_draw(PLYR.z);
+}
+
+void scroll_view_down(int argc, char ** argv)
+{
+	scroll_disp(0, 1);
+	zone_draw(PLYR.z);
 }

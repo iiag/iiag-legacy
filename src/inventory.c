@@ -7,6 +7,9 @@
 #include "display.h"
 #include "inventory.h"
 
+//
+// Allocates a new inventory
+//
 inventory * inv_new(int max)
 {
 	inventory * inv = malloc(sizeof(inventory));
@@ -17,6 +20,9 @@ inventory * inv_new(int max)
 	return inv;
 }
 
+//
+// Frees an inventory
+//
 void inv_free(inventory * inv)
 {
 	int i;
@@ -31,15 +37,21 @@ void inv_free(inventory * inv)
 	free(inv);
 }
 
+//
+// Adds an item to an inventory
+// Fails if inv_try would fail
+//
 int inv_add(inventory * inv, item * it)
 {
 #define REALLOC_SIZE 8
 
 	int i;
 
+	// See if item fits
 	if (!inv_try(inv, it)) return INVALID;
-	inv->weight += it->f->weight;
+	inv->weight += it->weight;
 
+	// Look for free slot
 	for (i = 0; i < inv->size; i++) {
 		if (inv->itms[i] == NULL) {
 			inv->itms[i] = it;
@@ -47,6 +59,7 @@ int inv_add(inventory * inv, item * it)
 		}
 	}
 
+	// No free slots, must add slots
 	if (inv->size % REALLOC_SIZE == 0) {
 		inv->itms = realloc(inv->itms,
 				(inv->size + REALLOC_SIZE) * sizeof(item *)
@@ -62,61 +75,53 @@ int inv_add(inventory * inv, item * it)
 	return inv->size - REALLOC_SIZE;
 }
 
+//
+// Fails if new weight exceeds max weight
+//
 int inv_try(inventory * inv, item * it)
 {
 	if (inv->max_weight == INFINITE) return 1;
-	return it->f->weight + inv->weight <= inv->max_weight;
+	return it->weight + inv->weight <= inv->max_weight;
 }
 
+//
+// Removes an item given an index
+//
+// Should we check for the index being outside the inventory
+//
 item * inv_rm(inventory * inv, int i)
 {
 	if (inv->itms[i] == NULL) return NULL;
-	
+
 	item * ret = inv->itms[i];
-	inv->weight -= inv->itms[i]->f->weight;
+	inv->weight -= inv->itms[i]->weight;
 	inv->itms[i] = NULL;
 
 	return ret;
 }
 
-int inv_prompt(const char * prompt, inventory * inv, creature * c)
-{
-	int i;
-	
-	wmove(dispscr, 0, 0);
-	wprintw(dispscr, "%s\n", prompt);
-
-	for (i = 0; i < inv->size; i++) {
-		if (inv->itms[i] != NULL) {
-			wprintw(dispscr, " %c) %s",
-				ind2ch(i),
-				inv->itms[i]->f->name
-			);
-
-			if (c != NULL && item_equipped(inv->itms[i], c)) {
-				wprintw(dispscr, " (equipped)");
-			}
-
-			wprintw(dispscr, "\n");
-		}
-	}
-
-	wrefresh(dispscr);
-	return ch2ind(wgetch(dispscr));
-}
-
+//
+// Converts an index to a character
+//
+// TODO fix for indexs >= 62
+//
 char ind2ch(int i)
 {
 	if (i < 26) return 'a' + i;
 	if (i < 52) return 'A' + i - 26;
 	if (i < 62) return '0' + i - 52;
-	assert(0); // TODO
+	assert(0); // TODO: Handle inventories with more than 62 items
 }
 
+//
+// Converts an character to an index
+//
+// TODO fix for characters not [a-zA-Z0-9]
+//
 int  ch2ind(char c)
 {
 	if (c <= '9') return (int)c + 52 - '0';
 	if (c <= 'Z') return (int)c + 26 - 'A';
 	if (c <= 'z') return (int)c - 'a';
-	assert(0); // TODO
+	assert(0); // TODO: Handle inventories with more than 62 items
 }

@@ -2,17 +2,17 @@
 # Makefile
 #
 
-SHELL  = bash
-TARGET = iiag
-CC     = gcc
-LUAV   = lua5.1
-CCFL  := -c -g -Wall `pkg-config --cflags $(LUAV)`
-LDFL  := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
+SHELL   = bash
+TARGET  = iiag
+CC      = gcc
+LUAV    = lua
+DESTDIR = /opt/iiag
+CCFL   := -c -g -Wall `pkg-config --cflags $(LUAV)`
+LDFL   := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 
 SRCS := main.c world.c zone.c display.c log.c inventory.c util.c item.c \
-        creature.c player.c options.c vector.c trigger.c \
-	lua/init.c lua/io.c lua/form.c \
-        form/form.c form/crtr.c form/item.c
+        creature.c player.c vector.c trigger.c config.c faction.c input.c \
+        generator.c names.c lua/init.c lua/io.c lua/form.c commands.c
 
 OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(SRCS)))
 DEPS := $(addprefix dep/,$(patsubst %.c,%.d,$(SRCS)))
@@ -35,5 +35,11 @@ clean:
 	rm -rf obj
 	rm -rf dep
 	rm -f $(TARGET)
+
+install: all
+	mkdir -p $(DESTDIR)
+	cp iiag $(DESTDIR)
+	cp -r script $(DESTDIR)
+	cp -r names $(DESTDIR)
 
 -include $(DEPS)

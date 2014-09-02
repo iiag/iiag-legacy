@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "log.h"
 #include "util.h"
 
 void * choose_random(vector_t * v, int offset, int max)
@@ -23,7 +24,7 @@ void * choose_random(vector_t * v, int offset, int max)
 	return v->arr[i];
 }
 
-char * read_file(const char * fn)//reading the file contaning teh list of creatures, monsters, and generic items 
+char * read_file(const char * fn)
 {
 	FILE * f;
 	char * buf;
@@ -47,7 +48,12 @@ char * read_file(const char * fn)//reading the file contaning teh list of creatu
 
 char * copy_str(const char * old)//copy string
 {
-	char * str = malloc(strlen(old) + 1);
+	char * str;
+
+	if (old == NULL) return NULL;
+
+	str = malloc(strlen(old) + 1);
 	strcpy(str, old);
+
 	return str;
 }

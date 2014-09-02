@@ -7,19 +7,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "item.h"
-#include "zone.h"
 #include "walls.h"
 #include "world.h"
+#include "config.h"
+#include "player.h"
 #include "display.h"
-#include "options.h"
 #include "inventory.h"
 
 #define ROOM_INFREQ 40
 #define ITEM_INFREQ 80
-#define CRTR_INFREQ 100
+#define CRTR_INFREQ 80
 #define ROOM_MIN 100
-#define ITEM_MIN 40
-#define CRTR_MIN 15
+#define ITEM_MIN 80
+#define CRTR_MIN 60
 
 typedef struct {//specifies room with x and y coordinates adn w and h for width and height
 	int x, y, w, h;
@@ -55,6 +55,7 @@ static void set_wall_char(int ** walls, zone * z, int x, int y)
 	}
 
 	z->tiles[x][y].ch = wall_chars[ch];
+	z->tiles[x][y].show_ch = z->tiles[x][y].ch;
 }
 
 
@@ -63,7 +64,7 @@ static void generate(zone * z)
 {
 	static int first = 1;
 
-	int i, x, y, max;
+	int i, x, y, max, timeout;
 	int rc;
 	int ** walls;
 	room * rv;
@@ -74,6 +75,8 @@ static void generate(zone * z)
 		fill_walls();
 		first = 0;
 	}
+
+	z->name = place_name(world.eth);
 
 	// generate rooms
 	rc = random() % ((z->width * z->height) / ROOM_INFREQ) + ROOM_MIN;
@@ -97,10 +100,11 @@ static void generate(zone * z)
 				if (in_room(rv + i, x, y)) break;
 			}
 			z->tiles[x][y].ch = '.';
+			z->tiles[x][y].show_ch = '.';
+			z->tiles[x][y].linked = 0;
 			walls[x][y] = (i == rc);
 		}
 	}
-
 
 	// draw walls
 	for (x = 0; x < z->width; x++) {
@@ -113,36 +117,53 @@ static void generate(zone * z)
 	}
 
 	// place some random junk
-	if (world.iforms.cnt != 0) {
-		max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
-		for (i = max; i >= 0; i--) {
-			it = item_new(choose_random(&world.iforms, offsetof(iform, freq), world.max_iforms_freq));
+	max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;
+	for (i = max; i >= 0; i--) {
+		it = gen_item(world.gitems, 1);
 
-			do {
-				x = random() % z->width;
-				y = random() % z->height;
-			} while (z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it));
+		timeout = 1000;
+		do {
+			x = random() % z->width;
+			y = random() % z->height;
+			timeout--;
+		} while ((z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it)) && timeout);
 
+		if (timeout) {
 			item_tele(it, x, y, z);
 			zone_update(z, x, y);
+		} else {
+			item_free(it);
 		}
 	}
 
 	// place some more random junk
-	if (world.cforms.cnt != 0) {
+	if (!config.all_alone) {
 		max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
 		for (i = max; i >= 0; i--) {
-			cr = crtr_new(choose_random(&world.cforms, offsetof(cform, freq), world.max_cforms_freq));
-
-			do {
-				x = random() % z->width;
-				y = random() % z->height;
-			} while (z->tiles[x][y].impassible || z->tiles[x][y].crtr != NULL);
-
-			crtr_tele(cr, x, y, z);
-			zone_update(z, x, y);
+			cr = gen_crtr(world.gcrtrs, 1);
+			crtr_spawn(cr, z);
+			zone_update(z, cr->x, cr->y);
 		}
 	}
+
+	// place random zone jumpers
+	for (i = 0; i < 4; i++) {
+		do {
+			x = random() % z->width;
+			y = random() % z->height;
+			timeout--;
+		} while (z->tiles[x][y].impassible);
+
+		z->tiles[x][y].linked = 1;
+		z->tiles[x][y].link_z = NULL;
+		z->tiles[x][y].ch = '@';
+		z->tiles[x][y].show_ch = '@';
+	}
+
+	// cleanup
+	for (x = 0; x < z->width; x++) free(walls[x]);
+	free(walls);
+	free(rv);
 }
 
 zone * zone_new(int w, int h)
@@ -165,6 +186,7 @@ zone * zone_new(int w, int h)
 		}
 	}
 
+	vector_init(&z->crtrs);
 	generate(z);
 
 	return z;
@@ -186,12 +208,33 @@ void zone_free(zone * z)
 	free(z);
 }
 
+void zone_rm_crtr(zone * z, creature * c)
+{
+	assert(c->z == z);
+	assert(c == z->crtrs.arr[c->z_ind]);
+	assert(z->crtrs.cnt > c->z_ind);
+
+	// remove from crtrs list
+	z->crtrs.arr[c->z_ind] = z->crtrs.arr[--z->crtrs.cnt];
+	((creature *)z->crtrs.arr[c->z_ind])->z_ind = c->z_ind;
+
+	// remove from tile
+	assert(tileof(c)->crtr == c);
+	tileof(c)->crtr = NULL;
+
+	zone_update(c->z, c->x, c->y);
+	if (c->z == PLYR.z) wrefresh(dispscr);
+
+	c->z = NULL;
+	crtr_free(c);
+}
+
 void zone_draw_tile(zone * z, int x, int y)
 {
-	if (z->tiles[x][y].show == 1 || OPT(OPT_SHOW_ALL)
+	if (z->tiles[x][y].show == 1 || config.show_all
 		|| (z->tiles[x][y].show && z->tiles[x][y].impassible)
 	) {
-		disp_put(x, y, z->tiles[x][y].ch);
+		disp_put(x, y, z->tiles[x][y].show_ch);
 	} else {
 		disp_put(x, y, ' ');
 	}
@@ -202,22 +245,22 @@ void zone_update(zone * z, int x, int y)
 	int i;
 	int weight = -1;
 	item * it;
-	chtype ch = '.';
+	chtype ch = z->tiles[x][y].ch;
 
-	if (z->tiles[x][y].crtr == NULL) {
+	if (z->tiles[x][y].crtr == NULL || z->tiles[x][y].crtr->health <= 0) {
 		for (i = 0; i < z->tiles[x][y].inv->size; i++) {
 			it = z->tiles[x][y].inv->itms[i];
 
-			if (it != NULL && it->f->weight > weight) {
-				weight = it->f->weight;
-				ch = it->f->ch;
+			if (it != NULL && it->weight > weight) {
+				weight = it->weight;
+				ch = it->ch;
 			}
 		}
 	} else {
-		ch = z->tiles[x][y].crtr->f->ch;
+		ch = z->tiles[x][y].crtr->ch;
 	}
 
-	z->tiles[x][y].ch = ch;
+	z->tiles[x][y].show_ch = ch;
 	zone_draw_tile(z, x, y);
 }
 
@@ -244,16 +287,12 @@ tile * zone_at(zone * z, int x, int y)
 	return &z->tiles[x][y];
 }
 
-void zone_step(zone * z, int step)
+void zone_step(zone * z, long steps)
 {
-	int x, y;
+	int i;
 
-	for (x = 0; x < z->width; x++) {
-		for (y = 0; y < z->height; y++) {
-			if (z->tiles[x][y].crtr != NULL) {
-				crtr_step(z->tiles[x][y].crtr, step);
-			}
-		}
+	for (i = 0; i < z->crtrs.cnt; i++) {
+		crtr_step(z->crtrs.arr[i], steps);
 	}
 }
 

@@ -2,10 +2,13 @@
 // player.c
 //
 
+#include <assert.h>
 #include <stdlib.h>
+#include <string.h>
+#include "input.h"
+#include "config.h"
 #include "player.h"
 #include "display.h"
-#include "options.h"
 
 #define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])
 
@@ -15,9 +18,9 @@ static void update_vis(void)
 
 	for (x = 0; x < PLYR.z->width; x++) {
 		for (y = 0; y < PLYR.z->height; y++) {
-			show = zone_can_see(PLYR.z, PLYR.x, PLYR.y, x, y, 20);
+			show = zone_can_see(PLYR.z, PLYR.x, PLYR.y, x, y, PLYR.sight);
 			if (show != PLYR.z->tiles[x][y].show) {
-				PLYR.z->tiles[x][y].show = show || OPT(OPT_FORGET_WALLS) ? show : 2;
+				PLYR.z->tiles[x][y].show = show || config.forget_walls ? show : 2;
 				zone_draw_tile(PLYR.z, x, y);
 			}
 		}
@@ -34,23 +37,20 @@ static void redraw(void)
 	wrefresh(dispscr);
 }
 
-void plyr_act_pickup(void)
+//
+// The following functions are called through the command interface
+//
+void plyr_act_pickup(int argc, char ** argv)
 {
-	int i, j;
+	int i;
 
 	if (PLYRT.inv->weight == 0) {
 		memo("There is nothing here to pick up.");
 	} else {
-		i = inv_prompt("Pick up what?", PLYRT.inv, NULL);
+		i = prompt_inv("Pick up what?", PLYRT.inv, NULL);
 
 		if (PLYRT.inv->size > i && PLYRT.inv->itms[i] != NULL) {
-			if ((j = inv_add(PLYR.inv, PLYRT.inv->itms[i])) != INVALID) {
-				PLYRT.inv->itms[i]->i = j;
-				inv_rm(PLYRT.inv, i);
-				memo("You pick up the %s", PLYR.inv->itms[j]->f->name);
-			} else {
-				memo("The %s is too heavy to pick up.", PLYRT.inv->itms[i]->f->name);
-			}
+			crtr_act_pickup(&PLYR, i);
 		} else {
 			memo("You try to pick it up, but then you realize it does not exist.");
 		}
@@ -59,33 +59,26 @@ void plyr_act_pickup(void)
 	}
 }
 
-void plyr_act_drop(void)
+void plyr_act_drop(int argc, char ** argv)
 {
-	int i,j;
+	int i = prompt_inv("You dropped what?", PLYR.inv, &PLYR);
 
-	i = inv_prompt("You dropped what?", PLYR.inv, &PLYR);
-
-	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
-		if((j=inv_add(PLYRT.inv,PLYR.inv->itms[i]))!=INVALID){
-			crtr_rm_item(&PLYR, i)->i = j;
-			memo("You dropped the %s",PLYRT.inv->itms[j]->f->name);
-		}else{
-			memo("You cannot drop the %s.",PLYR.inv->itms[i]->f->name);
-		}
-	}else{
+	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
+		crtr_act_drop(&PLYR, i);
+	} else {
 		memo("There is no such item.");
 	}
 
 	redraw();
 }
 
-void plyr_act_inv(void)
+void plyr_act_inv(int argc, char ** argv)
 {
-	inv_prompt("You examine the contents of your inventory:", PLYR.inv, &PLYR);
+	prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
 	redraw();
 }
 
-void plyr_act_equipped(void)
+void plyr_act_equipped(int argc, char ** argv)
 {
 	int i;
 
@@ -96,88 +89,146 @@ void plyr_act_equipped(void)
 		wprintw(dispscr, " %s: ", slot_names[i]);
 
 		if (PLYR.slots[i] == NULL) wprintw(dispscr, "nothing\n");
-		else wprintw(dispscr, "%s\n", PLYR.slots[i]->f->name);
+		else wprintw(dispscr, "%s\n", PLYR.slots[i]->name);
 	}
 
 	wgetch(dispscr);
 	zone_draw(PLYR.z);
-	wrefresh(dispscr); 
+	wrefresh(dispscr);
 }
 
-void plyr_act_move(int dx, int dy)
+void plyr_act_move_left(int argc, char ** argv)
 {
-	int dam;
-	tile * t;
+	crtr_act_aa_move(&PLYR, -1, 0);
+}
 
-	if (!crtr_move(&PLYR, dx, dy)) {
-		t = zone_at(PLYR.z, PLYR.x + dx, PLYR.y + dy);
+void plyr_act_move_right(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 1, 0);
+}
 
-		// auto attack
-		if (t != NULL && t->crtr != NULL) {
-			switch (dam = crtr_attack(&PLYR, t->crtr)) {
-			case DEAD:
-				memo("You slay the %s.", t->crtr->f->name);
-				crtr_free(t->crtr);
-				t->crtr = NULL;
+void plyr_act_move_up(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 0, -1);
+}
 
-				zone_update(PLYR.z, PLYR.x + dx, PLYR.y + dy);
-				wrefresh(dispscr);
-				break;
-			case 0:
-				memo("You miss.");
-				break;
-			default:
-				memo("You hit for %d damage.", dam);
-				break;
+void plyr_act_move_down(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 0, 1);
+}
+
+void plyr_act_move_upleft(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, -1, -1);
+}
+
+void plyr_act_move_upright(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 1, -1);
+}
+
+void plyr_act_move_downleft(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, -1, 1);
+}
+
+void plyr_act_move_downright(int argc, char ** argv)
+{
+	crtr_act_aa_move(&PLYR, 1, 1);
+}
+
+void plyr_act_enter(int argc, char ** argv)
+{
+	int ox, oy;
+	zone * oz;
+	tile * t = tileof(&PLYR);
+
+	if (t->linked) {
+		// TODO generalize
+
+		if (t->link_z == NULL) {
+			ox = PLYR.x;
+			oy = PLYR.y;
+			oz = PLYR.z;
+
+			// generate new zone
+			vector_append(&world.zones, zone_new(150, 50)); // TODO why 150,50?
+			t->link_z = world.zones.arr[world.zones.cnt-1];
+
+			// place player randomly
+			crtr_spawn(&PLYR, t->link_z);
+			t->link_x = PLYR.x;
+			t->link_y = PLYR.y;
+
+			// link back
+			t = tileof(&PLYR);
+			t->linked = 1;
+			t->link_x = ox;
+			t->link_y = oy;
+			t->link_z = oz;
+			t->ch = '@';
+			t->show_ch = '@';
+		} else {
+			if (!crtr_tele(&PLYR, t->link_x, t->link_y, t->link_z)) {
+				memo("Your way appears to be blocked?");
 			}
 		}
-	}
 
-	update_vis();
+		update_vis();
+		zone_draw(PLYR.z);
+	} else {
+		memo("I see no visible method of doing that.");
+	}
 }
 
-void plyr_act_consume(void)
+void plyr_act_consume(int argc, char ** argv)
 {
 	int i;
-	item * it;
 
-	i = inv_prompt("What dost thou consume?", PLYR.inv, &PLYR);
+	i = prompt_inv("What dost thou consume?", PLYR.inv, &PLYR);
 
-	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL){
-		if (PLYR.inv->itms[i]->f->type & ITEM_CONSUMABLE){
-			it = crtr_rm_item(&PLYR, i);
-
-			PLYR.health  += it->f->restore_health;
-			PLYR.stamina += it->f->restore_stamina;
-
-			if (PLYR.health  > PLYR.f->max_health ) PLYR.health  = PLYR.f->max_health;
-			if (PLYR.stamina > PLYR.f->max_stamina) PLYR.stamina = PLYR.f->max_stamina;
-
-			memo("Thou dost consume the %s.", it->f->name);
-			item_free(it);
-		}else{
+	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL) {
+		if (PLYR.inv->itms[i]->type & ITEM_CONSUMABLE) {
+			crtr_act_consume(&PLYR, i);
+		} else {
 			memo("That would upset thy stomach.");
 		}
-	}else{
+	} else {
 		memo("Such an item existeth not.");
 	}
 
 	redraw();
 }
 
-void plyr_act_equip(void)
+void plyr_act_throw(int argc, char ** argv)
+{
+	int i, dx, dy;
+
+	i = prompt_inv("Throw what?", PLYR.inv, &PLYR);
+	redraw();
+
+	if (prompt_dir("Throw where?", &dx, &dy)) {
+		if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
+			crtr_act_throw(&PLYR, i, dx, dy);
+		} else {
+			memo("Such an item existeth not.");
+		}
+	} else {
+		memo("That is not a direction.");
+	}
+
+	redraw();
+}
+
+void plyr_act_equip(int argc, char ** argv)
 {
 	int i;
-	item * it;
 
-	i = inv_prompt("What dost thou equip?", PLYR.inv, &PLYR);
+	i = prompt_inv("What dost thou equip?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL){
-		if (PLYR.inv->itms[i]->f->type & ITEM_EQUIPABLE){
-			it = PLYR.inv->itms[i];
-			crtr_equip(&PLYR, it, it->f->slot);
-
-			memo("Thou dost equip the %s.", it->f->name);
+		if (PLYR.inv->itms[i]->type & ITEM_EQUIPABLE){
+			crtr_act_equip(&PLYR, i);
 		} else {
 			memo("It seems trying to equip that would prove fruitless.");
 		}
@@ -188,15 +239,41 @@ void plyr_act_equip(void)
 	redraw();
 }
 
+void plyr_act_idle(int argc, char ** argv)
+{
+	crtr_act_idle(&PLYR);
+}
+
+
+
+
+//
+// The following functions are called through the event system
+//
 void plyr_ev_birth(void)
 {
 	memo("Welcome to the world of iiag, you pathetic Guaren.");
 	update_vis();
 }
 
-void plyr_ev_death(const char * reasons)
+void plyr_ev_death(creature * p, const char * reasons)
 {
-	memo("You die of %s, how unfortunate. Press q to exit.", reasons);
+	int i, was_quaz = 0;
+	for (i = 0; i < MAX_SLOTS; i++) {
+		if (PLYR.slots[i] == NULL) continue;
+		if (PLYR.slots[i]->mat == NULL) break;
+		if (strcmp(PLYR.slots[i]->mat->name, "quaz") == 0) {
+			was_quaz = 1;
+			break;
+		}
+	}
+
+	if (was_quaz) {
+		memo("Quaz o quaz, wherefore art thou forsaking me!? Press q to exit.");
+	} else {
+		memo("You die of %s, how unfortunate. Press q to exit.", reasons);
+	}
+
 	while (wgetch(memoscr) != 'q');
 	end_disp();
 	exit(0);
@@ -205,7 +282,60 @@ void plyr_ev_death(const char * reasons)
 void plyr_ev_lvlup(void)
 {
 	memo("Level up!");
-	PLYR.f->max_health += 5;
+	PLYR.max_health += 5;
 	PLYR.health += 5;
 	PLYR.attack += 1;
+}
+
+void plyr_ev_act_comp(creature * p, item * it)
+{
+	assert(p->act != NULL);
+
+	switch (p->act->type) {
+	case ACT_MOVE:
+	case ACT_AA_MOVE:
+		update_vis();
+		break;
+	case ACT_PICKUP:
+		memo("Thou dost pickup the %s.", it->name);
+		break;
+	case ACT_DROP:
+		memo("Thou dost drop the %s.", it->name);
+		break;
+	case ACT_CONSUME:
+		memo("Thou dost consume the %s.", it->name);
+		break;
+	case ACT_EQUIP:
+		memo("Thou dost equip the %s to thy %s.", it->name, slot_names[it->slot]);
+		break;
+	default:;
+	}
+}
+
+void plyr_ev_act_fail(creature * p, void * how)
+{
+	assert(p->act != NULL);
+
+	switch ((action_fail)how) {
+	case ACT_FAIL_PICKUP_HEAVY:
+		memo("The %s is too heavy to pick up.", p->inv->itms[p->act->p.ind]->name);
+		break;
+	case ACT_FAIL_PICKUP_PRESENT:
+	case ACT_FAIL_DROP_PRESENT:
+	case ACT_FAIL_CONSUME_PRESENT:
+	case ACT_FAIL_EQUIP_PRESENT:
+	case ACT_FAIL_THROW:
+		memo("It seems to have vanished!");
+		break;
+	case ACT_FAIL_DROP_HEAVY:
+		memo("The %s is too heavy to drop, silly you.", p->inv->itms[p->act->p.ind]->name);
+		break;
+	case ACT_FAIL_CONSUME_ABLE:
+		memo("Thats wierd... it seems that that is no longer consumable.");
+		break;
+	case ACT_FAIL_EQUIP_ABLE:
+		memo("Thats wierd... it seems that that is no longer equipable.");
+		break;
+	default:;
+	}
 }

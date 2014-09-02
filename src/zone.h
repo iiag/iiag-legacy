@@ -2,39 +2,86 @@
 // zone.h
 //
 
-struct tile;
-struct zone;
-
 #ifndef ZONE_H
 #define ZONE_H
 
-#define TILE_MAX_WEIGHT 1000
+typedef struct tile tile;
+typedef struct zone zone;
 
+#define TILE_MAX_WEIGHT 50000
+
+#include "util.h"
 #include "creature.h"
 #include "inventory.h"
 
-typedef struct tile {
-	chtype ch;
+struct tile {
+	chtype ch, show_ch;
 	int show;
-	int impassible;//whether the tile is pasible or not
-	struct creature * crtr;//creture that may be on the tile
-	struct inventory * inv;//inventory of the tile
-} tile;
+	int impassible;  // whether the tile is pasible or not
+	creature * crtr; // creture that may be on the tile
+	inventory * inv; // inventory of the tile
 
-typedef struct zone {//creates azone with a width and height
-	int width, height;//width and height of zone
-	tile ** tiles;//array of tiles in the zone
-} zone;
+	int linked;
+	int link_x, link_y;
+	zone * link_z;
+};
 
-zone * zone_new(int, int);//pointer to a new zone struct 
-void zone_free(zone *);//deletes the zone
+struct zone {
+	char * name;
+	int width, height; // width and height of zone
+	tile ** tiles;     // array of tiles in the zone
+	vector_t crtrs;    // list of all creatures in the zone
+};
+
+//
+// Allocates a new zone
+//
+zone * zone_new(int, int);
+
+//
+// Deletes a zone
+//
+void zone_free(zone *);
+
+//
+// Draws the tile and the given (x, y) position
+//
 void zone_draw_tile(zone *, int, int);
-void zone_update(zone *, int, int);//redraws a tile by x,y coords, to be called after that tile is modified
-void zone_draw(zone *);//redraws the updated zone
-tile * zone_at(zone *, int, int);//returns the the thing at a particular tile
-void zone_step(zone *, int);//function that is called once every "step", i.e. once between user actions
+
+//
+// Updates the character to be drawn at the location, then draws the character
+//
+void zone_update(zone *, int, int);
+
+//
+// Draws the entirety of the tile
+//
+void zone_draw(zone *);
+
+//
+// Retrieves the creature located at the specified tile
+//
+tile * zone_at(zone *, int, int);
+
+//
+// Removes the creature from the tile and creature list
+//
+void zone_rm_crtr(zone *, creature *);
+
+//
+// This function is called once every "step"
+//
+void zone_step(zone *, long);
+
+//
+// Takes a two (x, y) pairs and a max distance and checks if the tiles are
+//  within visible range of each other.
+//
 int zone_can_see(zone *, int, int, int, int, int);
 
+//
+// Returns the tile of a given creature
+//
 #define tileof(O) (&(O)->z->tiles[(O)->x][(O)->y])
 
 #endif

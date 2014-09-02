@@ -7,8 +7,9 @@
 
 #include <lua.h>
 
-int lcf_cform(lua_State *);
+int lcf_creature(lua_State *);
 int lcf_player(lua_State *);
-int lcf_iform(lua_State *);
+int lcf_item(lua_State *);
+int lcf_material(lua_State *);
 
 #endif

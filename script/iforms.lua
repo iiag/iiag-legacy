@@ -5,53 +5,41 @@
 iform {
 	name = 'rock';
 	char = '*';
-	weight = 100;
+	weight = 2500;
 	freq = 20;
 }
 
+-- Foods --
 iform {
 	name = 'muffin';
+	class = 'food';
+	consumable = true;
 	char = '%';
-	weight = 1;
+	weight = 35;
 	restore_stamina = 40;
 	freq = 15;
 }
 
 iform {
-	name = 'health-potion';
+	name = 'semi egg';
+	class = 'food';
 	consumable = true;
-	char = '&';
-	weight = 1;
-	restore_health = 10;
-	freq = 15;
-}
-
-iform {
-	name = 'sword';
 	equipable = true;
-	char = '/';
-	weight = 8;
-	modify_attack = 12;
-	slot = 'right-hand';
-	freq = 10;
-}
-
-iform {
-	name = 'helm';
-	equipable = true;
-	char = '^';
-	weight = 6;
-	modify_ac = 4;
 	slot = 'head';
-	freq = 15;
+	char = '0';
+	restore_health = 50;
+	restore_stamina = -10;
+	weight = 35;
+	freq = 3;
 }
 
 iform {
 	name = 'breadstick';
+	class = 'food';
 	consumable = true;
 	equipable = true;
 	char = '|';
-	weight = 3;
+	weight = 15;
 	restore_health = 1;
 	restore_stamina = 20;
 	modify_attack = 4;
@@ -59,55 +47,171 @@ iform {
 	freq = 15;
 }
 
+-- Potions --
 iform {
-	name = 'magic cape';
+	name = 'health-potion';
+	class = 'potion';
+	consumable = true;
+	char = '&';
+	weight = 300;
+	restore_health = 10;
+	freq = 15;
+}
+
+-- Melee weapons --
+iform {
+	name = 'sword';
+	class = 'weapon/melee';
+	material = 'metal';
 	equipable = true;
-	char = '\\';
-	weight = 4;
-	modify_ac = 5;
-	modify_attack = 10;
-	slot = 'cape';
+	char = '/';
+	weight = 2000;
+	modify_attack = 6;
+	slot = 'right-hand';
+	freq = 10;
+}
+
+iform {
+	name = 'axe';
+	class = 'weapon/melee';
+	material = 'metal';
+	equipable = true;
+	char = '/';
+	weight = 3000;
+	modify_attack = 7;
+	slot = 'right-hand';
+	freq = 7;
+}
+
+iform {
+	name = 'mace';
+	class = 'weapon/melee';
+	material = 'metal';
+	equipable = true;
+	char = '/';
+	weight = 3000;
+	modify_attack = 7;
+	slot = 'right-hand';
 	freq = 5;
 }
 
 iform {
-	name = 'cloak of darkness';
+	name = 'sickle';
+	class = 'weapon/melee';
+	material = 'metal';
 	equipable = true;
-	char = '\\';
-	weight = 80;
-	modify_ac = 2700;
-	modify_attack = -1000;
-	slot = 'cape';
-	freq = 1;
+	char = '?';
+	weight = 1500;
+	modify_attack = 6;
+	slot = 'right-hand';
+	freq = 5;
 }
 
 iform {
-	name = 'quaz boots';
+	name = 'whip';
+	class = 'weapon/melee';
+	equipable = true;
+	char = '$';
+	modify_attack = 9;
+	slot = 'right-hand';
+	freq = 7;
+	weight = 600;
+}
+
+-- Throwing weapons --
+iform {
+	name = 'shuriken';
+	class = 'weapon/throwing';
+	equipable = true;
+	char = '+';
+	weight = 75;
+	modify_attack = 2;
+	slot = 'left-hand';
+	freq = 10;
+	spikiness = 20;
+}
+
+-- Armor --
+iform {
+	name = 'barbute';
+	class = 'armor';
+	material = 'metal';
+	equipable = true;
+	char = '^';
+	weight = 1250;
+	modify_ac = 4;
+	slot = 'head';
+	freq = 8;
+}
+
+iform {
+	name = 'mail coif';
+	class = 'armor';
+	material = 'metal';
+	equipable = true;
+	char = '^';
+	weight = 1450;
+	modify_ac = 3;
+	slot = 'head';
+	freq = 7;
+}
+
+iform {
+	name = 'cuirass';
+	class = 'armor';
+	material = 'metal';
+	equipable = true;
+	char = ']';
+	weight = 5000;
+	modify_ac = 9;
+	slot = 'torso';
+	freq = 4;
+}
+
+iform {
+	name = 'hauberk';
+	class = 'armor';
+	material = 'metal';
+	equipable = true;
+	char = ']';
+	weight = 3000;
+	modify_ac = 7;
+	slot = 'torso';
+	freq = 4;
+}
+
+iform {
+	name = 'greaves';
+	class = 'armor';
+	material = 'metal';
+	equipable = true;
+	char = '}';
+	weight = 4000;
+	modify_ac = 7;
+	slot = 'legs';
+	freq = 5;
+}
+
+iform {
+	name = 'boots';
+	class = 'armor';
+	material = 'metal';
 	equipable = true;
 	char = '"';
-	weight = 120;
+	weight = 4500;
 	modify_ac = 14;
 	slot = 'feet';
-	freq = 3;
+	freq = 6;
 }
 
+-- To be categorized --
 iform {
-	name = 'hiking boots';
+	name = 'magic cape';
 	equipable = true;
-	char = '"';
-	weight = 70;
-	modify_ac = 1;
-	slot = 'feet';
-	freq = 15;
-}
-
-iform {
-	name = 'death stick';
-	equipable = true;
-	char = '/';
-	weight = 499;
-	modify_ac = -100;
-	modify_attack = 9001;
-	slot = 'right-hand';
+	char = '\\';
+	weight = 750;
+	modify_ac = 5;
+	modify_attack = 10;
+	slot = 'cape';
 	freq = 1;
 }
