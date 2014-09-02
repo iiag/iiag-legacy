@@ -48,11 +48,14 @@ enum {
 typedef struct config {
 	const char * cfg_file;
 	const char * lua_init;
+	const char * ip;
+	int port;
 	int forget_walls;
 	int show_all;
 	int all_alone;
 	int god_mode;
 	int real_time;
+	int multiplayer;
 	int throw_anim_delay;
 	int ctrl[TOTAL_CONTROLS];
 } config_t;

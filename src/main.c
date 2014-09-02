@@ -24,6 +24,8 @@
 #include "controlls.h"
 =======
 #include "commands.h"
+#include "net/net.h"
+#include "net/packet.h"
 
 extern command_t * command_list;
 extern int num_commands;
@@ -83,6 +85,15 @@ int main(int argc, char ** argv)
 	init_world();
 	init_commands();
 
+	if(config.multiplayer){
+		client_connect(config.ip,config.port);
+		write_spawn_packet(client_socket);
+
+		//wait for response
+		usleep(600000);
+		while(!read_packet(client_socket, NULL));
+	}
+
 	plyr_ev_birth();
 	scroll_center(PLYR.x, PLYR.y);
 	zone_draw(PLYR.z);
@@ -91,7 +102,8 @@ int main(int argc, char ** argv)
 	step();
 	for (;;) {
 		c = get_ctrl();
-		reset_memos();
+		if(c != CTRL_SKIP_TURN || (!config.multiplayer))
+			reset_memos();
 
 		if (CTRL_QUIT == c) {
 			goto cleanup;
@@ -100,16 +112,21 @@ int main(int argc, char ** argv)
 		} else {
 			execute(c);
 		}
-
+		
+		if(c != CTRL_SKIP_TURN)
+		write_command_packet(client_socket,c);
 
 		// TODO this delay should probably sync to game time
-		if (config.real_time) usleep(500000);
+		if(config.multiplayer) usleep(50000);
+		else if (config.real_time ) usleep(250000);
 
 		while (PLYR.act != NULL) {
 			start_timer();
 			step();
 			end_timer("step length");
 		}
+		if(config.multiplayer)
+			while(!read_packet(client_socket, NULL));
 	}
 
 cleanup:

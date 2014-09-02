@@ -74,6 +74,11 @@ void zone_rm_crtr(zone *, creature *);
 void zone_step(zone *, long);
 
 //
+// This function sets up an empty tile, used for zone generation
+//
+void zone_empty_tile(zone *, int, int);
+
+//
 // Takes a two (x, y) pairs and a max distance and checks if the tiles are
 //  within visible range of each other.
 //

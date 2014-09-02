@@ -3,6 +3,9 @@
 *~
 dep/
 obj/
+sdep/
+sobj/
 iiag
+iiag_server
 *.kdev4
 *.cfg

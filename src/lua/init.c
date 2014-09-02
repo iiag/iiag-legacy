@@ -25,6 +25,7 @@ static const struct {
 	{ "player",   lcf_player   },
 	{ "iform",    lcf_item     },
 	{ "material", lcf_material },
+	{ "rform",    lcf_room     },
 };
 
 void init_lua(void)

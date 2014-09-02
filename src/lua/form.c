@@ -12,6 +12,7 @@
 #include "../world.h"
 #include "../faction.h"
 #include "../creature.h"
+#include "../room.h"
 
 const char * slot_names[] = {
 	"left-hand",
@@ -208,6 +209,27 @@ int lcf_material(lua_State * lstate)
 
 	assure_world();
 	add_to_gclass(lstate, world.gmats, mat);
+
+	return 0;
+}
+
+int lcf_room(lua_State * lstate)
+{
+	room * rom;
+
+	assert(lua_istable(lstate, 1));
+
+	rom = malloc(sizeof(room));
+
+	rom->max_height   = get_int(lstate, "max_height",  2);
+	rom->max_width    = get_int(lstate, "max_width",  2);
+	rom->min_height   = get_int(lstate, "min_height",  1);
+	rom->min_width    = get_int(lstate, "min_width",  1);
+	rom->shape        = get_int(lstate, "shape",  0);
+	rom->features     = get_int(lstate, "features",  0);
+
+	assure_world();
+	add_to_gclass(lstate, world.grooms, rom);
 
 	return 0;
 }

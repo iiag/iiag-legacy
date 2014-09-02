@@ -14,6 +14,7 @@ typedef struct gclass gclass_t;
 #include "util.h"
 #include "item.h"
 #include "creature.h"
+#include "room.h"
 
 struct gelm {
 	int lvl;
@@ -32,8 +33,11 @@ struct gclass {
 
 gclass_t * new_gclass(gclass_t *);
 gclass_t * get_gclass(const char *, gclass_t *);
-void add_gelm(gclass_t *, int, int, void *);
+void       add_gelm(gclass_t *, int, int, void *);
 item     * gen_item(gclass_t *, int);
 creature * gen_crtr(gclass_t *, int);
+room     * gen_room(gclass_t *, int);
+item     * gen_item_from_id(gclass_t *, int, int, int);
+creature * gen_crtr_from_id(gclass_t *, int, int);
 
 #endif

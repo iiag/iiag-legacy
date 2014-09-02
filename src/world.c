@@ -15,6 +15,7 @@
 #include "player.h"
 #include "display.h"
 #include "inventory.h"
+#include "config.h"
 
 world_t world;
 
@@ -35,12 +36,13 @@ void assure_world(void)
 		world.tm.hour  = 9;
 		world.tm.min   = 0;
 
-		crtr_init(&world.plyr, '@' | A_BOLD);
+		crtr_init(&world.plyr, '@' | A_BOLD | COLOR_PAIR(COLOR_SELF));
 		vector_init(&world.zones);
 
 		world.gcrtrs = new_gclass(NULL);
 		world.gitems = new_gclass(NULL);
 		world.gmats  = new_gclass(NULL);
+		world.grooms = new_gclass(NULL);
 
 		// allocate 16 actions to start
 		world.acts = malloc(sizeof(action_node) * 16);
@@ -67,6 +69,7 @@ void init_world(void)
 	z = zone_new(150, 50);
 	vector_append(&world.zones, z);
 
+	#ifndef SERVER
 	world.plyr.on_death.c_func    = (trigger_cfunc)plyr_ev_death;
 	world.plyr.on_lvlup.c_func    = (trigger_cfunc)plyr_ev_lvlup;
 	world.plyr.on_act_comp.c_func = (trigger_cfunc)plyr_ev_act_comp;
@@ -75,6 +78,7 @@ void init_world(void)
 
 	crtr_spawn(&world.plyr, z);
 	zone_update(z, world.plyr.x, world.plyr.y);
+	#endif
 }
 
 //
@@ -136,6 +140,7 @@ void step_world(void)
 		}
 
 		// update time
+		if(!config.multiplayer)
 		world.tm.steps += step_diff;
 
 		while (world.tm.steps >= 6000) {

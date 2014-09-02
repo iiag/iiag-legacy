@@ -66,6 +66,7 @@ void crtr_init(creature * c, chtype ch)
 	c->sight   = 15;
 	c->reflex  = 1;
 	c->throw   = 20;
+	c->ai	   = 1;
 	c->speed   = SEC(1.4);
 
 	c->inv = inv_new(25000);
@@ -118,6 +119,8 @@ creature * crtr_copy(const creature * p)
 	c->sight       = p->sight;
 	c->throw       = p->throw;
 	c->speed       = p->speed;
+	c->ai	       = p->ai;
+	c->gen_id      = p->gen_id;
 
 	c->on_spawn = p->on_spawn;
 	c->on_death = p->on_death;
@@ -199,6 +202,14 @@ void crtr_death(creature * c, char * meth)
 //
 int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
+
+	/*#ifdef SERVER
+		zone* old_zone;
+		int old_x,old_y;
+		old_zone=crtr->z;
+		old_x=crtr->x;
+		old_y=crtr->y;
+	#endif*/
 	if (crtr_can_tele(crtr, x, y, z)) {
 		z->tiles[x][y].crtr = crtr;
 
@@ -234,6 +245,11 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 		crtr->x = x;
 		crtr->y = y;
 		crtr->z = z;
+		
+		/*#ifdef SERVER
+			if(old_zone)
+				server_tile_update(&(old_zone->tiles[old_x][old_y]), old_x, old_y);
+		#endif*/
 
 		return 1;
 	}
@@ -320,7 +336,7 @@ int crtr_attack(creature * attacker, creature * defender)
 	damage -= random() % (defender->ac + 1);
 	if (damage < 0) damage = 0;
 
-	if(!(config.god_mode && defender == &PLYR)) defender->health -= damage;
+	if(!(config.god_mode && plyr_is_me(defender))) defender->health -= damage;
 
 	if (defender->health <= 0) {
 		// death comes to us all
@@ -415,8 +431,8 @@ static void beast_ai(creature * c)
 				dx = 0;
 			}
 		}
-
-		crtr_act_aa_move(c, dx, dy);
+		//if(!config.multiplayer)
+			crtr_act_aa_move(c, dx, dy);
 	}
 }
 
@@ -485,6 +501,10 @@ void crtr_try_aa_move(creature * c, int dx, int dy)
 	int dam;
 	tile * t;
 	creature * d;
+
+	//movement in muliplayer is impossible!
+	if(config.multiplayer)
+		return;
 
 	assert(dx || dy);
 

@@ -7,6 +7,12 @@
 
 #include <ncurses.h>
 
+#define COLOR_SELF 1
+#define COLOR_WALL 2
+#define COLOR_OTHER 3
+#define COLOR_ITEM 4
+#define COLOR_ENEMY 5
+
 void init_disp(void);
 void end_disp(void);
 void disp_put(int, int, chtype);

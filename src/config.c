@@ -15,11 +15,13 @@
 config_t config = {
 	NULL,              // cfg_file
 	"script/init.lua", // lua_init
+	"127.0.0.1", 13699,//ip, port
 	0,  // forget_walls
 	0,  // show_all
 	0,  // all_alone
 	0,  // god_mode
 	0,  // real_time
+	0,  // multiplayer
 	20, // throw_anim_delay
 
 	{
@@ -72,12 +74,14 @@ struct field {
 
 static const struct field cfg_fields[] = {
 	{ STRING,  "lua-init",         &config.lua_init         },
+	{ STRING,  "server-ip",        &config.ip               },
 	{ BOOLEAN, "show-all",         &config.show_all         },
 	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
 	{ BOOLEAN, "god-mode",         &config.god_mode         },
 	{ BOOLEAN, "real-time",        &config.real_time        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
+	{ INTEGER, "port",             &config.port             },
 
 	// movement controls
 	{ CONTROL, "ctrl-up",     config.ctrl + CTRL_UP     },
@@ -288,6 +292,8 @@ static void print_help()
 	"        Turn on all alone mode, for debugging purposes.\n"
 	"    -r\n"
 	"        Turn on all real time mode.\n"
+	"    -n [optional ip address]\n"
+	"        Connect to server for multiplayer.\n"
 	"    -s\n"
 	"        Show everything.\n"
 	"\n"
@@ -328,6 +334,15 @@ void init_config(int argc, char ** argv)
 			case 'r':
 				config.real_time = 1;
 				break;
+			#ifndef SERVER
+			case 'n':
+				config.multiplayer = 1;
+				config.real_time = 1;
+				if(i +1 < argc && argv[i+1][0] != '-')
+					config.ip = argv[++i];
+
+				break;
+			#endif
 			default:
 				wrlog("Ignoring unknown flag '%s'", argv[i]);
 			}

@@ -45,6 +45,21 @@ int inv_add(inventory *, item *);
 int inv_try(inventory *, item *);
 
 //
+//count the items in inventory
+//
+int inv_count(inventory* inv);
+
+//
+//empty inventory
+//
+void inv_clear(inventory * inv);
+
+//
+//empty an inventory
+//
+void inv_empty(inventory* inv);
+
+//
 // Removes an item at a given index from an inventory
 //
 item * inv_rm(inventory *, int);

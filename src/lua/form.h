@@ -11,5 +11,6 @@ int lcf_creature(lua_State *);
 int lcf_player(lua_State *);
 int lcf_item(lua_State *);
 int lcf_material(lua_State *);
+int lcf_room(lua_State *);
 
 #endif
