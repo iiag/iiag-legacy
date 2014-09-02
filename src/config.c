@@ -13,16 +13,17 @@
 
 ///// Default Configuration /////
 config_t config = {
-	NULL,              // cfg_file
-	"script/init.lua", // lua_init
-	"127.0.0.1", 13699,//ip, port
-	0,  // forget_walls
-	0,  // show_all
-	0,  // all_alone
-	0,  // god_mode
-	0,  // real_time
-	0,  // multiplayer
-	20, // throw_anim_delay
+	NULL,               // cfg_file
+	"script/init.lua",  // lua_init
+	"127.0.0.1", 13699, //ip, port
+	0,                  // forget_walls
+	0,                  // show_all
+	0,                  // all_alone
+	0,                  // god_mode
+	0,                  // real_time
+	0,                  // multiplayer
+	LOG_INFO,           // log_level
+	20,                 // throw_anim_delay
 
 	{
 		// movement controls
@@ -83,6 +84,7 @@ static const struct field cfg_fields[] = {
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
 	{ BOOLEAN, "god-mode",         &config.god_mode         },
 	{ BOOLEAN, "real-time",        &config.real_time        },
+	{ INTEGER, "log-level",        &config.log_level        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
 	{ INTEGER, "port",             &config.port             },
 
@@ -197,7 +199,7 @@ static int get_boolean(FILE * f, const char * fn)
 
 	b = !strcmp("true", s);
 	if (!b && strcmp("false", s)) {
-		wrlog("%s: expected 'true' or 'false' instead of '%s'", fn, s);
+		warning("%s: expected 'true' or 'false' instead of '%s'", fn, s);
 	}
 
 	free(s);
@@ -216,7 +218,7 @@ static void expect(char c, FILE * f, const char * fn)
 {
 	int g = fgetc(f);
 	if (c != g) {
-		wrlog("%s: Expected %c (%d), got %c (%d)", fn, c, c, g, g);
+		warning("%s: Expected %c (%d), got %c (%d)", fn, c, c, g, g);
 	}
 }
 
@@ -232,7 +234,7 @@ static void load_config(const char * file)
 	} else {
 		f = fopen(file, "r");
 		if (f == NULL) {
-			wrlog("Could not open config file '%s'", file);
+			warning("Could not open config file '%s'", file);
 			return;
 		}
 	}
@@ -252,7 +254,7 @@ static void load_config(const char * file)
 		expect('=', f, file);
 
 		if (fld == NULL) {
-			wrlog("%s: Unknown field '%s'", file, name);
+			warning("%s: Unknown field '%s'", file, name);
 			free(get_string(f));
 		} else {
 			switch (fld->type) {
@@ -293,10 +295,18 @@ static void print_help()
 	"        The initial lua script to run.\n"
 	"    -l\n"
 	"        Turn on all alone mode, for debugging purposes.\n"
-	"    -r\n"
-	"        Turn on all real time mode.\n"
+	"    -L [log level]\n"
+	"        Set the logging level.\n"
+	"        Supported log levels:\n"
+	"            0  All\n"
+	"            1  Debug\n"
+	"            2  Notices\n"
+	"            3  Warnings\n"
+	"            4  Errors\n"
 	"    -n [optional ip address]\n"
 	"        Connect to server for multiplayer.\n"
+	"    -r\n"
+	"        Turn on all real time mode.\n"
 	"    -s\n"
 	"        Show everything.\n"
 	"\n"
@@ -346,11 +356,14 @@ void init_config(int argc, char ** argv)
 
 				break;
 			#endif
+			case 'L':
+				config.log_level = (log_level_t) atoi(argv[++i]);
+				break;
 			default:
-				wrlog("Ignoring unknown flag '%s'", argv[i]);
+				warning("Ignoring unknown flag '%s'", argv[i]);
 			}
 		} else {
-			wrlog("Command line argument '%s' ignored.", argv[i]);
+			warning("Command line argument '%s' ignored.", argv[i]);
 		}
 	}
 

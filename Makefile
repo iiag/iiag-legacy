@@ -8,6 +8,8 @@ SERVER_TARGET = iiag_server
 CC            = gcc
 LUAV          = lua
 DESTDIR       = /opt/iiag
+
+# Add -DWITH_INTROSPECTION to *_CCFL to enable introspection
 CLIENT_CCFL  := -c -g -Wall `pkg-config --cflags $(LUAV)`
 SERVER_CCFL	 := -c -g -Wall -DSERVER `pkg-config --cflags $(LUAV)`
 LDFL         := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
@@ -31,7 +33,7 @@ SERVER_OBJS := $(addprefix sobj/,$(patsubst %.c,%.o,$(SERVER_SRCS)))
 SERVER_DEPS := $(addprefix sdep/,$(patsubst %.c,%.d,$(SERVER_SRCS)))
 SERVER_SRCS := $(addprefix src/,$(SERVER_SRCS))
 
-.PHONY: all clean
+.PHONY: all clean install
 
 all: $(CLIENT_TARGET) $(SERVER_TARGET)
 

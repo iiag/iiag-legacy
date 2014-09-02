@@ -24,6 +24,7 @@
 #include "commands.h"
 #include "net/net.h"
 #include "net/packet.h"
+#include "introspection.h"
 
 extern command_t * command_list;
 extern int num_commands;
@@ -69,6 +70,7 @@ int main(int argc, char ** argv)
 {
 	int c;
 
+	init_introspection(argv[0]);
 	init_config(argc, argv);
 	init_lua();
 
@@ -108,7 +110,7 @@ int main(int argc, char ** argv)
 		} else {
 			execute(c);
 		}
-		
+
 		if(c != CTRL_SKIP_TURN)
 		write_command_packet(client_socket,c);
 
@@ -117,9 +119,9 @@ int main(int argc, char ** argv)
 		else if (config.real_time ) usleep(250000);
 
 		while (PLYR.act != NULL) {
-			start_timer();
+			// start_timer();
 			step();
-			end_timer("step length");
+			// end_timer("step length");
 		}
 		if(config.multiplayer)
 			while(!read_packet(client_socket, NULL));

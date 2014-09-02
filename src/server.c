@@ -29,7 +29,6 @@ extern int num_commands;
 
 static void sig_handler(int rc)
 {
-	end_disp();
 	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
@@ -49,7 +48,6 @@ int main(int argc, char ** argv)
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);
 
-	init_disp();
 	init_world();
 
 	/*plyr_ev_birth();
@@ -62,23 +60,22 @@ int main(int argc, char ** argv)
 	for (;;) {
 		start_timer();
 		server_update_clients();
-		step=world.tm.steps;
+		step = world.tm.steps;
 
 		while(abs(world.tm.steps - step) < 140){
 			stall = world.tm.steps;
 			step_world();
 			if(stall == world.tm.steps) break;
-			wrlog("step %i %i",world.tm.steps, step);
+			debug("Step %i %i", world.tm.steps, step);
 		}
 
 		try_accept();
 		server_listen(server_sockets);
-		end_timer("step length");
+		end_timer("Step length");
 		usleep(250000);
 		//if(server_sockets!=NULL)
 		//write_test_packet(server_sockets->sock);
 	}
 
-	wrlog("Shutting down");
 	return 0;
 }

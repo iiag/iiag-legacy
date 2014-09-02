@@ -296,7 +296,7 @@ void handle_tile(socket_node* s, void* pack, int len){
 
 	inv_clear(z->tiles[t->x][t->y].inv);
 
-	if(z->tiles[t->x][t->y].crtr && !plyr_is_me(z->tiles[t->x][t->y].crtr)){
+	if(z->tiles[t->x][t->y].crtr && !plyr_is_crtr(z->tiles[t->x][t->y].crtr)){
 		z->tiles[t->x][t->y].crtr->deceased=1;
 		zone_rm_crtr(z, z->tiles[t->x][t->y].crtr);
 	}

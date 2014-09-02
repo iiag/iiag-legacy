@@ -10,9 +10,9 @@
 
 #define PLYR world.plyr
 #ifdef SERVER
-	#define plyr_is_me(C) (C->ai == 0)
+	#define plyr_is_crtr(C) (C->ai == 0)
 #else
-	#define plyr_is_me(C) ((C) == &PLYR)
+	#define plyr_is_crtr(C) ((C) == &PLYR)
 #endif
 
 void update_vis(void);
