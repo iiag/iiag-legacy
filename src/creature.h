@@ -5,7 +5,6 @@
 #ifndef CREATURE_H
 #define CREATURE_H
 
-typedef struct action action;
 typedef struct creature creature;
 
 #include <ncurses.h>
