@@ -129,7 +129,7 @@ static void generate(zone * z)
 	for(i=0; i< rc; i++)
 		free(rooms[i]);
 
-	
+	free(rooms);
 
 	// place some random junk
 	max = random() % (z->width * z->height / ITEM_INFREQ) + ITEM_MIN;

@@ -292,9 +292,7 @@ static void print_help()
 	"        Turn on all alone mode, for debugging purposes.\n"
 	"    -r\n"
 	"        Turn on all real time mode.\n"
-	"    -n\n"
-	"        Connect to server for multiplayer.\n"
-	"    -N [ip address]\n"
+	"    -n [optional ip address]\n"
 	"        Connect to server for multiplayer.\n"
 	"    -s\n"
 	"        Show everything.\n"
@@ -336,12 +334,15 @@ void init_config(int argc, char ** argv)
 			case 'r':
 				config.real_time = 1;
 				break;
-			case 'N':
-				config.ip = argv[++i];
+			#ifndef SERVER
 			case 'n':
 				config.multiplayer = 1;
 				config.real_time = 1;
+				if(i +1 < argc && argv[i+1][0] != '-')
+					config.ip = argv[++i];
+
 				break;
+			#endif
 			default:
 				wrlog("Ignoring unknown flag '%s'", argv[i]);
 			}
