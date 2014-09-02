@@ -51,6 +51,10 @@ struct item {
 	int modify_attack;
 	int modify_ac;
 	int slot;
+	
+	//id for serialization
+	int gen_id;
+	int gen_mat_id;
 };
 
 //

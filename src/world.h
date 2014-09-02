@@ -13,6 +13,7 @@ typedef struct action_node action_node;
 #include "names.h"
 #include "creature.h"
 #include "generator.h"
+#include "room.h"
 
 typedef struct {
 	int era, year, month;
@@ -34,6 +35,7 @@ typedef struct {
 	vector_t zones;    // list of zones that exist
 	gclass_t * gcrtrs; // generatable creatures
 	gclass_t * gitems; // generatable items
+	gclass_t * grooms; // generatable rooms 
 	gclass_t * gmats;  // generatable materials
 
 	// for the action min-heap

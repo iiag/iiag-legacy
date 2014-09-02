@@ -8,7 +8,12 @@
 #include <string.h>
 #include "log.h"
 
+#ifdef SERVER
+const char * log_file = "server.log";
+#else
 const char * log_file = "iiag.log";
+#endif
+
 static clock_t sclock;
 
 void wrlog(const char * fmt, ...)

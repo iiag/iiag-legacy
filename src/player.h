@@ -9,7 +9,13 @@
 #include "creature.h"
 
 #define PLYR world.plyr
-#define plyr_is_me(C) ((C) == &PLYR)
+#ifdef SERVER
+	#define plyr_is_me(C) (C->ai == 0)
+#else
+	#define plyr_is_me(C) ((C) == &PLYR)
+#endif
+
+void update_vis(void);
 
 // player willed actions
 void plyr_act_pickup(int, char **);
@@ -35,7 +41,7 @@ void plyr_act_enter(int, char **);
 // the inevitable
 void plyr_ev_birth(void);
 void plyr_ev_death(creature *, const char *);
-void plyr_ev_lvlup(void);
+void plyr_ev_lvlup(creature *);
 void plyr_ev_act_comp(creature *, item *);
 void plyr_ev_act_fail(creature *, void *);
 
