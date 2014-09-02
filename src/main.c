@@ -84,7 +84,8 @@ int main(int argc, char ** argv)
 	init_commands();
 
 	if(config.multiplayer){
-		client_connect(config.ip,config.port);
+		if(client_connect(config.ip,config.port))
+			goto cleanup;//failed to connect to server
 		write_spawn_packet(client_socket);
 
 		//wait for response

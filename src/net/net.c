@@ -24,7 +24,7 @@ int client_connect(const char* ip, int port){
 
 	client_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (client_socket == -1){
-		perror("Socket creation");
+		error("Create Socket Failed");
 		return 1;
 	}
 
@@ -36,7 +36,7 @@ int client_connect(const char* ip, int port){
 	/* connect to the server */
 	status = connect(client_socket, (struct sockaddr*)&serv_name, sizeof(serv_name));
 	if (status == -1){
-		perror("Connection error");
+		error("Connection to Server Failed");
 		close(client_socket);
 		client_socket=-1;
 		return 1;
@@ -124,7 +124,7 @@ int read_packet(int socket, socket_node* s){
 		return 1;
 
 	if(count != sizeof(packet_header)){
-		warning("Fragmented header! %i Closing Connection",count);
+		error("Fragmented header! %i Closing Connection",count);
 		close(socket);
 		cleanup_socket(socket);
 		return 1;
@@ -138,7 +138,7 @@ int read_packet(int socket, socket_node* s){
 		if(count == -1){
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
-			error("Error reading %i", errno);
+			notice("Error reading %i", errno);
 			close(socket);
 			cleanup_socket(socket);
 			return 1;
@@ -153,7 +153,6 @@ int read_packet(int socket, socket_node* s){
 	return 0;
 }
 
-//TODO figure out why the server log is full of writing errors
 int full_write(int sock, void* start, int len){
 	int sent=0;
 	int tmp;
@@ -164,7 +163,7 @@ int full_write(int sock, void* start, int len){
 		if(tmp == -1){
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
-			error("Error writing %i", errno);
+			notice("Error writing %i", errno);
 			close(sock);
 			cleanup_socket(sock);
 			return -1;

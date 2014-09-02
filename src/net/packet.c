@@ -215,9 +215,6 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	s->player.refs = NOFREE;
 	s->player.ai = 0;
 
-	//speed til time scale is fixed!
-	//s->player.speed = SEC(0.5);
-
 	zone* z = world.zones.arr[0];
 	crtr_spawn(&(s->player), z);
 	zone_update(z, s->player.x, s->player.y);
@@ -225,7 +222,7 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	for(x=0;x<z->width;x++)
 	for(y=0;y<z->height;y++)
 		if(! (x == s->player.x && y == s->player.y) )
-		write_tile_packet(s->sock,&(z->tiles[x][y]),x,y);
+			write_tile_packet(s->sock,&(z->tiles[x][y]),x,y);
 }
 
 void handle_command(socket_node* s, void* pack, int len){
@@ -259,7 +256,10 @@ void handle_player(socket_node* s, void* pack, int len){
 	int i;
 
 	if(p->health < 1){
-	plyr_ev_death(NULL,"Network lag");
+		plyr_ev_death(NULL,"Network lag");
+	}
+	if(p->stamina <= 0){
+		plyr_ev_death(NULL,"starvation");
 	}
 
 	crtr_tele(&PLYR, p->x,p->y, world.zones.arr[0]);
@@ -334,10 +334,8 @@ void handle_tile(socket_node* s, void* pack, int len){
 	}
 
 
-	//if(t->impassible){
 		z->tiles[t->x][t->y].ch=t->ch;
 		z->tiles[t->x][t->y].show_ch=t->show_ch;
-	//}else
 		zone_update(z, t->x, t->y);
 
 }

@@ -58,7 +58,7 @@ void plyr_act_pickup(int argc, char ** argv)
 			memo("You try to pick it up, but then you realize it does not exist.");
 		}
 
-		// redraw();
+		 redraw();
 	}
 }
 
@@ -73,13 +73,13 @@ void plyr_act_drop(int argc, char ** argv)
 		memo("There is no such item.");
 	}
 
-	// redraw();
+	 redraw();
 }
 
 void plyr_act_inv(int argc, char ** argv)
 {
 	prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
-	// redraw();
+	 redraw();
 }
 
 void plyr_act_equipped(int argc, char ** argv)
@@ -202,7 +202,7 @@ void plyr_act_consume(int argc, char ** argv)
 		memo("Such an item existeth not.");
 	}
 
-	// redraw();
+	 redraw();
 }
 
 void plyr_act_throw(int argc, char ** argv)
@@ -222,7 +222,7 @@ void plyr_act_throw(int argc, char ** argv)
 		memo("That is not a direction.");
 	}
 
-	// redraw();
+	 redraw();
 }
 
 void plyr_act_equip(int argc, char ** argv)
@@ -242,7 +242,7 @@ void plyr_act_equip(int argc, char ** argv)
 		memo("Such an item existeth not.");
 	}
 
-	// redraw();
+	 redraw();
 }
 
 void plyr_act_idle(int argc, char ** argv)

@@ -29,6 +29,7 @@ extern int num_commands;
 
 static void sig_handler(int rc)
 {
+	end_disp();
 	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
@@ -48,11 +49,12 @@ int main(int argc, char ** argv)
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);
 
+	//for the moment this is needed to make walls render properly
+	//may be removed/fixed in the next major update.
+	//this also seems to affect logging
+	init_disp();
 	init_world();
 
-	/*plyr_ev_birth();
-	scroll_center(PLYR.x, PLYR.y);
-	zone_draw(PLYR.z);*/
 
 	step_world();
 	setup_listener(config.port);
@@ -73,8 +75,7 @@ int main(int argc, char ** argv)
 		server_listen(server_sockets);
 		end_timer("Step length");
 		usleep(250000);
-		//if(server_sockets!=NULL)
-		//write_test_packet(server_sockets->sock);
+
 	}
 
 	return 0;
