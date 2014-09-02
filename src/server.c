@@ -29,7 +29,6 @@ extern int num_commands;
 
 static void sig_handler(int rc)
 {
-	end_disp();
 	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
@@ -78,6 +77,5 @@ int main(int argc, char ** argv)
 		//write_test_packet(server_sockets->sock);
 	}
 
-	info("Server shutdown");
 	return 0;
 }
