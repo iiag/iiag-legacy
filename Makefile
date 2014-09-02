@@ -2,25 +2,25 @@
 # Makefile
 #
 
-SHELL   	= bash
-CLIENT_TARGET   = iiag
-SERVER_TARGET   = iiag_server
-CC      	= gcc
-LUAV    	= lua
-DESTDIR 	= /opt/iiag
-CLIENT_CCFL   	:= -c -g -Wall `pkg-config --cflags $(LUAV)`
-SERVER_CCFL	:= -c -g -Wall -DSERVER `pkg-config --cflags $(LUAV)`
-LDFL   		:= -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
+SHELL         = bash
+CLIENT_TARGET = iiag
+SERVER_TARGET = iiag_server
+CC            = gcc
+LUAV          = lua
+DESTDIR       = /opt/iiag
+CLIENT_CCFL  := -c -g -Wall `pkg-config --cflags $(LUAV)`
+SERVER_CCFL	 := -c -g -Wall -DSERVER `pkg-config --cflags $(LUAV)`
+LDFL         := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 
 CLIENT_SRCS := main.c world.c zone.c display.c log.c inventory.c util.c item.c \
-        creature.c player.c vector.c trigger.c config.c faction.c input.c \
-        generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c net/net.c \
-	net/packet.c
+               creature.c player.c vector.c trigger.c config.c faction.c input.c \
+               generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c \
+               net/net.c net/packet.c
 
 SERVER_SRCS := server.c world.c zone.c display.c log.c inventory.c util.c item.c \
-        creature.c player.c vector.c trigger.c config.c faction.c input.c \
-        generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c net/net.c \
-	net/packet.c
+               creature.c player.c vector.c trigger.c config.c faction.c input.c \
+               generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c \
+               net/net.c net/packet.c
 
 
 CLIENT_OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(CLIENT_SRCS)))
@@ -64,6 +64,7 @@ clean:
 install: all
 	mkdir -p $(DESTDIR)
 	cp iiag $(DESTDIR)
+	cp iiag_server $(DESTDIR)
 	cp -r script $(DESTDIR)
 	cp -r names $(DESTDIR)
 
