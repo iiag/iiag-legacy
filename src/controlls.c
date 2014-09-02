@@ -64,7 +64,7 @@ void save_config(const char* name){
 	strcat(name,suffix);
 	config.cfg_file=name;
 
-	f = fopen(name, "w+");
+	f = fopen(name, "wb+");
 	
 	fprintf(f, "%s=%s\n","config",config.cfg_file);
 	fprintf(f, "%s=%s\n","lua",config.lua_init);
@@ -329,7 +329,7 @@ void save_controls(char* name){
 	strcat(str,name);
 	strcat(str,suffix);
 
-	f=fopen(name,"w+");
+	f=fopen(name,"wb+");
 	if(f==NULL){
 		memo("Error opening file");
 	}else{
@@ -497,7 +497,7 @@ void load_controls(char* name){
 	strcat(str,prefix);
 	strcat(str,name);
 
-	file = fopen(name,"r");
+	file = fopen(name,"rb");
 	if(file==NULL){
 		memo("Error opening file %s",str);
 	}else{
