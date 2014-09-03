@@ -58,7 +58,6 @@ void save_config(const char* name){
 	int i;
 	FILE*f;
 
-	char* str=NULL;
 	char* suffix=".cfg";
 
 	strcat(name,suffix);
@@ -263,7 +262,7 @@ void prompt_save_controls(){
 	int spot=0;
 	int fold_con;
 	wmove(memoscr, 0, 0);
-	/*
+	
 	while(num){
 		letter=wgetch(memoscr);
 		switch(letter){
@@ -274,7 +273,7 @@ void prompt_save_controls(){
 		}
 	}
 	num=!num;
-	*/
+	
 	memo("What is the file name?");
 	statline(0,"press q to quit");
 	statline(1,"What will your config/controls name be?!?!");
@@ -290,13 +289,13 @@ void prompt_save_controls(){
 				wprintw(memoscr,"What is the file name? %s %d",str,strlen(str));
 				wrefresh(memoscr);
 			break;
-			case '\n':/*
+			case '\n':
 				if(fold_con==0){
 					save_controls(str);
 				}else{
 					save_config(str);
-				}*/
-				save_config(str);
+				}
+				//save_config(str);
 				num=!num;
 			break;
 			default :
@@ -322,11 +321,10 @@ void save_controls(char* name){
 	FILE *f;
 	int i;
 
-	char* str=NULL;
 	char* prefix="controls/";
 	char* suffix=".ctrl";
 
-	str=(char*)realloc(str,strlen(prefix)+strlen(name)+strlen(suffix)+1);
+	char* str=(char*)malloc(strlen(prefix)+strlen(name)+strlen(suffix)+1);
 
 	strcpy(str,prefix);
 	strcat(str,name);
@@ -334,7 +332,7 @@ void save_controls(char* name){
 
 	f=fopen(str,"wb+");
 	if(f==NULL){
-		memo("Error opening file");
+		memo("Error opening file %s",str);
 	}else{
 		for(i=0;i<TOTAL_CONTROLS;i++){
 			switch(controls[i].ctrl_CTRL){
@@ -421,14 +419,14 @@ void display_loadcontrols(){
     }
     closedir(dir);
 
-	memo("LOAD FILES:");
+	memo("LOAD FILES: %s %s %s",ent_name[0].name,ent_name[1].name,ent_name[2].name);
 	draw_loadfiles(offset,spot,ysize,ent_name,len);
 
 	while(num){
 		int letter=wgetch(dispscr);
 		switch(letter){
 			case KEY_UP: case KEY_LEFT:
-				//memo("offset: %d spot: %d ysize: %d controls: %d",offset,spot,ysize,TOTAL_CONTROLS); 
+				memo("offset: %d spot: %d ysize: %d controls: %d ent_name: %s",offset,spot,ysize,TOTAL_CONTROLS,ent_name[spot].name); 
 				mvwaddch(dispscr,1+spot,0,' '); 
 				spot--; 
 				check_loadspot(&spot,&offset,ysize,len); 
@@ -441,7 +439,7 @@ void display_loadcontrols(){
 				}
 			break;
 			case KEY_DOWN: case KEY_RIGHT: 
-				//memo("offset: %d spot: %d ysize: %d controls: %d",offset,spot,ysize,TOTAL_CONTROLS); 
+				memo("offset: %d spot: %d ysize: %d controls: %d ent_name: %s",offset,spot,ysize,TOTAL_CONTROLS,ent_name[spot].name); 
 				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,' '); 
 				spot++; 
 				check_loadspot(&spot,&offset,ysize,len); 
@@ -470,13 +468,14 @@ char* get_cstring(FILE * f){
 	int i=0, c;
 	char* str=NULL;
 
-	igfspaces(f);
-
 	do{
-		c = fgetc(f);
-		str=(char*)realloc(str,strlen(str)*sizeof(char*));
 		i++;
-	}while((str[i] != '=')||(str[i] != '\n')||(str[i] == EOF));
+		str=(char*)realloc(str,i*sizeof(char));
+		c = fgetc(f);
+		if(c==' ')continue;
+		str[i-1]=c;
+	}while((str[i-1] != '=')||(str[i-1] != '\n')||(str[i-1] == EOF));
+	str[i]=0;
 	return str;
 }
 
@@ -490,8 +489,43 @@ int igfspaces(FILE * f){
 	return c;
 }
 
+
+int get_fcontrol(FILE * f){
+	static const struct {
+		char * name;
+		int ctrl;
+	} special[] = {
+		{ "up",    KEY_UP    },
+		{ "down",  KEY_DOWN  },
+		{ "left",  KEY_LEFT  },
+		{ "right", KEY_RIGHT },
+	};
+
+	int ctrl, i;
+	char * s, * o;
+
+	o = s = get_string(f);
+
+	for (i = 0; i < sizeof(special) / sizeof(*special); i++) {
+		if (!strcmp(special[i].name, s)) {
+			ctrl = special[i].ctrl;
+			goto done;
+		}
+	}
+
+	if (isdigit(*s))
+		ctrl = atoi(s);
+	else
+		ctrl = *s;
+
+done:
+	free(o);
+	return ctrl;
+}
+
+
 void load_controls(char* name){
-	FILE* file;
+	FILE* f;
 	int i;
 	char* prefix="controls/";
 
@@ -499,20 +533,20 @@ void load_controls(char* name){
 	strcpy(str,prefix);
 	strcat(str,name);
 
-	file = fopen(str,"rb");
-	if(file==NULL){
+	f = fopen(str,"rb");
+	if(f==NULL){
 		memo("Error opening file %s",str);
 	}else{
-		char* str1;
-		char* str2;
+		char* str1=NULL;
+		char* str2=NULL;
 		do{
-			str1=get_cstring(file);
-			str2=get_cstring(file);
+			str1=get_cstring(f);
+			str2=get_cstring(f);
 			for(i=0;i<TOTAL_CONTROLS;i++)
 				if(strcmp(str1,controls[i].enum_CTRL)==0)controls[i].ctrl_CTRL=atoi(str2);
 		}while(str1!=NULL);
 		free(str1);
 		free(str2);
 	}
-	fclose(file);
+	fclose(f);
 }

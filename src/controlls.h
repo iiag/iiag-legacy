@@ -16,6 +16,7 @@ void display_loadcontrols();
 void load_controls(char* name);
 char* get_cstring(FILE * f);
 int igfspaces(FILE * f);
+int get_fcontrol(FILE * f);
 
 struct str_pairs{
 	const char* user_CTRL;
