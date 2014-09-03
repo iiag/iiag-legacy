@@ -68,11 +68,14 @@ void save_config(const char* name){
 	
 	fprintf(f, "%s=%s\n","config",config.cfg_file);
 	fprintf(f, "%s=%s\n","lua",config.lua_init);
+	fprintf(f, "%s=%s\n","ip",config.ip);
+	fprintf(f, "%s=%d\n","port",config.port);
     fprintf(f, "%s=%d\n","walls",config.forget_walls);
 	fprintf(f, "%s=%d\n","show_all",config.show_all);
 	fprintf(f, "%s=%d\n","all_alone",config.all_alone);
 	fprintf(f, "%s=%d\n","god_mode",config.god_mode);
 	fprintf(f, "%s=%d\n","real_time",config.real_time);
+	fprintf(f, "%s=%d\n","real_time",config.multiplayer);
 	fprintf(f, "%s=%d\n","anime_throw",config.throw_anim_delay);
 
 	for(i=0;i<TOTAL_CONTROLS;i++){
@@ -320,16 +323,16 @@ void save_controls(char* name){
 	int i;
 
 	char* str=NULL;
-	char* prefix="src/controls/";
+	char* prefix="controls/";
 	char* suffix=".ctrl";
 
 	str=(char*)realloc(str,strlen(prefix)+strlen(name)+strlen(suffix)+1);
 
-	strcat(str,prefix);
+	strcpy(str,prefix);
 	strcat(str,name);
 	strcat(str,suffix);
 
-	f=fopen(name,"wb+");
+	f=fopen(str,"wb+");
 	if(f==NULL){
 		memo("Error opening file");
 	}else{
@@ -400,7 +403,7 @@ void display_loadcontrols(){
 	getmaxyx(dispscr,ysize,xsize);
 	ysize--;
 
-    dir=opendir("src/controls");
+    dir=opendir("controls");
 
     if(dir == NULL)memo("ERROR! No Controls to Load");
 
@@ -490,14 +493,13 @@ int igfspaces(FILE * f){
 void load_controls(char* name){
 	FILE* file;
 	int i;
-	char* str=NULL;
-	char* prefix="src/controls/";
+	char* prefix="controls/";
 
-	str=(char*)realloc(str,strlen(prefix)+strlen(name)+1);
-	strcat(str,prefix);
+	char* str=(char*)malloc(strlen(prefix)+strlen(name)+1);
+	strcpy(str,prefix);
 	strcat(str,name);
 
-	file = fopen(name,"rb");
+	file = fopen(str,"rb");
 	if(file==NULL){
 		memo("Error opening file %s",str);
 	}else{

@@ -5,6 +5,7 @@
 #include "display.h"
 #include "player.h"
 #include "input.h"
+#include "controlls.h"
 
 command_t * command_list;
 int num_commands;
@@ -66,17 +67,17 @@ void init_commands(void)
 	insert(CTRL_SCRL_DOWN,   "scroll_down",   scroll_view_down,   &arraysz);
 
 	// Actions
-	insert(CTRL_DISP_INV,  "inventory", plyr_act_inv,      &arraysz);
-	insert(CTRL_DISP_EQP,  "equipment", plyr_act_equipped, &arraysz);
-	insert(CTRL_PICKUP,    "pickup",    plyr_act_pickup,   &arraysz);
-	insert(CTRL_DROP,      "drop",      plyr_act_drop,     &arraysz);
-	insert(CTRL_CONSUME,   "consume",   plyr_act_consume,  &arraysz);
-	insert(CTRL_EQUIP,     "equip",     plyr_act_equip,    &arraysz);
-	insert(CTRL_THROW,     "throw",     plyr_act_throw,    &arraysz);
-	insert(CTRL_SKIP_TURN, "idle",      plyr_act_idle,     &arraysz);
-	insert(CTRL_SAVECTRL,  "save_ctrl", plyr_act_idle,     &arraysz);
-	insert(CTRL_LOADCTRL,	 "load_ctrl", plyr_act_idle,     &arraysz);
-	insert(CTRL_DISCTRL,   "dis_ctrl",  plyr_act_idle,     &arraysz);
+	insert(CTRL_DISP_INV,  "inventory", plyr_act_inv,         &arraysz);
+	insert(CTRL_DISP_EQP,  "equipment", plyr_act_equipped,    &arraysz);
+	insert(CTRL_PICKUP,    "pickup",    plyr_act_pickup,      &arraysz);
+	insert(CTRL_DROP,      "drop",      plyr_act_drop,        &arraysz);
+	insert(CTRL_CONSUME,   "consume",   plyr_act_consume,     &arraysz);
+	insert(CTRL_EQUIP,     "equip",     plyr_act_equip,       &arraysz);
+	insert(CTRL_THROW,     "throw",     plyr_act_throw,       &arraysz);
+	insert(CTRL_SKIP_TURN, "idle",      plyr_act_idle,        &arraysz);
+	insert(CTRL_SAVECTRL,  "save_ctrl", prompt_save_controls, &arraysz);
+	insert(CTRL_LOADCTRL,  "load_ctrl", display_loadcontrols, &arraysz);
+	insert(CTRL_DISCTRL,   "dis_ctrl",  display_controls,     &arraysz);
 
 
 	// sort the array or something.
