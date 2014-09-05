@@ -86,7 +86,7 @@ cform {
 	name = 'sentinel';
 	max_health = 3;
 	attack = 1;
-	freq = 50;
+	freq = 20;
 	char = 'T';
 	sight = 150;
 	speed = 30;
@@ -99,6 +99,7 @@ cform {
 	ac = 30;
 	char = 'S';
 	sight = 1;
+	freq = 5;
 }
 
 cform {
@@ -108,4 +109,5 @@ cform {
 	ac = 1;
 	char = 'y';
 	sight = 2;
+	freq = 1;
 }
