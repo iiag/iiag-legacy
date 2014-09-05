@@ -5,11 +5,11 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include "input.h"
 #include "config.h"
-#include "display.h"
-#include "net/packet.h"
 #include "player.h"
+#include "io/input.h"
+#include "io/display.h"
+#include "net/packet.h"
 
 
 #define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])

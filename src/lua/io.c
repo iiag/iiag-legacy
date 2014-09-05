@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "io.h"
 #include "../log.h"
-#include "../display.h"
+#include "../io/display.h"
 
 static const char * stringify(lua_State * lstate)
 {

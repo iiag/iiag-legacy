@@ -12,10 +12,10 @@
 #include "log.h"
 #include "util.h"
 #include "world.h"
-#include "player.h"
-#include "display.h"
-#include "inventory.h"
 #include "config.h"
+#include "player.h"
+#include "inventory.h"
+#include "io/display.h"
 
 world_t world;
 

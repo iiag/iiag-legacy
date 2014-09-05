@@ -4,8 +4,8 @@
 
 #include <stdlib.h>
 #include "input.h"
-#include "config.h"
 #include "display.h"
+#include "../config.h"
 
 #define MAX_CMD_ENTRY 100
 
@@ -99,7 +99,7 @@ char * prompt_command(void)
 
 	while ('\n' != c) {
 		string[i] = c = wgetch(memoscr);
-		
+
 		if ((c == 127)) { // Backspace
 			if (i == 0) { wmove(memoscr, 0, 1); continue; }
 

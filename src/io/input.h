@@ -5,7 +5,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include "creature.h"
+#include "../creature.h"
 
 //
 // Gets a keypress and translates it into a control value

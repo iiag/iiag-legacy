@@ -4,8 +4,8 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include "display.h"
 #include "inventory.h"
+#include "io/display.h"
 
 //
 // Allocates a new inventory

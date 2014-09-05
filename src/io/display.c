@@ -6,10 +6,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "world.h"
 #include "display.h"
-#include "config.h"
-#include "player.h"
+#include "../world.h"
+#include "../config.h"
+#include "../player.h"
 
 #define NONE (-1)
 

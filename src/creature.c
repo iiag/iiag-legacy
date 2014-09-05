@@ -8,10 +8,10 @@
 #include "log.h"
 #include "zone.h"
 #include "world.h"
-#include "player.h"
-#include "display.h"
-#include "creature.h"
 #include "config.h"
+#include "player.h"
+#include "creature.h"
+#include "io/display.h"
 
 // lower => levelup faster
 #define LEVELING_CONSTANT 4

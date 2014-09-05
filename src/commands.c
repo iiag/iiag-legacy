@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
-#include "commands.h"
 #include "config.h"
-#include "display.h"
 #include "player.h"
-#include "input.h"
+#include "commands.h"
+#include "io/input.h"
+#include "io/display.h"
 
 command_t * command_list;
 int num_commands;

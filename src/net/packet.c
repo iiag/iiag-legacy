@@ -1,15 +1,15 @@
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include "packet.h"
 #include "../commands.h"
 #include "../player.h"
 #include "../config.h"
 #include "../inventory.h"
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <string.h>
 #include "../generator.h"
-#include "../display.h"
+#include "../io/display.h"
 
 int net_inv_prompt_data =-1;
 

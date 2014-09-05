@@ -1,5 +1,5 @@
 //
-// main.c
+// server.c
 //
 
 #include <lua.h>
@@ -12,15 +12,15 @@
 #include <unistd.h>
 #include "log.h"
 #include "item.h"
-#include "input.h"
 #include "world.h"
 #include "config.h"
 #include "player.h"
-#include "display.h"
+#include "commands.h"
 #include "creature.h"
 #include "inventory.h"
+#include "io/input.h"
+#include "io/display.h"
 #include "lua/lua.h"
-#include "commands.h"
 #include "net/net.h"
 
 extern command_t * command_list;

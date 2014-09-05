@@ -12,8 +12,8 @@
 #include "world.h"
 #include "config.h"
 #include "player.h"
-#include "display.h"
 #include "inventory.h"
+#include "io/display.h"
 
 #define ROOM_INFREQ 100
 #define ITEM_INFREQ 80
