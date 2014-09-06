@@ -17,6 +17,7 @@
 void update_vis(void)
 {
 	int x, y, show;
+	int rx, ry;
 
 	for (x = 0; x < PLYR.z->width; x++) {
 		for (y = 0; y < PLYR.z->height; y++) {
@@ -27,6 +28,25 @@ void update_vis(void)
 			}
 		}
 	}
+
+	// hack to show impassible squares next to visible passible spells
+	for (x = 0; x < PLYR.z->width; x++) {
+		for (y = 0; y < PLYR.z->height; y++) {
+			if (PLYR.z->tiles[x][y].impassible) {
+				for (rx = -1; rx <= 1; rx++) {
+					for (ry = -1; ry <= 1; ry++) {
+						if ((rx || ry) && (x + rx >= 0) && (x + rx < PLYR.z->width) && (y + ry >= 0) && (y + ry < PLYR.z->height)) {
+							if (!PLYR.z->tiles[x + rx][y + ry].impassible && PLYR.z->tiles[x + rx][y + ry].show) {
+								PLYR.z->tiles[x][y].show = show || config.forget_walls ? 1 : 2;
+								zone_draw_tile(PLYR.z, x, y);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 
 	wrefresh(dispscr);
 }
