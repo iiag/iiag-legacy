@@ -215,6 +215,7 @@ zone * zone_new(int w, int h)
 	z = malloc(sizeof(zone));
 	z->width = w;
 	z->height = h;
+	z->name = NULL;
 
 	z->tiles = malloc(sizeof(tile *) * w);
 	for (i = 0; i < w; i++) {
