@@ -243,6 +243,8 @@ void subpack2crtr(creature* cr, creature_subpacket* crtr_sub){
 void handle_spawn(socket_node* s, void* pack, int len){
 	int x,y;
 
+	info("Player Connected");
+
 	crtr_init(&(s->player), '@' | A_BOLD);
 	//s->player.on_death.c_func    = (trigger_cfunc)plyr_ev_death;
 	s->player.on_lvlup.c_func    = (trigger_cfunc)plyr_ev_lvlup;
@@ -255,13 +257,16 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	crtr_spawn(&(s->player), z);
 	zone_update(z, s->player.x, s->player.y);
 
+	list_altr=0;
+
 	for(x=0;x<z->width;x++)
 	for(y=0;y<z->height;y++)
-		if(! (x == s->player.x && y == s->player.y) )
+		if(! (x == s->player.x && y == s->player.y) && (!list_altr))
 			write_tile_packet(s->sock,&(z->tiles[x][y]),x,y);
-
-	write_player_packet(s->sock,&s->player);
-	write_zone_packet(s->sock,z->name);
+	if(!list_altr)
+		write_player_packet(s->sock,&s->player);
+	if(!list_altr)
+		write_zone_packet(s->sock,z->name);
 }
 
 void handle_command(socket_node* s, void* pack, int len){

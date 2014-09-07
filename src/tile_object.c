@@ -79,13 +79,16 @@ void use_stair(tile* t, int ox, int oy,creature* c, zone* oz){
 	int x,y;
 	if(plyr_is_crtr(c)){
 		int sock = list_find_sock(c);
+		list_altr=0;
 
 		for(x=0;x<c->z->width;x++)
 		for(y=0;y<c->z->height;y++)
-			if(! (x == c->x && y == c->y) )
+			if(! (x == c->x && y == c->y) && (!list_altr))
 				write_tile_packet(sock,&(c->z->tiles[x][y]),x,y);
-
+		
+		if(!list_altr)
 		write_player_packet(sock,c);
+		if(!list_altr)
 		write_zone_packet(sock,c->z->name);
 	}
 	#endif

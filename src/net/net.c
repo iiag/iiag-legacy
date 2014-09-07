@@ -117,18 +117,33 @@ int read_packet(int socket, socket_node* s){
 	int count;
 	int total;
 	packet_header head;
+	total=0;
+	
+	count = read(socket,((void*)&head) + total,sizeof(packet_header)-total);
 
-	count = read(socket,&head,sizeof(packet_header));
-
-	if(count < 1)
+	if(count == -1)
 		return 1;
+	if(count < sizeof(packet_header)){
+	while(42){
+		
+		count = read(socket,((void*)&head) + total,sizeof(packet_header)-total);
 
-	if(count != sizeof(packet_header)){
-		error("Fragmented header! %i Closing Connection",count);
-		close(socket);
-		cleanup_socket(socket);
-		return 1;
+		if(count == -1){
+			if(errno == EAGAIN || errno == EWOULDBLOCK)
+				continue;
+			notice("Error reading %i", errno);
+			close(socket);
+			cleanup_socket(socket);
+			return 1;
+		}
+
+		total+=count;
+		if(total>=sizeof(packet_header))
+			break;
+
 	}
+	}
+
 	void* packet= malloc(head.length);
 	total=0;
 
