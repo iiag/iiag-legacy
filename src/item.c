@@ -10,7 +10,7 @@
 #include "util.h"
 #include "config.h"
 #include "player.h"
-#include "display.h"
+#include "io/display.h"
 
 //
 // Allocates a new item

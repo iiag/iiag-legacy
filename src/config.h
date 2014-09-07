@@ -20,7 +20,7 @@ enum {
 	CTRL_URIGHT,
 	CTRL_DLEFT,
 	CTRL_DRIGHT,
-	CTRL_ENTER,
+	CTRL_USE,
 
 	// scrolling
 	CTRL_SCRL_CENTER,

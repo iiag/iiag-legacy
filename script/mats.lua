@@ -2,6 +2,7 @@
 -- script/mats.lua --
 ---------------------
 
+-- Metals --
 material {
 	name = 'quaz';
 	class = 'metal';
@@ -43,5 +44,48 @@ material {
 	mult_ac = 1.4;
 	mult_attack = 1.2;
 	mult_spikiness = 1.4;
+	freq = 1;
+}
+
+-- Muffin Types --
+material {
+	name = 'blueberry';
+	class = 'muffin';
+	freq = 4;
+}
+
+material {
+	name = 'bran';
+	class = 'muffin';
+	freq = 3;
+}
+
+material {
+	name = 'banana nut';
+	class = 'muffin';
+	freq = 1;
+}
+
+material {
+	name = 'corn';
+	class = 'muffin';
+	freq = 4;
+}
+
+material {
+	name = 'pumpkin';
+	class = 'muffin';
+	freq = 2;
+}
+
+material {
+	name = 'chocolate';
+	class = 'muffin';
+	freq = 2;
+}
+
+material {
+	name = 'lemon poppyseed';
+	class = 'muffin';
 	freq = 1;
 }

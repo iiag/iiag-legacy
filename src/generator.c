@@ -5,10 +5,10 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include "world.h"
-#include "display.h"
-#include "generator.h"
 #include "log.h"
+#include "world.h"
+#include "generator.h"
+#include "io/display.h"
 
 gclass_t * new_gclass(gclass_t * par)
 {

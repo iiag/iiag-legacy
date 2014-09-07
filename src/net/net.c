@@ -209,6 +209,22 @@ void list_delete(socket_node** node, int s){
 	}
 }
 
+int  list_find_sock(creature* c){
+	socket_node* n=server_sockets;
+
+	while(n != NULL){
+	if(&(n->player) == c)
+		return n->sock;
+
+
+	n=n->next;
+	}
+
+	//nothing found in list, send packet should safely handle this
+	warning("Player not found in net list");
+	return -1;
+}
+
 void server_listen(socket_node* node){
 	socket_node* n=node;
 	list_altr=0;

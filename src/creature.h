@@ -5,7 +5,6 @@
 #ifndef CREATURE_H
 #define CREATURE_H
 
-typedef struct action action;
 typedef struct creature creature;
 
 #include <ncurses.h>
@@ -207,6 +206,7 @@ void crtr_try_drop(creature *, int);
 void crtr_try_consume(creature *, int);
 void crtr_try_equip(creature *, int);
 void crtr_try_throw(creature *, int, int, int); // item then dx, dy
+void crtr_try_use(creature *, int, int);
 
 //
 // The following functions schedule actions to happen
@@ -220,5 +220,6 @@ void crtr_act_consume(creature *, int);
 void crtr_act_equip(creature *, int);
 void crtr_act_throw(creature *, int, int, int);
 void crtr_act_idle(creature * c);
+void crtr_act_use(creature *, int, int);
 
 #endif

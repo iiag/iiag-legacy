@@ -20,6 +20,7 @@ void reset_memos(void);
 void memo(const char *, ...);
 void statline(int, const char *, ...);
 
+void redraw(void);
 void scroll_disp(int, int);
 void scroll_center(int, int);
 

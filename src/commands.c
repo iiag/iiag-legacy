@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
-#include "commands.h"
 #include "config.h"
-#include "display.h"
 #include "player.h"
-#include "input.h"
+#include "commands.h"
+#include "io/input.h"
+#include "io/display.h"
 
 command_t * command_list;
 int num_commands;
@@ -56,7 +56,7 @@ void init_commands(void)
 	insert(CTRL_URIGHT, "move_udown",  plyr_act_move_upright,    &arraysz);
 	insert(CTRL_DLEFT,  "move_dleft",  plyr_act_move_downleft,   &arraysz);
 	insert(CTRL_DRIGHT, "move_dright", plyr_act_move_downright,  &arraysz);
-	insert(CTRL_ENTER,  "enter",       plyr_act_enter,           &arraysz);
+	insert(CTRL_USE,  "use",         plyr_act_use,             &arraysz);
 
 	// Scrolling
 	insert(CTRL_SCRL_CENTER, "scroll_center", scroll_view_center, &arraysz);

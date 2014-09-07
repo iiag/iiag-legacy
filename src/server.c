@@ -1,5 +1,5 @@
 //
-// main.c
+// server.c
 //
 
 #include <lua.h>
@@ -12,15 +12,15 @@
 #include <unistd.h>
 #include "log.h"
 #include "item.h"
-#include "input.h"
 #include "world.h"
 #include "config.h"
 #include "player.h"
-#include "display.h"
+#include "commands.h"
 #include "creature.h"
 #include "inventory.h"
+#include "io/input.h"
+#include "io/display.h"
 #include "lua/lua.h"
-#include "commands.h"
 #include "net/net.h"
 
 extern command_t * command_list;
@@ -29,7 +29,6 @@ extern int num_commands;
 
 static void sig_handler(int rc)
 {
-	end_disp();
 	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
@@ -49,12 +48,7 @@ int main(int argc, char ** argv)
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);
 
-	//for the moment this is needed to make walls render properly
-	//may be removed/fixed in the next major update.
-	//this also seems to affect logging
-	init_disp();
 	init_world();
-
 
 	step_world();
 	setup_listener(config.port);

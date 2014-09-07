@@ -26,6 +26,7 @@ void plyr_act_consume(int, char **);
 void plyr_act_equip(int, char **);
 void plyr_act_throw(int, char **);
 void plyr_act_idle(int, char **);
+void plyr_act_use(int, char **);
 
 // player displacement
 void plyr_act_move_left(int, char **);
@@ -36,7 +37,6 @@ void plyr_act_move_upleft(int, char **);
 void plyr_act_move_upright(int, char **);
 void plyr_act_move_downleft(int, char **);
 void plyr_act_move_downright(int, char **);
-void plyr_act_enter(int, char **);
 
 // the inevitable
 void plyr_ev_birth(void);

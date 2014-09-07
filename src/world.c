@@ -12,10 +12,10 @@
 #include "log.h"
 #include "util.h"
 #include "world.h"
-#include "player.h"
-#include "display.h"
-#include "inventory.h"
 #include "config.h"
+#include "player.h"
+#include "inventory.h"
+#include "io/display.h"
 
 world_t world;
 
@@ -71,7 +71,7 @@ void init_world(void)
 
 	assure_world();
 
-	z = zone_new(150, 50);
+	z = zone_new(ZONE_SIZE_X, ZONE_SIZE_Y);
 	vector_append(&world.zones, z);
 	
 	debug("Initializing player triggers...");
@@ -137,6 +137,9 @@ void step_world(void)
 					break;
 				case ACT_THROW:
 					crtr_try_throw(a->c, a->p.throw.ind, a->p.throw.x, a->p.throw.y);
+					break;
+				case ACT_USE:
+					crtr_try_use(a->c, a->p.dir.x, a->p.dir.y);
 					break;
 				}
 			}

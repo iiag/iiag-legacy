@@ -11,7 +11,7 @@
 #include "form.h"
 #include "../log.h"
 #include "../config.h"
-#include "../display.h"
+#include "../io/display.h"
 
 lua_State * prim_lstate;
 

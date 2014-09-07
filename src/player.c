@@ -5,11 +5,11 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include "input.h"
 #include "config.h"
-#include "display.h"
-#include "net/packet.h"
 #include "player.h"
+#include "io/input.h"
+#include "io/display.h"
+#include "net/packet.h"
 
 
 #define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])
@@ -17,6 +17,7 @@
 void update_vis(void)
 {
 	int x, y, show;
+	int rx, ry;
 
 	for (x = 0; x < PLYR.z->width; x++) {
 		for (y = 0; y < PLYR.z->height; y++) {
@@ -28,14 +29,25 @@ void update_vis(void)
 		}
 	}
 
-	wrefresh(dispscr);
-}
+	// hack to show impassible squares next to visible passible spells
+	for (x = 0; x < PLYR.z->width; x++) {
+		for (y = 0; y < PLYR.z->height; y++) {
+			if (PLYR.z->tiles[x][y].impassible) {
+				for (rx = -1; rx <= 1; rx++) {
+					for (ry = -1; ry <= 1; ry++) {
+						if ((rx || ry) && (x + rx >= 0) && (x + rx < PLYR.z->width) && (y + ry >= 0) && (y + ry < PLYR.z->height)) {
+							if (!PLYR.z->tiles[x + rx][y + ry].impassible && PLYR.z->tiles[x + rx][y + ry].show) {
+								PLYR.z->tiles[x][y].show = show || config.forget_walls ? 1 : 2;
+								zone_draw_tile(PLYR.z, x, y);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-// this probably should not be here
-static void redraw(void)
-{
-	wclear(dispscr);
-	zone_draw(PLYR.z);
+
 	wrefresh(dispscr);
 }
 
@@ -58,7 +70,7 @@ void plyr_act_pickup(int argc, char ** argv)
 			memo("You try to pick it up, but then you realize it does not exist.");
 		}
 
-		 redraw();
+		redraw();
 	}
 }
 
@@ -73,13 +85,14 @@ void plyr_act_drop(int argc, char ** argv)
 		memo("There is no such item.");
 	}
 
-	 redraw();
+	redraw();
 }
 
 void plyr_act_inv(int argc, char ** argv)
 {
 	prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
-	 redraw();
+
+	redraw();
 }
 
 void plyr_act_equipped(int argc, char ** argv)
@@ -141,48 +154,23 @@ void plyr_act_move_downright(int argc, char ** argv)
 	crtr_act_aa_move(&PLYR, 1, 1);
 }
 
-void plyr_act_enter(int argc, char ** argv)
+void plyr_act_use(int argc, char ** argv)
 {
-	int ox, oy;
-	zone * oz;
-	tile * t = tileof(&PLYR);
 
-	if (t->linked) {
-		// TODO generalize
-
-		if (t->link_z == NULL) {
-			ox = PLYR.x;
-			oy = PLYR.y;
-			oz = PLYR.z;
-
-			// generate new zone
-			vector_append(&world.zones, zone_new(150, 50)); // TODO why 150,50?
-			t->link_z = world.zones.arr[world.zones.cnt-1];
-
-			// place player randomly
-			crtr_spawn(&PLYR, t->link_z);
-			t->link_x = PLYR.x;
-			t->link_y = PLYR.y;
-
-			// link back
-			t = tileof(&PLYR);
-			t->linked = 1;
-			t->link_x = ox;
-			t->link_y = oy;
-			t->link_z = oz;
-			t->ch = '@';
-			t->show_ch = '@';
-		} else {
-			if (!crtr_tele(&PLYR, t->link_x, t->link_y, t->link_z)) {
-				memo("Your way appears to be blocked?");
+	int dx, dy;
+	if (prompt_dir("Use what?", &dx, &dy)) {
+		if(PLYR.z->tiles[PLYR.x+dx][PLYR.y+dy].obj){
+			net_dir_prompt = encode_dir(dx,dy);
+			if(!config.multiplayer){//let the server handle this
+				crtr_act_use(&PLYR, dx, dy);
 			}
-		}
+		}else
+			memo("There is nothing there to use.");
 
-		update_vis();
-		zone_draw(PLYR.z);
 	} else {
-		memo("I see no visible method of doing that.");
+		memo("That is not a direction.");
 	}
+	redraw();
 }
 
 void plyr_act_consume(int argc, char ** argv)
@@ -202,7 +190,7 @@ void plyr_act_consume(int argc, char ** argv)
 		memo("Such an item existeth not.");
 	}
 
-	 redraw();
+	redraw();
 }
 
 void plyr_act_throw(int argc, char ** argv)
@@ -214,6 +202,8 @@ void plyr_act_throw(int argc, char ** argv)
 
 	if (prompt_dir("Throw where?", &dx, &dy)) {
 		if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
+			net_dir_prompt = encode_dir(dx,dy);
+			net_inv_prompt_data=i;
 			crtr_act_throw(&PLYR, i, dx, dy);
 		} else {
 			memo("Such an item existeth not.");
@@ -222,7 +212,7 @@ void plyr_act_throw(int argc, char ** argv)
 		memo("That is not a direction.");
 	}
 
-	 redraw();
+	redraw();
 }
 
 void plyr_act_equip(int argc, char ** argv)
@@ -242,16 +232,13 @@ void plyr_act_equip(int argc, char ** argv)
 		memo("Such an item existeth not.");
 	}
 
-	 redraw();
+	redraw();
 }
 
 void plyr_act_idle(int argc, char ** argv)
 {
 	crtr_act_idle(&PLYR);
 }
-
-
-
 
 //
 // The following functions are called through the event system
@@ -294,8 +281,7 @@ void plyr_ev_lvlup(creature * p)
 }
 
 void plyr_ev_act_comp(creature * p, item * it)
-{	
-
+{
 	assert(p->act != NULL);
 
 	switch (p->act->type) {
@@ -342,6 +328,9 @@ void plyr_ev_act_fail(creature * p, void * how)
 		break;
 	case ACT_FAIL_EQUIP_ABLE:
 		memo("That's weird... it seems that that is no longer equipable.");
+		break;
+	case ACT_FAIL_USE:
+		memo("On closer inspection, it appears useless.");
 		break;
 	default:;
 	}

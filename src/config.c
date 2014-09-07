@@ -94,7 +94,7 @@ static const struct field cfg_fields[] = {
 	{ CONTROL, "ctrl-uright", config.ctrl + CTRL_URIGHT },
 	{ CONTROL, "ctrl-dleft",  config.ctrl + CTRL_DLEFT  },
 	{ CONTROL, "ctrl-dright", config.ctrl + CTRL_DRIGHT },
-	{ CONTROL, "ctrl-enter",  config.ctrl + CTRL_ENTER  },
+	{ CONTROL, "ctrl-use",    config.ctrl + CTRL_USE  },
 
 	// scrolling controls
 	{ CONTROL, "ctrl-scrl-center", config.ctrl + CTRL_SCRL_CENTER },

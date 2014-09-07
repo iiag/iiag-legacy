@@ -8,10 +8,10 @@
 #include "log.h"
 #include "zone.h"
 #include "world.h"
-#include "player.h"
-#include "display.h"
-#include "creature.h"
 #include "config.h"
+#include "player.h"
+#include "creature.h"
+#include "io/display.h"
 
 // lower => levelup faster
 #define LEVELING_CONSTANT 4
@@ -648,6 +648,19 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_THROW);
 }
 
+void crtr_try_use(creature * c, int dx, int dy)
+{
+	assert(c != NULL);
+	tile* t;
+	t=&c->z->tiles[c->x+dx][c->y+dy];
+	if (t->obj != NULL) {
+		use_object[t->obj->type](t,c->x+dx,c->y+dy,c,c->z);
+		return;
+	}
+
+	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_USE);
+}
+
 //
 // The following function schedule creature actions
 //
@@ -710,6 +723,13 @@ void crtr_act_throw(creature * c, int i, int x, int y)
 	a->p.throw.y   = y;
 	schedule(a, c->speed);
 }
+
+void crtr_act_use(creature * c, int x, int y)
+{
+	ACT_TMPLT(ACT_USE);
+	a->p.dir.x   = x;
+	a->p.dir.y   = y;
+	schedule(a, c->speed);}
 
 void crtr_act_idle(creature * c)
 {

@@ -1,17 +1,26 @@
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include "packet.h"
 #include "../commands.h"
 #include "../player.h"
 #include "../config.h"
 #include "../inventory.h"
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <string.h>
 #include "../generator.h"
-#include "../display.h"
+#include "../io/display.h"
 
 int net_inv_prompt_data =-1;
+short net_dir_prompt =-1;
+
+short encode_dir(int x,int y){
+return ((x+2)&0xFF)+(((y+2)&0xFF)<<8);
+}
+void  decode_dir(short d,int*x,int*y){
+*x=(d&0xFF)-2;
+*y=((d&0xFF00)>>8)-2;
+}
 
 void write_spawn_packet(int sock){
 	if(sock == -1) return;
@@ -25,6 +34,30 @@ void write_spawn_packet(int sock){
 	full_write(sock,&head,sizeof(head));
 	full_write(sock,&p,head.length);
 
+}
+
+void write_zone_packet(int sock, char * c){
+	if(sock == -1) return;
+
+	packet_header head;
+
+	head.type=5;
+	head.length=strlen(c)+1;
+	full_write(sock,&head,sizeof(head));
+	full_write(sock,c,head.length);
+}
+
+
+void write_memo_packet(int sock, char * c){
+	if(sock == -1) return;
+
+	packet_header head;
+
+	head.type=6;
+	head.length=strlen(c)+1;
+
+	full_write(sock,&head,sizeof(head));
+	full_write(sock,c,head.length);
 }
 
 void write_time_packet(int sock, world_time_t* t){
@@ -50,8 +83,10 @@ void write_command_packet(int sock, int c){
 	head.length=sizeof(command_packet);
 	p.c=c;
 	p.i=net_inv_prompt_data;
+	p.d=net_dir_prompt;
 
 	net_inv_prompt_data =-1;
+	net_dir_prompt = -1;
 
 	full_write(sock,&head,sizeof(head));
 	full_write(sock,&p,head.length);
@@ -109,6 +144,7 @@ void write_tile_packet(int sock, tile* t, int x, int y){
 	p.impassible=t->impassible;
 	p.x=x;
 	p.y=y;
+	p.object_type=(t->obj?t->obj->type:-1);
 	head.type=3;
 	head.length=sizeof(tile_packet)+p.itemnum*sizeof(item_subpacket)+p.crtr*sizeof(creature_subpacket);
 
@@ -223,11 +259,15 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	for(y=0;y<z->height;y++)
 		if(! (x == s->player.x && y == s->player.y) )
 			write_tile_packet(s->sock,&(z->tiles[x][y]),x,y);
+
+	write_player_packet(s->sock,&s->player);
+	write_zone_packet(s->sock,z->name);
 }
 
 void handle_command(socket_node* s, void* pack, int len){
 	int act = ((command_packet*)pack)->c;
 	int i = ((command_packet*)pack)->i;
+	int d = ((command_packet*)pack)->d;
 
 	if(!s->player.act){
 		if(act == CTRL_LEFT)	crtr_act_aa_move(&(s->player), -1, 0);
@@ -244,6 +284,17 @@ void handle_command(socket_node* s, void* pack, int len){
 			if(act == CTRL_CONSUME)	crtr_act_consume(&(s->player), i);
 			if(act == CTRL_PICKUP)	crtr_act_pickup(&(s->player), i);
 			if(act == CTRL_EQUIP)	crtr_act_equip(&(s->player), i);
+		}
+		if(d != -1){
+			int x,y;
+			decode_dir(d,&x,&y);
+			if(abs(x)+abs(y)>2){
+				warning("dir %i %i is not valid!",x,y);
+				return;
+			}
+			if(act == CTRL_USE)	crtr_act_use(&(s->player), x, y);
+			if( i != -1)
+				if(act == CTRL_THROW)	crtr_act_throw(&(s->player), i, x, y);
 		}
 	}
 }
@@ -293,7 +344,22 @@ void handle_tile(socket_node* s, void* pack, int len){
 	zone* z = world.zones.arr[0];
 
 	z->tiles[t->x][t->y].impassible=t->impassible;
+	if(t->impassible)
+		z->tiles[t->x][t->y].show=0;
 
+	//clear tile objects and load new one
+	if(z->tiles[t->x][t->y].obj){ 
+		free(z->tiles[t->x][t->y].obj);
+		z->tiles[t->x][t->y].obj= NULL;
+	}
+
+	if(t->object_type == OBJECT_STAIR)
+	z->tiles[t->x][t->y].obj = make_stair();
+	if(t->object_type == OBJECT_DOOR)
+	z->tiles[t->x][t->y].obj = make_door(!t->impassible);
+
+
+	//clear inventory and creatures
 	inv_clear(z->tiles[t->x][t->y].inv);
 
 	if(z->tiles[t->x][t->y].crtr && !plyr_is_crtr(z->tiles[t->x][t->y].crtr)){
@@ -301,6 +367,7 @@ void handle_tile(socket_node* s, void* pack, int len){
 		zone_rm_crtr(z, z->tiles[t->x][t->y].crtr);
 	}
 
+	//read items
 	int i;
 	item_subpacket* item_sub;
 	creature_subpacket* crtr_sub;
@@ -317,7 +384,8 @@ void handle_tile(socket_node* s, void* pack, int len){
 		inv_add(z->tiles[t->x][t->y].inv,it);
 		subpack += sizeof(item_subpacket);
 	}
-
+	
+	//read creature
 	if(t->crtr){
 		crtr_sub=subpack;
 
@@ -346,10 +414,39 @@ memcpy(&world.tm,pack,sizeof(world_time_t));
 
 }
 
+void handle_zone(socket_node* s,void* pack, int len){
+
+	zone* z = world.zones.arr[0];
+	if(z->name) free(z->name);
+	z->name = malloc(len);
+	//better soulution would be a strcpy that specifies length
+	memcpy(z->name,pack,len);
+
+
+	zone_update(z,PLYR.x,PLYR.y);
+	scroll_center(PLYR.x,PLYR.y);
+
+	int x,y;
+	for(x=0;x<z->width;x++)
+	for(y=0;y<z->height;y++)
+		if (z->tiles[x][y].impassible) {
+			set_wall_char(z,x,y);
+		}
+
+	update_vis();
+	scroll_view_center(0,NULL);
+}
+
+void handle_memo(socket_node* s,void* pack, int len){
+	memo("%s",pack);
+}
+
 void (*packet_handlers[PACKET_HANDLERS_SIZE])(socket_node* s, void* pack, int len) = {
 	handle_spawn,
 	handle_command,
 	handle_time,
 	handle_tile,
-	handle_player
+	handle_player,
+	handle_zone,
+	handle_memo,
 };

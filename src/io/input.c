@@ -4,8 +4,8 @@
 
 #include <stdlib.h>
 #include "input.h"
-#include "config.h"
 #include "display.h"
+#include "../config.h"
 
 #define MAX_CMD_ENTRY 100
 
@@ -38,25 +38,34 @@ int get_ctrl(void)
 //
 int prompt_dir(const char * prompt, int * dx, int * dy)
 {
-	*dx = *dy = 0;
+	*dx = *dy = 13;
 
 	wmove(dispscr, 0, 0);
 	wprintw(dispscr, "%s\n", prompt);
 	wrefresh(dispscr);
+	
+	//get CTRL on disp screen, so that input blocks in multiplayer and realtime mode.
+	int i,c;
+	c = wgetch(dispscr);
 
-	switch (get_ctrl()) {
-	case CTRL_LEFT:   *dx = -1; *dy = 0; break;
-	case CTRL_DOWN:   *dx =  0; *dy = 1; break;
-	case CTRL_UP:     *dx =  0; *dy =-1; break;
-	case CTRL_RIGHT:  *dx =  1; *dy = 0; break;
-	case CTRL_ULEFT:  *dx = -1; *dy =-1; break;
-	case CTRL_URIGHT: *dx =  1; *dy =-1; break;
-	case CTRL_DLEFT:  *dx = -1; *dy = 1; break;
-	case CTRL_DRIGHT: *dx =  1; *dy = 1; break;
+	for (i = 0; i < TOTAL_CONTROLS; i++) {
+		if (config.ctrl[i] == c) break;
+	}
+
+	switch (i) {
+	case CTRL_LEFT:      *dx = -1; *dy = 0; break;
+	case CTRL_DOWN:      *dx =  0; *dy = 1; break;
+	case CTRL_UP:        *dx =  0; *dy =-1; break;
+	case CTRL_RIGHT:     *dx =  1; *dy = 0; break;
+	case CTRL_ULEFT:     *dx = -1; *dy =-1; break;
+	case CTRL_URIGHT:    *dx =  1; *dy =-1; break;
+	case CTRL_DLEFT:     *dx = -1; *dy = 1; break;
+	case CTRL_DRIGHT:    *dx =  1; *dy = 1; break;
+	case CTRL_SKIP_TURN: *dx =  0; *dy = 0; break;
 	}
 
 	wrefresh(dispscr);
-	return *dx || *dy;
+	return *dx != 13;
 }
 
 //
@@ -99,7 +108,7 @@ char * prompt_command(void)
 
 	while ('\n' != c) {
 		string[i] = c = wgetch(memoscr);
-		
+
 		if ((c == 127)) { // Backspace
 			if (i == 0) { wmove(memoscr, 0, 1); continue; }
 

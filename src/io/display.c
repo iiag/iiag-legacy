@@ -6,10 +6,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "world.h"
 #include "display.h"
-#include "config.h"
-#include "player.h"
+#include "../world.h"
+#include "../config.h"
+#include "../player.h"
 
 #define NONE (-1)
 
@@ -135,6 +135,13 @@ void statline(int ln, const char * fmt, ...)
 	wrefresh(statscr);
 
 	va_end(vl);
+}
+
+void redraw(void)
+{
+	wclear(dispscr);
+	zone_draw(PLYR.z);
+	wrefresh(dispscr);
 }
 
 void scroll_disp(int dx, int dy)

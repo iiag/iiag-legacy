@@ -12,10 +12,11 @@
 #include "world.h"
 #include "config.h"
 #include "player.h"
-#include "display.h"
 #include "inventory.h"
+#include "io/display.h"
+#include "tile_object.h"
 
-#define ROOM_INFREQ 100
+#define ROOM_INFREQ 200
 #define ITEM_INFREQ 80
 #define CRTR_INFREQ 80
 #define ROOM_MIN 5
@@ -31,7 +32,7 @@ static int on(int x, int y, zone * z)
 	return z->tiles[x][y].impassible;
 }
 
-static void set_wall_char(zone * z, int x, int y)
+void set_wall_char(zone * z, int x, int y)
 {
 	int i, j;
 	unsigned char ch = 0;
@@ -55,7 +56,6 @@ static void set_wall_char(zone * z, int x, int y)
 // this function is really ugly
 static void generate(zone * z)
 {
-	static int first = 1;
 
 	int i, x, y, max, timeout;
 	int wall;
@@ -65,17 +65,13 @@ static void generate(zone * z)
 	item * it;
 	creature * cr;
 
-	if (first) {
-		fill_walls();
-		first = 0;
-	}
-
 	z->name = place_name(world.eth);
 
 	rc = random() % ((z->width * z->height) / ROOM_INFREQ) + ROOM_MIN;
 	rooms = malloc(sizeof(room*) * rc);
 
 	//make everything walls!
+	//TODO safely initalize zones this way
 	for (x = 0; x < z->width; x++) {
 	for (y = 0; y < z->height; y++) {
 		z->tiles[x][y].impassible = 1;
@@ -90,7 +86,7 @@ static void generate(zone * z)
 
 	//make sure rooms are connected!
 	//connect each room to one other room
-
+	//this is getting worse over time...
 	for(i=0; i< rc; i++){
 		max = random() % rc;
 		room_spot(z,rooms[i],&x1,&y1);
@@ -103,15 +99,41 @@ static void generate(zone * z)
 		}
 
 		for(;x1 != x2; x1-= sign(x1-x2)){
-			if(z->tiles[x1][y1].impassible) wall=1;
-			else if (wall) break;
+			if(z->tiles[x1][y1].impassible && !wall){
+				z->tiles[x1][y1].obj = make_door(0);
+				zone_update(z,x1 ,y1);
+				wall=1;
+				continue;
+			}
 
-			zone_empty_tile(z,x1,y1);
+			if(z->tiles[x1][y1].impassible)
+				 wall=1;
+			else if (wall){ 
+				z->tiles[x1 + sign(x1-x2)][y1].obj = make_door(0);
+				z->tiles[x1 + sign(x1-x2)][y1].impassible = 1;
+				zone_update(z,x1 + sign(x1-x2) ,y1);
+				break;
+			}
+
+				zone_empty_tile(z,x1,y1);
 		}
 
 		for(;y1 != y2; y1-= sign(y1-y2)){
-			if(z->tiles[x1][y1].impassible) wall=1;
-			else if (wall) break;
+			if(z->tiles[x1][y1].impassible && !wall){
+				z->tiles[x1][y1].obj = make_door(0);
+				zone_update(z,x1 ,y1);
+				wall=1;
+				continue;
+			}
+
+			if(z->tiles[x1][y1].impassible)
+				 wall=1;
+			else if (wall){ 
+				z->tiles[x1][y1 + sign(y1-y2)].obj = make_door(0);
+				z->tiles[x1][y1 + sign(y1-y2)].impassible = 1;
+				zone_update(z,x1 ,y1 + sign(y1-y2));
+				break;
+			}
 
 			zone_empty_tile(z,x1,y1);
 		}
@@ -120,7 +142,7 @@ static void generate(zone * z)
 	//do rendering thing
 	for (x = 0; x < z->width; x++) {
 	for (y = 0; y < z->height; y++) {
-		if (z->tiles[x][y].impassible) {
+		if (z->tiles[x][y].impassible && !z->tiles[x][y].obj) {
 			set_wall_char(z,x,y);
 		}
 	}
@@ -169,10 +191,13 @@ static void generate(zone * z)
 			timeout--;
 		} while (z->tiles[x][y].impassible);
 
-		z->tiles[x][y].linked = 1;
+		/*z->tiles[x][y].linked = 1;
 		z->tiles[x][y].link_z = NULL;
 		z->tiles[x][y].ch = '@';
-		z->tiles[x][y].show_ch = '@';
+		z->tiles[x][y].show_ch = '@';*/
+
+		z->tiles[x][y].obj = make_stair();
+		zone_update(z, x, y);
 	}
 
 	// cleanup
@@ -185,6 +210,7 @@ zone * zone_new(int w, int h)
 {
 	int i, j;
 	zone * z;
+	static int first = 1;
 
 	z = malloc(sizeof(zone));
 	z->width = w;
@@ -197,13 +223,20 @@ zone * zone_new(int w, int h)
 			z->tiles[i][j].show = 0;
 			z->tiles[i][j].impassible = 0;
 			z->tiles[i][j].crtr = NULL;
+			z->tiles[i][j].obj = NULL;
 			z->tiles[i][j].inv = inv_new(TILE_MAX_WEIGHT);
 		}
 	}
 
 	vector_init(&z->crtrs);
+
+	if (first) {
+		fill_walls();
+		first = 0;
+	}
+
 	if(!config.multiplayer)
-	generate(z);
+		generate(z);
 
 	return z;
 }
@@ -216,10 +249,13 @@ void zone_free(zone * z)
 		for (j = 0; j < z->height; j++) {
 			// TODO free creature?
 			inv_free(z->tiles[i][j].inv);
+			//free tile objects
+			if(z->tiles[i][j].obj) free(z->tiles[i][j].obj);
 		}
 		free(z->tiles[i]);
 	}
 
+	if(z->name) free(z->name);
 	free(z->tiles);
 	free(z);
 }
@@ -263,7 +299,11 @@ void zone_update(zone * z, int x, int y)
 	item * it;
 	chtype ch = z->tiles[x][y].ch;
 
-	if (z->tiles[x][y].crtr == NULL || z->tiles[x][y].crtr->health <= 0) {
+	if (z->tiles[x][y].crtr != NULL && z->tiles[x][y].crtr->health > 0) {
+		ch = z->tiles[x][y].crtr->ch;
+	} else if(z->tiles[x][y].obj) {
+		ch = z->tiles[x][y].obj->ch;
+	} else {
 		for (i = 0; i < z->tiles[x][y].inv->size; i++) {
 			it = z->tiles[x][y].inv->itms[i];
 
@@ -272,9 +312,8 @@ void zone_update(zone * z, int x, int y)
 				ch = it->ch;
 			}
 		}
-	} else {
-		ch = z->tiles[x][y].crtr->ch;
-	}
+	} 
+	
 
 
 	z->tiles[x][y].show_ch = ch;
@@ -365,7 +404,6 @@ void zone_empty_tile(zone * z, int x, int y){
 	z->tiles[x][y].impassible = 0;
 	z->tiles[x][y].ch = ('.' | A_DIM);
 	z->tiles[x][y].show_ch = ('.' | A_DIM);
-	z->tiles[x][y].linked = 0;
 
 }
 
