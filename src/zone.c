@@ -16,7 +16,7 @@
 #include "io/display.h"
 #include "tile_object.h"
 
-#define ROOM_INFREQ 200
+#define ROOM_INFREQ 100
 #define ITEM_INFREQ 80
 #define CRTR_INFREQ 80
 #define ROOM_MIN 5

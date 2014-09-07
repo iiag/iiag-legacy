@@ -429,7 +429,7 @@ void handle_zone(socket_node* s,void* pack, int len){
 	int x,y;
 	for(x=0;x<z->width;x++)
 	for(y=0;y<z->height;y++)
-		if (z->tiles[x][y].impassible) {
+		if (z->tiles[x][y].impassible && !(z->tiles[x][y].obj)) {
 			set_wall_char(z,x,y);
 		}
 
