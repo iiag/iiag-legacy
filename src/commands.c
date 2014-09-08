@@ -76,7 +76,6 @@ void init_commands(void)
 	insert(CTRL_THROW,     "throw",     plyr_act_throw,       &arraysz);
 	insert(CTRL_SKIP_TURN, "idle",      plyr_act_idle,        &arraysz);
 	insert(CTRL_SAVECTRL,  "save_ctrl", prompt_save_controls, &arraysz);
-	insert(CTRL_LOADCTRL,  "load_ctrl", display_loadcontrols, &arraysz);
 	insert(CTRL_DISCTRL,   "dis_ctrl",  display_controls,     &arraysz);
 
 
