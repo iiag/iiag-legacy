@@ -2,13 +2,6 @@
 -- script/iforms.lua --
 -----------------------
 
-iform {
-	name = 'rock';
-	char = '*';
-	weight = 2500;
-	freq = 20;
-}
-
 -- Foods --
 iform {
 	name = 'muffin';
@@ -47,6 +40,21 @@ iform {
 	slot = 'right-hand';
 	freq = 15;
 }
+
+-- Fruit --
+function fruit(n, w, s, f)
+	iform {
+		name = n;
+		class = 'food/fruit';
+		consumable = true;
+		char = '*';
+		weight = w;
+		restore_stamina = s;
+		freq = f;
+	}
+end
+
+fruit('papaya', 152, 10, 1);
 
 -- Potions --
 iform {
