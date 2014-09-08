@@ -292,7 +292,7 @@ void plyr_ev_death(creature * p, const char * reasons)
 	}
 
 	if (was_quaz) {
-		memo("Quaz o quaz, wherefore art thou forsaking me!? Press q to exit.");
+		memo("Quaz o quaz, wherefore dost thou forsake me!? Press q to exit.");
 	} else {
 		memo("You die of %s, how unfortunate. Press q to exit.", reasons);
 	}
