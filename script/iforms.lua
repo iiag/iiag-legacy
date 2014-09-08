@@ -13,6 +13,7 @@ iform {
 iform {
 	name = 'muffin';
 	class = 'food';
+	material = 'muffin';
 	consumable = true;
 	char = '%';
 	weight = 35;
