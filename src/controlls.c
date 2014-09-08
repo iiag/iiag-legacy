@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include <ncurses.h>
 #include <dirent.h>
@@ -466,7 +467,7 @@ void display_loadcontrols(){
 //load controls file
 char* get_cstring(FILE * f){
 	int i=0, c;
-	char str=[100];
+	char str[100];
 	for (i = 0; i < 100 - 1; i++) {
 		
 		c = fgetc(f);
