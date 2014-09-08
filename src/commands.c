@@ -80,7 +80,7 @@ void init_commands(void)
 
 	// Stancing
 	insert(CTRL_STANCE_NEUTRAL, "stance_neutral", plyr_stance_neutral, &arraysz);
-	insert(CTRL_STANCE_DEFENSE, "stance_defense", plyr_stance_defense, &arraysz);
+	insert(CTRL_STANCE_DEFENSE, "stance_defend", plyr_stance_defense, &arraysz);
 	insert(CTRL_STANCE_ATTACK , "stance_attack" , plyr_stance_attack,  &arraysz);
 
 
