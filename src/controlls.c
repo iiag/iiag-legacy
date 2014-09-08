@@ -45,13 +45,18 @@ struct str_pairs controls[]={
 	{ "Equip Item",        "CTRL_EQUIP",    'w' },
 	{ "Throw Item",        "CTRL_THROW",    't' },
 
+	// stancing
+	{ "Set Neutral Stance", "CTRL_STANCE_NEUTRAL", '1' },
+	{ "Set Defense Stance", "CTRL_STANCE_DEFENSE", '2' },
+	{ "Set Attack Stance",  "CTRL_STANCE_ATTACK",  '3' },
+
 	// miscellaneous
 	{ "Skip Turn",        "CTRL_SKIP_TURN", 's' },
 	{ "Display Controls", "CTRL_DISCTRL",   ' ' },
 	{ "Save Controls",    "CTRL_SAVECTRL",  'S' },
 	{ "Quit",             "CTRL_QUIT",      'q' },
 	{ "Command Mode",     "CTRL_COMMAND",   ':' }
-}; 
+};
 
 //controlls with config
 void save_config(const char* name){
@@ -64,7 +69,7 @@ void save_config(const char* name){
 	config.cfg_file=name;
 
 	f = fopen(name, "wb+");
-	
+
 	fprintf(f, "%s=%s\n","config",config.cfg_file);
 	fprintf(f, "%s=%s\n","lua",config.lua_init);
 	fprintf(f, "%s=%s\n","ip",config.ip);
@@ -114,7 +119,7 @@ void check_offset(int *offset,int ysize){
 	if(*offset>abs((ysize)-(TOTAL_CONTROLS)))*offset=abs((ysize)-(TOTAL_CONTROLS));
 }
 
-//drawing controls with scrolling 
+//drawing controls with scrolling
 void draw_controls(int offset,int spot,int ysize){
 	int i=0;
 	int size=((ysize+offset)<TOTAL_CONTROLS)?(ysize+offset):TOTAL_CONTROLS;
@@ -166,7 +171,7 @@ void display_controls(){
 	int xsize,ysize;
 	getmaxyx(dispscr,ysize,xsize);
 	ysize--;
-	//memo("offset: %d spot: %d ysize: %d",offset,spot,ysize); 
+	//memo("offset: %d spot: %d ysize: %d",offset,spot,ysize);
 
 	wclear(dispscr);
 	wclear(memoscr);
@@ -174,32 +179,32 @@ void display_controls(){
 
 	statline(0,"Press the array keys to move up or down");
 	statline(1,"When on the control you want to change press the key you want to change it too");
-	
+
 	draw_controls(offset,spot,ysize);
 
 	while(num){
 		int letter=wgetch(dispscr);
 		switch(letter){
 			case KEY_UP: case KEY_LEFT:
-				//memo("offset: %d spot: %d ysize: %d controls: %d",offset,spot,ysize,TOTAL_CONTROLS); 
-				mvwaddch(dispscr,1+spot,0,' '); 
-				spot--; 
-				check_spot(&spot,&offset,ysize); 
-				mvwaddch(dispscr,1+spot,0,'*'); 
+				//memo("offset: %d spot: %d ysize: %d controls: %d",offset,spot,ysize,TOTAL_CONTROLS);
+				mvwaddch(dispscr,1+spot,0,' ');
+				spot--;
+				check_spot(&spot,&offset,ysize);
+				mvwaddch(dispscr,1+spot,0,'*');
 				wrefresh(dispscr);
 				if(spot>=ysize-1&&offset>0){
 					offset--;
 					check_offset(&offset,ysize);
 					draw_controls(offset,spot,ysize);
-				} 
+				}
 			break;
-			case KEY_DOWN: case KEY_RIGHT: 
-				//memo("offset: %d spot: %d ysize: %d controls: %d",offset,spot,ysize,TOTAL_CONTROLS); 
-				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,' '); 
-				spot++; 
-				check_spot(&spot,&offset,ysize); 
-				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,'*'); 
-				wrefresh(dispscr); 
+			case KEY_DOWN: case KEY_RIGHT:
+				//memo("offset: %d spot: %d ysize: %d controls: %d",offset,spot,ysize,TOTAL_CONTROLS);
+				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,' ');
+				spot++;
+				check_spot(&spot,&offset,ysize);
+				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,'*');
+				wrefresh(dispscr);
 				if(spot>ysize-1){
 					offset++;
 					check_offset(&offset,ysize);
@@ -214,8 +219,8 @@ void display_controls(){
 					wclear(memoscr);
 					memo("There are Duplicates");
 					continue;
-				} 
-				num=!num; 
+				}
+				num=!num;
 				break;*/
 			default :
 			//memo("letter: %c control: %c",letter,config.ctrl[spot]);
@@ -225,7 +230,7 @@ void display_controls(){
 					continue;
 				}else if(letter==controls[CTRL_DISCTRL].ctrl_CTRL&&!duplicates()){
 					memo("There are Duplicates %d",duplicates());
-					num=!num; 
+					num=!num;
 				}else{
 					controls[spot].ctrl_CTRL=letter;
 					statline(2,"%c=%d",(char)letter,letter);
@@ -262,18 +267,18 @@ void prompt_save_controls(){
 	int spot=0;
 	int fold_con;
 	wmove(memoscr, 0, 0);
-	
+
 	while(num){
 		letter=wgetch(memoscr);
 		switch(letter){
-			case 'F': case 'f': fold_con=0; num=!num; break; 
+			case 'F': case 'f': fold_con=0; num=!num; break;
 			case 'C': case 'c': fold_con=1; num=!num; break;
 			default :
 				memo("Wrong Letter");
 		}
 	}
 	num=!num;
-	
+
 	memo("What is the file name?");
 	statline(0,"press q to quit");
 	statline(1,"What will your config/controls name be?!?!");
@@ -302,7 +307,7 @@ void prompt_save_controls(){
 				if(letter==controls[CTRL_QUIT].ctrl_CTRL){
 					num=!num;
 				}else{
-					statline(2,"%c=%d",(char)letter,letter);				
+					statline(2,"%c=%d",(char)letter,letter);
 					spot++;
 					str=(char*)realloc(str,spot*sizeof(char));
 					str[spot-1]=(char)letter;
@@ -426,11 +431,11 @@ void display_loadcontrols(){
 		int letter=wgetch(dispscr);
 		switch(letter){
 			case KEY_UP: case KEY_LEFT:
-				memo("offset: %d spot: %d ysize: %d controls: %d ent_name: %s",offset,spot,ysize,TOTAL_CONTROLS,ent_name[spot].name); 
-				mvwaddch(dispscr,1+spot,0,' '); 
-				spot--; 
-				check_loadspot(&spot,&offset,ysize,len); 
-				mvwaddch(dispscr,1+spot,0,'*'); 
+				memo("offset: %d spot: %d ysize: %d controls: %d ent_name: %s",offset,spot,ysize,TOTAL_CONTROLS,ent_name[spot].name);
+				mvwaddch(dispscr,1+spot,0,' ');
+				spot--;
+				check_loadspot(&spot,&offset,ysize,len);
+				mvwaddch(dispscr,1+spot,0,'*');
 				wrefresh(dispscr);
 				if(spot>=ysize-1&&offset>0){
 					offset--;
@@ -438,13 +443,13 @@ void display_loadcontrols(){
 					draw_loadfiles(offset,spot,ysize,ent_name,len);
 				}
 			break;
-			case KEY_DOWN: case KEY_RIGHT: 
-				memo("offset: %d spot: %d ysize: %d controls: %d ent_name: %s",offset,spot,ysize,TOTAL_CONTROLS,ent_name[spot].name); 
-				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,' '); 
-				spot++; 
-				check_loadspot(&spot,&offset,ysize,len); 
-				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,'*'); 
-				wrefresh(dispscr); 
+			case KEY_DOWN: case KEY_RIGHT:
+				memo("offset: %d spot: %d ysize: %d controls: %d ent_name: %s",offset,spot,ysize,TOTAL_CONTROLS,ent_name[spot].name);
+				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,' ');
+				spot++;
+				check_loadspot(&spot,&offset,ysize,len);
+				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,'*');
+				wrefresh(dispscr);
 				if(spot>ysize-1){
 					offset++;
 					check_loadoffset(&offset,ysize,len);
@@ -468,7 +473,7 @@ char* get_cstring(FILE * f){
 	int i=0, c;
 	char str[100];
 	for (i = 0; i < 100 - 1; i++) {
-		
+
 		c = fgetc(f);
 		if (c == EOF || c == 0 || (isspace(c) || c == '='))
 			break;
