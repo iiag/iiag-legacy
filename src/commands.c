@@ -78,9 +78,8 @@ void init_commands(void)
 
 	// Stancing
 	insert(CTRL_STANCE_NEUTRAL, "stance_neutral", plyr_stance_neutral);
-	insert(CTRL_STANCE_DEFENSE, "stance_defense", plyr_stance_defense);
+	insert(CTRL_STANCE_DEFENSE, "stance_defend",  plyr_stance_defense);
 	insert(CTRL_STANCE_ATTACK , "stance_attack" , plyr_stance_attack);
-
 
 	// sort the array or something.
 }
