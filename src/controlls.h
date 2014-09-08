@@ -12,11 +12,6 @@ void check_spot(int *spot,int *offset,int ysize);
 void check_offset(int *offset,int ysize);
 void prompt_save_controls();
 void save_controls(char* name);
-void display_loadcontrols();
-void load_controls(char* name);
-char* get_cstring(FILE * f);
-int igfspaces(FILE * f);
-int get_fcontrol(FILE * f);
 
 struct str_pairs{
 	const char* user_CTRL;
@@ -25,10 +20,5 @@ struct str_pairs{
 };
 
 extern struct str_pairs controls[];
-
-typedef struct{
-	char* name;
-	int size;
-}dirent_name;
 
 #endif

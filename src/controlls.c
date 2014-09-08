@@ -13,8 +13,6 @@
 #include "config.h"
 #include "controlls.h"
 
-dirent_name * ent_name;
-
 //control mapping
 struct str_pairs controls[]={
 
