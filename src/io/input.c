@@ -6,6 +6,8 @@
 #include "input.h"
 #include "display.h"
 #include "../config.h"
+#include "../controlls.h"
+
 
 #define MAX_CMD_ENTRY 100
 
@@ -25,7 +27,7 @@ int get_ctrl(void)
 	} else c = wgetch(memoscr);
 
 	for (i = 0; i < TOTAL_CONTROLS; i++) {
-		if (config.ctrl[i] == c) return i;
+		if (controls[i].ctrl_CTRL == c) return i;
 	}
 
 	if (c == ERR) return CTRL_SKIP_TURN;
