@@ -4,9 +4,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include "packet.h"
-#include "../commands.h"
 #include "../player.h"
 #include "../config.h"
+#include "../controls.h"
 #include "../inventory.h"
 #include "../generator.h"
 #include "../io/display.h"

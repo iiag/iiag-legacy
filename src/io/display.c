@@ -166,31 +166,31 @@ void scroll_center(int x, int y)
 // The following functions move the view around
 //
 
-void scroll_view_center(int argc, char ** argv)
+void scroll_view_center(int argc, const char ** argv)
 {
 	scroll_center(PLYR.x, PLYR.y);
 	zone_draw(PLYR.z);
 }
 
-void scroll_view_left(int argc, char ** argv)
+void scroll_view_left(int argc, const char ** argv)
 {
 	scroll_disp(-1, 0);
 	zone_draw(PLYR.z);
 }
 
-void scroll_view_right(int argc, char ** argv)
+void scroll_view_right(int argc, const char ** argv)
 {
 	scroll_disp(1, 0);
 	zone_draw(PLYR.z);
 }
 
-void scroll_view_up(int argc, char ** argv)
+void scroll_view_up(int argc, const char ** argv)
 {
 	scroll_disp(0, -1);
 	zone_draw(PLYR.z);
 }
 
-void scroll_view_down(int argc, char ** argv)
+void scroll_view_down(int argc, const char ** argv)
 {
 	scroll_disp(0, 1);
 	zone_draw(PLYR.z);

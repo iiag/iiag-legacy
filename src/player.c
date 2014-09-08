@@ -62,7 +62,7 @@ static void redraw(void)
 //
 // The following functions are called through the command interface
 //
-void plyr_act_pickup(int argc, char ** argv)
+void plyr_act_pickup(int argc, const char ** argv)
 {
 	int i;
 
@@ -82,7 +82,7 @@ void plyr_act_pickup(int argc, char ** argv)
 	}
 }
 
-void plyr_act_drop(int argc, char ** argv)
+void plyr_act_drop(int argc, const char ** argv)
 {
 	int i = prompt_inv("You dropped what?", PLYR.inv, &PLYR);
 
@@ -96,13 +96,13 @@ void plyr_act_drop(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_inv(int argc, char ** argv)
+void plyr_act_inv(int argc, const char ** argv)
 {
 	prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
 	redraw();
 }
 
-void plyr_act_equipped(int argc, char ** argv)
+void plyr_act_equipped(int argc, const char ** argv)
 {
 	int i;
 
@@ -121,47 +121,47 @@ void plyr_act_equipped(int argc, char ** argv)
 	wrefresh(dispscr);
 }
 
-void plyr_act_move_left(int argc, char ** argv)
+void plyr_act_move_left(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, -1, 0);
 }
 
-void plyr_act_move_right(int argc, char ** argv)
+void plyr_act_move_right(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 1, 0);
 }
 
-void plyr_act_move_up(int argc, char ** argv)
+void plyr_act_move_up(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 0, -1);
 }
 
-void plyr_act_move_down(int argc, char ** argv)
+void plyr_act_move_down(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 0, 1);
 }
 
-void plyr_act_move_upleft(int argc, char ** argv)
+void plyr_act_move_upleft(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, -1, -1);
 }
 
-void plyr_act_move_upright(int argc, char ** argv)
+void plyr_act_move_upright(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 1, -1);
 }
 
-void plyr_act_move_downleft(int argc, char ** argv)
+void plyr_act_move_downleft(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, -1, 1);
 }
 
-void plyr_act_move_downright(int argc, char ** argv)
+void plyr_act_move_downright(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 1, 1);
 }
 
-void plyr_act_enter(int argc, char ** argv)
+void plyr_act_enter(int argc, const char ** argv)
 {
 	int ox, oy;
 	zone * oz;
@@ -205,7 +205,7 @@ void plyr_act_enter(int argc, char ** argv)
 	}
 }
 
-void plyr_act_consume(int argc, char ** argv)
+void plyr_act_consume(int argc, const char ** argv)
 {
 	int i;
 
@@ -225,7 +225,7 @@ void plyr_act_consume(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_throw(int argc, char ** argv)
+void plyr_act_throw(int argc, const char ** argv)
 {
 	int i, dx, dy;
 
@@ -245,7 +245,7 @@ void plyr_act_throw(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_equip(int argc, char ** argv)
+void plyr_act_equip(int argc, const char ** argv)
 {
 	int i;
 
@@ -265,7 +265,7 @@ void plyr_act_equip(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_idle(int argc, char ** argv)
+void plyr_act_idle(int argc, const char ** argv)
 {
 	crtr_act_idle(&PLYR);
 }
@@ -363,19 +363,19 @@ void plyr_ev_act_fail(creature * p, void * how)
 	}
 }
 
-void plyr_stance_neutral(int argc, char ** argv)
+void plyr_stance_neutral(int argc, const char ** argv)
 {
 	world.plyr.stance = STANCE_NEUTRAL;
 	memo("You shift your stance to a more comfortable posture.");
 }
 
-void plyr_stance_defense(int argc, char ** argv)
+void plyr_stance_defense(int argc, const char ** argv)
 {
 	world.plyr.stance = STANCE_DEFENSE;
 	memo("You square your shoulders, and prepare to defend yourself!");
 }
 
-void plyr_stance_attack(int argc, char ** argv)
+void plyr_stance_attack(int argc, const char ** argv)
 {
 	world.plyr.stance = STANCE_ATTACK;
 	memo("You lean your body forward, raise your arms, and snarl, ready to strike down all that stand before you!");

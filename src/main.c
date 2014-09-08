@@ -16,19 +16,14 @@
 #include "config.h"
 #include "player.h"
 #include "creature.h"
-#include "commands.h"
 #include "inventory.h"
 #include "io/input.h"
 #include "io/display.h"
 #include "lua/lua.h"
-#include "controlls.h"
-#include "commands.h"
+#include "controls.h"
 #include "net/net.h"
 #include "net/packet.h"
 #include "introspection.h"
-
-extern command_t * command_list;
-extern int num_commands;
 
 static void update_status(void)
 {
@@ -84,7 +79,6 @@ int main(int argc, char ** argv)
 
 	init_disp();
 	init_world();
-	init_commands();
 
 	if(config.multiplayer){
 		client_connect(config.ip,config.port);
@@ -106,12 +100,8 @@ int main(int argc, char ** argv)
 		if(c != CTRL_SKIP_TURN || (!config.multiplayer))
 			reset_memos();
 
-		if (CTRL_QUIT == c) {
-			goto cleanup;
-		} else if (CTRL_COMMAND == c) {
-			command_mode();
-		} else {
-			execute(c);
+		if (!key_command(c)) {
+			memo("Unknown key press %d.\n", c);
 		}
 
 		if(c != CTRL_SKIP_TURN)
@@ -130,8 +120,5 @@ int main(int argc, char ** argv)
 			while(!read_packet(client_socket, NULL));
 	}
 
-cleanup:
-	end_disp();
-	deinit_commands();
 	return 0;
 }

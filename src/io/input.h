@@ -22,6 +22,9 @@ int prompt_dir(const char *, int *, int *);
 //
 int prompt_inv(const char *, inventory *, struct creature *);
 
-char * prompt_command(void);
+//
+// Prompts for a string input, outputs the given prompt before the input
+//
+char * prompt_string(const char *);
 
 #endif

@@ -6,18 +6,15 @@
 #include "input.h"
 #include "display.h"
 #include "../config.h"
-#include "../controlls.h"
-
-
-#define MAX_CMD_ENTRY 100
+#include "../controls.h"
 
 //
 // Gets a keypress and translates it into a control value
 //
 int get_ctrl(void)
 {
-	int i;
 	int c = ERR;
+
 	if (config.real_time) {
 		int d = ERR;
 		do {
@@ -26,13 +23,8 @@ int get_ctrl(void)
 		} while(d != ERR);
 	} else c = wgetch(memoscr);
 
-	for (i = 0; i < TOTAL_CONTROLS; i++) {
-		if (controls[i].ctrl_CTRL == c) return i;
-	}
-
-	if (c == ERR) return CTRL_SKIP_TURN;
-
-	return CTRL_INVALID;
+	if (c == ERR) return controls[CTRL_SKIP_TURN].key;
+	return c;
 }
 
 //
@@ -91,13 +83,18 @@ int prompt_inv(const char * prompt, inventory * inv, creature * c)
 	return ch2ind(wgetch(dispscr));
 }
 
-char * prompt_command(void)
+//
+// Prompts for a string input
+//
+char * prompt_string(const char * prompt)
 {
+#define MAX_CMD_ENTRY 100
+
 	int c,i = 0;
 	char * string = calloc(1,MAX_CMD_ENTRY);
 
 	wmove(memoscr, 0, 0);
-	waddch(memoscr, ':');
+	waddstr(memoscr, prompt);
 
 	while ('\n' != c) {
 		string[i] = c = wgetch(memoscr);
@@ -113,7 +110,7 @@ char * prompt_command(void)
 			continue;
 		}
 
-		// Cancel command input
+		// Cancel input
 		if (c == 27) { // Escape
 			wmove(memoscr, 0, 0);
 			for (c = 0; c < i + 1; c++) {
@@ -127,5 +124,9 @@ char * prompt_command(void)
 		waddch(memoscr, string[i++]);
 		wrefresh(memoscr);
 	}
+
 	return string;
+
+#undef MAX_CMD_ENTRY
 }
+

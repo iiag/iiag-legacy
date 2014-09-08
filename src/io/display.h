@@ -24,11 +24,11 @@ void scroll_disp(int, int);
 void scroll_center(int, int);
 
 // magical movement of the world (aka scrolling)
-void scroll_view_center(int, char **);
-void scroll_view_left(int, char **);
-void scroll_view_right(int, char **);
-void scroll_view_up(int, char **);
-void scroll_view_down(int, char **);
+void scroll_view_center(int, const char **);
+void scroll_view_left(int, const char **);
+void scroll_view_right(int, const char **);
+void scroll_view_up(int, const char **);
+void scroll_view_down(int, const char **);
 
 
 extern WINDOW * memoscr;
