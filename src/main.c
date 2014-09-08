@@ -21,13 +21,14 @@
 #include "io/input.h"
 #include "io/display.h"
 #include "lua/lua.h"
+#include "controlls.h"
+#include "commands.h"
 #include "net/net.h"
 #include "net/packet.h"
 #include "introspection.h"
 
 extern command_t * command_list;
 extern int num_commands;
-
 
 static void update_status(void)
 {

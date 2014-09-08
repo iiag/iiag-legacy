@@ -40,6 +40,9 @@ enum {
 
 	// miscellaneous
 	CTRL_SKIP_TURN,
+	CTRL_DISCTRL,
+	CTRL_SAVECTRL,
+	CTRL_LOADCTRL,
 	CTRL_QUIT,
 	CTRL_COMMAND,
 
@@ -66,6 +69,5 @@ typedef struct config {
 extern config_t config;
 
 void init_config(int, char **);
-void save_config(void);
 
 #endif
