@@ -60,13 +60,15 @@ struct str_pairs controls[]={
 };
 
 //controlls with config
-void save_config(const char* name){
+void save_config(const char* pname){
 	int i;
 	FILE*f;
 
+	char * name = malloc(strlen(pname) + 5);
 	char* suffix=".cfg";
 
-	strcat(name,suffix);
+	strcpy(name, pname);
+	strcat(name, suffix);
 	config.cfg_file=name;
 
 	f = fopen(name, "wb+");
@@ -169,7 +171,7 @@ void display_controls(){
 	int spot=0;
 	int num=1;
 	int offset=0;
-	int xsize,ysize;
+	int xsize, ysize;
 	getmaxyx(dispscr,ysize,xsize);
 	ysize--;
 	//memo("offset: %d spot: %d ysize: %d",offset,spot,ysize);
@@ -266,7 +268,6 @@ void prompt_save_controls(){
 	char* str;
 	int num=1;
 	int spot=0;
-	int fold_con;
 	wmove(memoscr, 0, 0);
 	memo("What is the file name?");
 	statline(0,"press q to quit");
@@ -277,7 +278,7 @@ void prompt_save_controls(){
 			case KEY_DC: case KEY_BACKSPACE: case 127: case 8:
 				spot--;
 				if(spot<=0)spot=0;
-				str[spot]=NULL;
+				str[spot]='\0';
 				str=(char*)realloc(str,spot*sizeof(char));
 				wclear(memoscr);
 				wprintw(memoscr,"What is the file name? %s %d",str,strlen(str));

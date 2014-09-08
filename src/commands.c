@@ -7,13 +7,16 @@
 #include "io/display.h"
 #include "controlls.h"
 
-command_t * command_list;
-int num_commands;
+command_t * command_list = NULL;
+int num_commands = 0;
 
 // NOTE: cmdstr should be a NULL-terminated string
-static void insert(int keyval, char * cmdstr, void(*command)(int,char**), int *arraysz)
+static void insert(int keyval, char * cmdstr, void(*command)(int,char**))
 {
 	int cmdstrlen;
+
+	// TODO make more optimized
+	command_list = realloc(command_list, sizeof(command_t) * (num_commands+1));
 
 	command_list[num_commands].command = command;
 	command_list[num_commands].keyval = keyval;
@@ -41,47 +44,42 @@ static void run_command(char * cmd, int argc, char ** argv)
 
 void init_commands(void)
 {
-	int arraysz = 25; // Set this to at least the number of commands
-	command_list = malloc(sizeof(command_t) * arraysz);
-	num_commands = 0;
-
-
 	// OPTIMIZE: Don't hard code this!
 	// OPTIMIZE: Sort this by keypress
 	// Movement
-	insert(CTRL_LEFT,   "move_left",   plyr_act_move_left,       &arraysz);
-	insert(CTRL_RIGHT,  "move_right",  plyr_act_move_right,      &arraysz);
-	insert(CTRL_UP,     "move_up",     plyr_act_move_up,         &arraysz);
-	insert(CTRL_DOWN,   "move_down",   plyr_act_move_down,       &arraysz);
-	insert(CTRL_ULEFT,  "move_uleft",  plyr_act_move_upleft,     &arraysz);
-	insert(CTRL_URIGHT, "move_udown",  plyr_act_move_upright,    &arraysz);
-	insert(CTRL_DLEFT,  "move_dleft",  plyr_act_move_downleft,   &arraysz);
-	insert(CTRL_DRIGHT, "move_dright", plyr_act_move_downright,  &arraysz);
-	insert(CTRL_ENTER,  "enter",       plyr_act_enter,           &arraysz);
+	insert(CTRL_LEFT,   "move_left",   plyr_act_move_left);
+	insert(CTRL_RIGHT,  "move_right",  plyr_act_move_right);
+	insert(CTRL_UP,     "move_up",     plyr_act_move_up);
+	insert(CTRL_DOWN,   "move_down",   plyr_act_move_down);
+	insert(CTRL_ULEFT,  "move_uleft",  plyr_act_move_upleft);
+	insert(CTRL_URIGHT, "move_udown",  plyr_act_move_upright);
+	insert(CTRL_DLEFT,  "move_dleft",  plyr_act_move_downleft);
+	insert(CTRL_DRIGHT, "move_dright", plyr_act_move_downright);
+	insert(CTRL_ENTER,  "enter",       plyr_act_enter);
 
 	// Scrolling
-	insert(CTRL_SCRL_CENTER, "scroll_center", scroll_view_center, &arraysz);
-	insert(CTRL_SCRL_LEFT,   "scroll_left",   scroll_view_left,   &arraysz);
-	insert(CTRL_SCRL_RIGHT,  "scroll_right",  scroll_view_right,  &arraysz);
-	insert(CTRL_SCRL_UP,     "scroll_up",     scroll_view_up,     &arraysz);
-	insert(CTRL_SCRL_DOWN,   "scroll_down",   scroll_view_down,   &arraysz);
+	insert(CTRL_SCRL_CENTER, "scroll_center", scroll_view_center);
+	insert(CTRL_SCRL_LEFT,   "scroll_left",   scroll_view_left);
+	insert(CTRL_SCRL_RIGHT,  "scroll_right",  scroll_view_right);
+	insert(CTRL_SCRL_UP,     "scroll_up",     scroll_view_up);
+	insert(CTRL_SCRL_DOWN,   "scroll_down",   scroll_view_down);
 
 	// Actions
-	insert(CTRL_DISP_INV,  "inventory", plyr_act_inv,         &arraysz);
-	insert(CTRL_DISP_EQP,  "equipment", plyr_act_equipped,    &arraysz);
-	insert(CTRL_PICKUP,    "pickup",    plyr_act_pickup,      &arraysz);
-	insert(CTRL_DROP,      "drop",      plyr_act_drop,        &arraysz);
-	insert(CTRL_CONSUME,   "consume",   plyr_act_consume,     &arraysz);
-	insert(CTRL_EQUIP,     "equip",     plyr_act_equip,       &arraysz);
-	insert(CTRL_THROW,     "throw",     plyr_act_throw,       &arraysz);
-	insert(CTRL_SKIP_TURN, "idle",      plyr_act_idle,        &arraysz);
-	insert(CTRL_SAVECTRL,  "save_ctrl", prompt_save_controls, &arraysz);
-	insert(CTRL_DISCTRL,   "dis_ctrl",  display_controls,     &arraysz);
+	insert(CTRL_DISP_INV,  "inventory", plyr_act_inv);
+	insert(CTRL_DISP_EQP,  "equipment", plyr_act_equipped);
+	insert(CTRL_PICKUP,    "pickup",    plyr_act_pickup);
+	insert(CTRL_DROP,      "drop",      plyr_act_drop);
+	insert(CTRL_CONSUME,   "consume",   plyr_act_consume);
+	insert(CTRL_EQUIP,     "equip",     plyr_act_equip);
+	insert(CTRL_THROW,     "throw",     plyr_act_throw);
+	insert(CTRL_SKIP_TURN, "idle",      plyr_act_idle);
+	insert(CTRL_SAVECTRL,  "save_ctrl", prompt_save_controls);
+	insert(CTRL_DISCTRL,   "dis_ctrl",  display_controls);
 
 	// Stancing
-	insert(CTRL_STANCE_NEUTRAL, "stance_neutral", plyr_stance_neutral, &arraysz);
-	insert(CTRL_STANCE_DEFENSE, "stance_defense", plyr_stance_defense, &arraysz);
-	insert(CTRL_STANCE_ATTACK , "stance_attack" , plyr_stance_attack,  &arraysz);
+	insert(CTRL_STANCE_NEUTRAL, "stance_neutral", plyr_stance_neutral);
+	insert(CTRL_STANCE_DEFENSE, "stance_defense", plyr_stance_defense);
+	insert(CTRL_STANCE_ATTACK , "stance_attack" , plyr_stance_attack);
 
 
 	// sort the array or something.
@@ -155,6 +153,4 @@ exec:
 	if (NULL != argv) free(argv);
 	free(string);
 }
-
-
 

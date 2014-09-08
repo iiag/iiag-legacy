@@ -62,7 +62,6 @@ config_t config = {
 		's', // skip turn
 		' ', // display control
 		'S', // save controls
-		'L', // load controls
 		'q', // quit
 		':', // command mode
 	},
