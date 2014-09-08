@@ -25,7 +25,7 @@ typedef struct creature creature;
 // some stance definitions
 #define STANCE_NEUTRAL 0
 #define STANCE_ATTACK 1
-#define STANCE_DEFEND 2
+#define STANCE_DEFENSE 2
 
 
 extern const char * slot_names[];

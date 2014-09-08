@@ -78,6 +78,11 @@ void init_commands(void)
 	insert(CTRL_SAVECTRL,  "save_ctrl", prompt_save_controls, &arraysz);
 	insert(CTRL_DISCTRL,   "dis_ctrl",  display_controls,     &arraysz);
 
+	// Stancing
+	insert(CTRL_STANCE_NEUTRAL, "stance_neutral", plyr_stance_neutral, &arraysz);
+	insert(CTRL_STANCE_DEFENSE, "stance_defense", plyr_stance_defense, &arraysz);
+	insert(CTRL_STANCE_ATTACK , "stance_attack" , plyr_stance_attack,  &arraysz);
+
 
 	// sort the array or something.
 }
@@ -133,7 +138,7 @@ void command_mode(void)
 			break;
 		}
 	}
-	
+
 	argv = malloc(sizeof(char*)*3); // OPTIMIZE: Allow for more than three args?
 
 	for (j = i++; i < strsz; i++) {
