@@ -172,8 +172,8 @@ void display_controls(){
 	wclear(memoscr);
 	wclear(statscr);
 
-	statline(0,"Press the array keys to move up or down");
-	statline(1,"When on the control you want to change press the key you want to change it too");
+	statline(0,"Press the array keys to move up or down and Space to Quit");
+	statline(1,"Press the key you want to change it too");
 	
 	draw_controls(offset,spot,ysize);
 
