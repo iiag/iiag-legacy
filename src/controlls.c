@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include <ncurses.h>
 #include <dirent.h>
@@ -54,6 +53,7 @@ struct str_pairs controls[]={
 	{ "Skip Turn",        "CTRL_SKIP_TURN", 's' },
 	{ "Display Controls", "CTRL_DISCTRL",   ' ' },
 	{ "Save Controls",    "CTRL_SAVECTRL",  'S' },
+	//{ "Load Controls",    "CTRL_LOADCTRL",  'L' },
 	{ "Quit",             "CTRL_QUIT",      'q' },
 	{ "Command Mode",     "CTRL_COMMAND",   ':' }
 };
@@ -267,18 +267,6 @@ void prompt_save_controls(){
 	int spot=0;
 	int fold_con;
 	wmove(memoscr, 0, 0);
-
-	while(num){
-		letter=wgetch(memoscr);
-		switch(letter){
-			case 'F': case 'f': fold_con=0; num=!num; break;
-			case 'C': case 'c': fold_con=1; num=!num; break;
-			default :
-				memo("Wrong Letter");
-		}
-	}
-	num=!num;
-
 	memo("What is the file name?");
 	statline(0,"press q to quit");
 	statline(1,"What will your config/controls name be?!?!");
@@ -294,13 +282,13 @@ void prompt_save_controls(){
 				wprintw(memoscr,"What is the file name? %s %d",str,strlen(str));
 				wrefresh(memoscr);
 			break;
-			case '\n':
+			case '\n':/*
 				if(fold_con==0){
 					save_controls(str);
 				}else{
 					save_config(str);
-				}
-				//save_config(str);
+				}*/
+				save_config(str);
 				num=!num;
 			break;
 			default :
@@ -360,7 +348,7 @@ void save_controls(char* name){
 		fclose(f);
 	}
 }
-
+/*
 //helper function for loading controls
 void check_loadspot(int *spot,int *offset,int ysize,int esize){
 	if(*spot<0){
@@ -471,11 +459,11 @@ void display_loadcontrols(){
 //load controls file
 char* get_cstring(FILE * f){
 	int i=0, c;
-	char str[100];
+	char str=[100];
 	for (i = 0; i < 100 - 1; i++) {
 
 		c = fgetc(f);
-		if (c == EOF || c == 0 || (isspace(c) || c == '='))
+		if (c == EOF || c == 0 || (p != '\\' && (isspace(c) || c == '=')))
 			break;
 		if(c==' ')continue;
 		str[i]=c;
@@ -555,4 +543,4 @@ void load_controls(char* name){
 		free(str2);
 	}
 	fclose(f);
-}
+}*/
