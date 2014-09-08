@@ -470,7 +470,7 @@ char* get_cstring(FILE * f){
 	for (i = 0; i < 100 - 1; i++) {
 		
 		c = fgetc(f);
-		if (c == EOF || c == 0 || (p != '\\' && (isspace(c) || c == '=')))
+		if (c == EOF || c == 0 || (isspace(c) || c == '='))
 			break;
 		if(c==' ')continue;
 		str[i]=c;
