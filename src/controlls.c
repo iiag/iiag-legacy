@@ -262,7 +262,7 @@ void prompt_save_controls(){
 	int spot=0;
 	int fold_con;
 	wmove(memoscr, 0, 0);
-	
+	/*
 	while(num){
 		letter=wgetch(memoscr);
 		switch(letter){
@@ -273,7 +273,7 @@ void prompt_save_controls(){
 		}
 	}
 	num=!num;
-	
+	*/
 	memo("What is the file name?");
 	statline(0,"press q to quit");
 	statline(1,"What will your config/controls name be?!?!");
