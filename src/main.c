@@ -21,6 +21,8 @@
 #include "io/input.h"
 #include "io/display.h"
 #include "lua/lua.h"
+#include "controlls.h"
+#include "commands.h"
 #include "net/net.h"
 #include "net/packet.h"
 #include "introspection.h"
@@ -28,9 +30,9 @@
 extern command_t * command_list;
 extern int num_commands;
 
-
 static void update_status(void)
 {
+	static const char * stance_name[] = {"Neutral", "Attacking", "Defending"};
 	char time[100];
 
 	statline(0, " Hp: %d/%d | Stm: %.2f%% | Wt: %d.%d/%d.%d deben | Xp: %d/%d | Lvl: %d",
@@ -42,9 +44,10 @@ static void update_status(void)
 		PLYR.level
 	);
 
-	statline(1, " Attack: %d | AC: %d | Location: %s",
+	statline(1, " Attack: %d | AC: %d | Stance: %s | Location: %s",
 		PLYR.attack,
 		PLYR.ac,
+		stance_name[PLYR.stance],
 		PLYR.z->name
 	);
 

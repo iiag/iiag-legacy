@@ -21,6 +21,13 @@ typedef struct creature creature;
 // special value of 'creature.refs'
 #define NOFREE (-1)
 
+
+// some stance definitions
+#define STANCE_NEUTRAL 0
+#define STANCE_ATTACK 1
+#define STANCE_DEFENSE 2
+
+
 extern const char * slot_names[];
 
 // enumeration of different equipable slots
@@ -74,6 +81,7 @@ struct creature {
 	int reflex;
 	int throw;
 	int speed;
+    int stance;
 
 	//id for serialization
 	int gen_id;

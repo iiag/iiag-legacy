@@ -17,13 +17,12 @@ LDFL         := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
 CLIENT_SRCS := main.c world.c zone.c io/display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c io/input.c \
                generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c \
-               introspection.c net/net.c net/packet.c
+               introspection.c controlls.c net/net.c net/packet.c
 
 SERVER_SRCS := server.c world.c zone.c io/display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c io/input.c \
                generator.c names.c room.c lua/init.c lua/io.c lua/form.c commands.c \
-               introspection.c net/net.c net/packet.c
-
+               introspection.c controlls.c net/net.c net/packet.c
 
 CLIENT_OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(CLIENT_SRCS)))
 CLIENT_DEPS := $(addprefix dep/,$(patsubst %.c,%.d,$(CLIENT_SRCS)))

@@ -292,7 +292,7 @@ void plyr_ev_death(creature * p, const char * reasons)
 	}
 
 	if (was_quaz) {
-		memo("Quaz o quaz, wherefore art thou forsaking me!? Press q to exit.");
+		memo("Quaz o quaz, wherefore dost thou forsake me!? Press q to exit.");
 	} else {
 		memo("You die of %s, how unfortunate. Press q to exit.", reasons);
 	}
@@ -361,4 +361,22 @@ void plyr_ev_act_fail(creature * p, void * how)
 		break;
 	default:;
 	}
+}
+
+void plyr_stance_neutral(int argc, char ** argv)
+{
+	world.plyr.stance = STANCE_NEUTRAL;
+	memo("You shift your stance to a more comfortable posture.");
+}
+
+void plyr_stance_defense(int argc, char ** argv)
+{
+	world.plyr.stance = STANCE_DEFENSE;
+	memo("You square your shoulders, and prepare to defend yourself!");
+}
+
+void plyr_stance_attack(int argc, char ** argv)
+{
+	world.plyr.stance = STANCE_ATTACK;
+	memo("You lean your body forward, raise your arms, and snarl, ready to strike down all that stand before you!");
 }

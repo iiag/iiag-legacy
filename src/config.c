@@ -53,8 +53,16 @@ config_t config = {
 		'w', // equip
 		't', // throw
 
+		//stancing controls
+		'1', // neutral stance
+		'2', // defense stance
+		'3', // attack stance
+
 		// miscellaneous controls
-		' ', // skip turn
+		's', // skip turn
+		' ', // display control
+		'S', // save controls
+		'L', // load controls
 		'q', // quit
 		':', // command mode
 	},

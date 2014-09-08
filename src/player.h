@@ -26,6 +26,9 @@ void plyr_act_consume(int, char **);
 void plyr_act_equip(int, char **);
 void plyr_act_throw(int, char **);
 void plyr_act_idle(int, char **);
+void plyr_stance_neutral(int, char **);
+void plyr_stance_defense(int, char **);
+void plyr_stance_attack(int, char **);
 
 // player displacement
 void plyr_act_move_left(int, char **);

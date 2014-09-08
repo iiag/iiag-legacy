@@ -38,11 +38,19 @@ enum {
 	CTRL_EQUIP,
 	CTRL_THROW,
 
+	// stancing
+	CTRL_STANCE_NEUTRAL,
+	CTRL_STANCE_DEFENSE,
+	CTRL_STANCE_ATTACK,
+
 	// miscellaneous
 	CTRL_SKIP_TURN,
+	CTRL_DISCTRL,
+	CTRL_SAVECTRL,
+
+	//CTRL_LOADCTRL,
 	CTRL_QUIT,
 	CTRL_COMMAND,
-
 	TOTAL_CONTROLS
 };
 
@@ -66,6 +74,5 @@ typedef struct config {
 extern config_t config;
 
 void init_config(int, char **);
-void save_config(void);
 
 #endif

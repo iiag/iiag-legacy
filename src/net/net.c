@@ -159,8 +159,12 @@ int full_write(int sock, void* start, int len){
 	int tmp;
 
 	while(sent<len){
+		//for apple support
+#ifdef __APPLE__
+		tmp=send(sock,start+sent,len-sent,SO_NOSIGPIPE);
+#else		
 		tmp=send(sock,start+sent,len-sent,MSG_NOSIGNAL);
-
+#endif
 		if(tmp == -1){
 			if(errno == EAGAIN || errno == EWOULDBLOCK)
 				continue;
