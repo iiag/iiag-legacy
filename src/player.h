@@ -25,6 +25,7 @@ void plyr_act_equipped(int, const char **);
 void plyr_act_consume(int, const char **);
 void plyr_act_equip(int, const char **);
 void plyr_act_throw(int, const char **);
+void plyr_act_cast(int, const char **);
 void plyr_act_idle(int, const char **);
 void plyr_stance_neutral(int, const char **);
 void plyr_stance_defense(int, const char **);

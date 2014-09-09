@@ -265,6 +265,26 @@ void plyr_act_equip(int argc, const char ** argv)
 	redraw();
 }
 
+void plyr_act_cast(int argc, const char ** argv)
+{
+	int i, dx, dy;
+	
+	i = prompt_lib("Cast what?", PLYR.lib, &PLYR);
+	redraw();
+
+	if (prompt_dir("Cast where?", &dx, &dy)) {
+		if (PLYR.lib->size > i && PLYR.lib->spls[i] != NULL) {
+			crtr_act_cast(&PLYR, i, dx, dy);
+		} else {
+			memo("Such a spell you knoweth not!");
+		}
+	} else {
+		memo("That is not a direction");
+	}
+
+	redraw();
+}
+
 void plyr_act_idle(int argc, const char ** argv)
 {
 	crtr_act_idle(&PLYR);

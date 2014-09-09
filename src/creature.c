@@ -72,6 +72,8 @@ void crtr_init(creature * c, chtype ch)
 	c->inv = inv_new(25000);
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
 
+	c->lib = lib_new(1000); // TODO: Set a good default intelligence value?
+
 	trigger_init(c->on_spawn);
 	trigger_init(c->on_death);
 	trigger_init(c->on_lvlup);
@@ -104,7 +106,8 @@ creature * crtr_copy(const creature * p)
 	c->ability       = copy_str(p->ability);
 	c->fctn          = p->fctn;
 
-	// TODO inventory
+	// TODO: inventory
+	// TODO: library
 
 	c->level   = p->level;
 	c->xp      = p->xp;
@@ -648,6 +651,12 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_THROW);
 }
 
+void crtr_try_cast(creature * c, int i, int dx, int dy)
+{
+	// TODO: Implement try cast
+
+}
+
 //
 // The following function schedule creature actions
 //
@@ -709,6 +718,12 @@ void crtr_act_throw(creature * c, int i, int x, int y)
 	a->p.throw.x   = x;
 	a->p.throw.y   = y;
 	schedule(a, c->speed);
+}
+
+void crtr_act_cast(creature * c, int i, int x, int y)
+{
+	// TODO: Implement act cast
+
 }
 
 void crtr_act_idle(creature * c)
