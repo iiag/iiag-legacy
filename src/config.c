@@ -166,11 +166,10 @@ static void expect(char c, FILE * f, const char * fn)
 
 static void load_config(const char * file)
 {
-	int i;
+	int i, ctrl;
 	FILE * f;
 	char * name;
 	const struct field * fld;
-	control_t * ctrl;
 
 	if (!strcmp(file, "-")) {
 		f = stdin;
@@ -197,10 +196,10 @@ static void load_config(const char * file)
 		expect('=', f, file);
 
 		if (fld == NULL) {
-			ctrl = control_by_field(name);
+			ctrl = ctrl_by_field(name);
 
-			if (ctrl != NULL) {
-				ctrl->key = get_control(f);
+			if (ctrl != CTRL_INVALID) {
+				controls[ctrl].key = get_control(f);
 			} else {
 				warning("%s: Unknown field '%s'", file, name);
 				free(get_string(f));

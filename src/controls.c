@@ -70,26 +70,38 @@ control_t controls[TOTAL_CONTROLS] = {
 };
 
 // Some functions from managing the commands and controls
-control_t * control_by_field(const char * name)
+int ctrl_by_field(const char * name)
 {
 	int i;
 	for (i = 0; i < TOTAL_CONTROLS; i++) {
-		if (!strcmp(name, controls[i].field)) return controls + i;
+		if (!strcmp(name, controls[i].field)) return i;
 	}
-	return NULL;
+	return CTRL_INVALID;
 }
 
-void execute(control_t * c, int argc, const char ** argv)
+int ctrl_by_key(int key)
 {
-	c->func(argc, argv);
+	int i;
+	for (i = 0;i < TOTAL_CONTROLS; i++) {
+		if (controls[i].key == key) return i;
+	}
+	return CTRL_INVALID;
+}
+
+int execute(int c, int argc, const char ** argv)
+{
+	if (c >= 0 && c < TOTAL_CONTROLS) {
+		controls[c].func(argc, argv);
+		return 1;
+	}
+	return 0;
 }
 
 int str_command(const char * str)
 {
-	int argc = 0;
+	int ctrl, argc = 0;
 	char ** argv = NULL;
 	const char * start;
-	control_t * ctrl;
 
 	// parse the command string
 	while (*str) {
@@ -116,11 +128,8 @@ int str_command(const char * str)
 
 	// execute the command
 	if (argc) {
-		ctrl = control_by_field(argv[0]);
-		if (ctrl != NULL) {
-			execute(ctrl, argc-1, (const char **)argv+1);
-			return 1;
-		}
+		ctrl = ctrl_by_field(argv[0]);
+		return execute(ctrl, argc-1, (const char **)argv+1);
 	}
 
 	return 0;
@@ -128,12 +137,5 @@ int str_command(const char * str)
 
 int key_command(int key)
 {
-	int i;
-	for (i = 0; i < TOTAL_CONTROLS; i++) {
-		if (controls[i].key == key) {
-			execute(controls + i, 0, NULL);
-			return 1;
-		}
-	}
-	return 0;
+	return execute(ctrl_by_key(key), 0, NULL);
 }

@@ -44,8 +44,6 @@ enum {
 	// miscellaneous
 	CTRL_SKIP_TURN,
 	CTRL_DISCTRL,
-//	CTRL_SAVECTRL,
-//	CTRL_LOADCTRL,
 	CTRL_QUIT,
 	CTRL_COMMAND,
 
@@ -61,8 +59,9 @@ typedef struct {
 
 extern control_t controls[TOTAL_CONTROLS];
 
-control_t * control_by_field(const char * name);
-void execute(control_t * ctrl, int argc, const char ** argv);
+int ctrl_by_field(const char * name);
+int ctrl_by_key(int);
+int execute(int ctrl, int argc, const char ** argv);
 int str_command(const char * string);
 int key_command(int key);
 
