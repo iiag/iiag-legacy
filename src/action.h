@@ -71,7 +71,7 @@ struct action {
 		} throw;
 		struct {
 			int ind, x, y;
-		}
+		} cast;
 		int ind;
 	} p;
 };

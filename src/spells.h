@@ -1,14 +1,16 @@
 #ifndef SPELLS_H
 #define SPELLS_H
 
+#include "creature.h"
+
 typedef struct spell spell;
 
 // TODO: Define spell structure
 struct spell {
 	int caliber;
-
 	char * name;
 
+	void (* effect)(creature *, creature *);
 };
 
 //

@@ -651,10 +651,38 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_THROW);
 }
 
+static int find_creature(creature ** ret, zone * z, int x, int y, int dx, int dy) {
+	int timeout = 100;
+
+	while (x >= 0 && y >= 0 && x < z->width && y < z->height && !z->tiles[x][y].impassible && timeout) {
+		if (x < 0 || x >= z->width) break;
+		if (y < 0 || y >= z->height) break;
+		if (z->tiles[x][y].impassible) break;
+
+		if (NULL != (*ret = z->tiles[x][y].crtr)) return 1;
+
+		x += dx;
+		y += dy;
+
+		timeout--;
+	}
+
+	return 0; // No creature found
+}
+
 void crtr_try_cast(creature * c, int i, int dx, int dy)
 {
-	// TODO: Implement try cast
+	creature * other;
 
+	if (i < c->lib->size && c->lib->spls[i] != NULL) {
+		if (find_creature(&other, c->z, c->x, c->y, dx, dy)) {
+			c->lib->spls[i]->effect(c, other);
+			trigger_pull(&c->on_act_comp, c, NULL);
+			return;
+		}
+	}
+
+	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_CAST);
 }
 
 //
@@ -722,8 +750,11 @@ void crtr_act_throw(creature * c, int i, int x, int y)
 
 void crtr_act_cast(creature * c, int i, int x, int y)
 {
-	// TODO: Implement act cast
-
+	ACT_TMPLT(ACT_CAST);
+	a->p.cast.ind = i;
+	a->p.throw.x  = x;
+	a->p.throw.y  = y;
+	schedule(a, c->speed);
 }
 
 void crtr_act_idle(creature * c)
