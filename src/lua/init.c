@@ -42,7 +42,7 @@ void init_lua(void)
 
 	if (config.lua_init != NULL) {
 		if (luaL_loadfile(lstate, config.lua_init)) {
-			end_disp();
+			disp_end();
 			fprintf(stderr, "Failed to load init script: %s\n", lua_tostring(lstate, -1));
 			exit(-1);
 		}
@@ -53,7 +53,7 @@ void init_lua(void)
 		}
 
 		if (lua_pcall(lstate, 0, 0, 0)) {
-			end_disp();
+			disp_end();
 			fprintf(stderr, "Failed to execute init script: %s\n", lua_tostring(lstate, -1));
 			exit(-1);
 		}

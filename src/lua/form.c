@@ -12,6 +12,7 @@
 #include "../world.h"
 #include "../faction.h"
 #include "../creature.h"
+#include "../tileset.h"
 #include "../room.h"
 
 const char * slot_names[] = {
@@ -35,13 +36,6 @@ static TY get_##TYNM(lua_State * lstate, const char * name, TY x) \
 	lua_pop(lstate, 1); \
 	return x; \
 }
-
-GET_TEMPLATE_FRONT(chtype, chtype)
-	if (lua_isstring(lstate, -1)) {
-		x = lua_tostring(lstate, -1)[0];
-	}
-GET_TEMPLATE_END
-
 
 GET_TEMPLATE_FRONT(int, int)
 	if (lua_isnumber(lstate, -1)) {
@@ -148,7 +142,7 @@ int lcf_creature(lua_State * lstate)
 	assert(lua_istable(lstate, 1));
 	assure_world();
 
-	c = crtr_new(get_chtype(lstate, "char", '?'));
+	c = crtr_new(get_int(lstate, "tile", TILE_UNKNOWN));
 	set_creature(lstate, c);
 
 	assure_world();
@@ -163,7 +157,7 @@ int lcf_player(lua_State * lstate)
 	assure_world();
 
 	set_creature(lstate, &world.plyr);
-	world.plyr.ch = get_chtype(lstate, "char", world.plyr.ch);
+	world.plyr.tile = get_int(lstate, "tile", world.plyr.tile);
 
 	return 0;
 }
@@ -174,7 +168,7 @@ int lcf_item(lua_State * lstate)
 
 	assert(lua_istable(lstate, 1));
 
-	it = item_new(0, get_chtype(lstate, "char", '?'));
+	it = item_new(0, get_int(lstate, "tile", TILE_UNKNOWN));
 	it->name = get_string(lstate, "name", it->name);
 	it->mat_class = get_string(lstate, "material", it->mat_class);
 	it->restore_health  = get_int(lstate, "restore_health",  it->restore_health);

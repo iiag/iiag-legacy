@@ -42,6 +42,7 @@ int main(int argc, char ** argv)
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);
 
+	disp_init();
 	init_world();
 
 	/*plyr_ev_birth();

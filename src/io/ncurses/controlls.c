@@ -6,15 +6,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
-#include <dirent.h>
+#include "local.h"
 #include "display.h"
 #include "controlls.h"
-#include "../player.h"
-#include "../config.h"
-#include "../controls.h"
+#include "../display.h"
+#include "../../player.h"
+#include "../../config.h"
+#include "../../controls.h"
+
+#ifdef WITH_NCURSES
 
 //helper function for drawing controlls
-void check_spot(int *spot,int *offset,int ysize){
+static void check_spot(int *spot,int *offset,int ysize){
 	if(*spot<0){
 		*spot=0;
 		*offset=0;
@@ -23,13 +26,22 @@ void check_spot(int *spot,int *offset,int ysize){
 	if(*spot>=TOTAL_CONTROLS-1)*spot=TOTAL_CONTROLS-1;
 }
 
-void check_offset(int *offset,int ysize){
+static void check_offset(int *offset,int ysize){
 	if(*offset<0)*offset=0;
 	if(*offset>abs((ysize)-(TOTAL_CONTROLS)))*offset=abs((ysize)-(TOTAL_CONTROLS));
 }
 
+static int duplicates(){
+	int i,j,dup=0;
+	for(i=0;i<TOTAL_CONTROLS;i++)
+		for(j=i+1;j<TOTAL_CONTROLS;j++)
+			if(controls[i].key==controls[j].key)
+				dup=1;
+	return dup;
+}
+
 //drawing controls with scrolling
-void draw_controls(int offset,int spot,int ysize){
+static void draw_controls(int offset,int spot,int ysize){
 	int i=0;
 	int size=((ysize+offset)<TOTAL_CONTROLS)?(ysize+offset):TOTAL_CONTROLS;
 	//memo("offset: %d spot: %d ysize: %d size: %d N: %d",offset,spot,ysize,size,TOTAL_CONTROLS);
@@ -73,13 +85,11 @@ void draw_controls(int offset,int spot,int ysize){
 	wrefresh(dispscr);
 }
 
-void display_controls(){
+void nc_display_controls(){
 	int spot=0;
 	int num=1;
 	int offset=0;
-	int xsize, ysize;
-	getmaxyx(dispscr,ysize,xsize);
-	ysize--;
+	int ysize = disp_height - 1;
 	//memo("offset: %d spot: %d ysize: %d",offset,spot,ysize);
 
 	wclear(dispscr);
@@ -143,17 +153,8 @@ void display_controls(){
 	wrefresh(dispscr);
 }
 
-int duplicates(){
-	int i,j,dup=0;
-	for(i=0;i<TOTAL_CONTROLS;i++)
-		for(j=i+1;j<TOTAL_CONTROLS;j++)
-			if(controls[i].key==controls[j].key)
-				dup=1;
-	return dup;
-}
-
 //saving controls
-void prompt_save_controls(){
+void nc_prompt_save_controls(){
 	wclear(dispscr);
 	wclear(memoscr);
 	wclear(statscr);
@@ -207,4 +208,6 @@ void prompt_save_controls(){
 	zone_draw(PLYR.z);
 	wrefresh(dispscr);
 }
+
+#endif
 
