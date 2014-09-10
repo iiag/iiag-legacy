@@ -4,23 +4,23 @@
 
 -- Foods --
 iform {
+	tile = 18;
 	name = 'muffin';
 	class = 'food';
 	material = 'muffin';
 	consumable = true;
-	char = '%';
 	weight = 35;
 	restore_stamina = 40;
 	freq = 15;
 }
 
 iform {
+	tile = 19;
 	name = 'semi egg';
 	class = 'food';
 	consumable = true;
 	equipable = true;
 	slot = 'head';
-	char = '0';
 	restore_health = 50;
 	restore_stamina = -10;
 	weight = 35;
@@ -28,11 +28,11 @@ iform {
 }
 
 iform {
+	tile = 20;
 	name = 'breadstick';
 	class = 'food';
 	consumable = true;
 	equipable = true;
-	char = '|';
 	weight = 15;
 	restore_health = 1;
 	restore_stamina = 20;
@@ -44,10 +44,10 @@ iform {
 -- Fruit --
 function fruit(n, w, s, f)
 	iform {
+		tile = 21;
 		name = n;
 		class = 'food/fruit';
 		consumable = true;
-		char = '*';
 		weight = w;
 		restore_stamina = s;
 		freq = f;
@@ -58,10 +58,10 @@ fruit('papaya', 152, 10, 1);
 
 -- Potions --
 iform {
+	tile = 22;
 	name = 'health-potion';
 	class = 'potion';
 	consumable = true;
-	char = '&';
 	weight = 300;
 	restore_health = 10;
 	freq = 15;
@@ -69,11 +69,11 @@ iform {
 
 -- Melee weapons --
 iform {
+	tile = 23;
 	name = 'sword';
 	class = 'weapon/melee';
 	material = 'metal';
 	equipable = true;
-	char = '/';
 	weight = 2000;
 	modify_attack = 6;
 	slot = 'right-hand';
@@ -81,11 +81,11 @@ iform {
 }
 
 iform {
+	tile = 24;
 	name = 'axe';
 	class = 'weapon/melee';
 	material = 'metal';
 	equipable = true;
-	char = '/';
 	weight = 3000;
 	modify_attack = 7;
 	slot = 'right-hand';
@@ -93,11 +93,11 @@ iform {
 }
 
 iform {
+	tile = 25;
 	name = 'mace';
 	class = 'weapon/melee';
 	material = 'metal';
 	equipable = true;
-	char = '/';
 	weight = 3000;
 	modify_attack = 7;
 	slot = 'right-hand';
@@ -105,11 +105,11 @@ iform {
 }
 
 iform {
+	tile = 26;
 	name = 'sickle';
 	class = 'weapon/melee';
 	material = 'metal';
 	equipable = true;
-	char = '?';
 	weight = 1500;
 	modify_attack = 6;
 	slot = 'right-hand';
@@ -117,10 +117,10 @@ iform {
 }
 
 iform {
+	tile = 27;
 	name = 'whip';
 	class = 'weapon/melee';
 	equipable = true;
-	char = '$';
 	modify_attack = 9;
 	slot = 'right-hand';
 	freq = 7;
@@ -129,10 +129,10 @@ iform {
 
 -- Throwing weapons --
 iform {
+	tile = 28;
 	name = 'shuriken';
 	class = 'weapon/throwing';
 	equipable = true;
-	char = '+';
 	weight = 75;
 	modify_attack = 2;
 	slot = 'left-hand';
@@ -142,11 +142,11 @@ iform {
 
 -- Armor --
 iform {
+	tile = 29;
 	name = 'barbute';
 	class = 'armor';
 	material = 'metal';
 	equipable = true;
-	char = '^';
 	weight = 1250;
 	modify_ac = 4;
 	slot = 'head';
@@ -154,11 +154,11 @@ iform {
 }
 
 iform {
+	tile = 30;
 	name = 'mail coif';
 	class = 'armor';
 	material = 'metal';
 	equipable = true;
-	char = '^';
 	weight = 1450;
 	modify_ac = 3;
 	slot = 'head';
@@ -166,11 +166,11 @@ iform {
 }
 
 iform {
+	tile = 31;
 	name = 'cuirass';
 	class = 'armor';
 	material = 'metal';
 	equipable = true;
-	char = ']';
 	weight = 5000;
 	modify_ac = 9;
 	slot = 'torso';
@@ -178,11 +178,11 @@ iform {
 }
 
 iform {
+	tile = 32;
 	name = 'hauberk';
 	class = 'armor';
 	material = 'metal';
 	equipable = true;
-	char = ']';
 	weight = 3000;
 	modify_ac = 7;
 	slot = 'torso';
@@ -190,11 +190,11 @@ iform {
 }
 
 iform {
+	tile = 33;
 	name = 'greaves';
 	class = 'armor';
 	material = 'metal';
 	equipable = true;
-	char = '}';
 	weight = 4000;
 	modify_ac = 7;
 	slot = 'legs';
@@ -202,11 +202,11 @@ iform {
 }
 
 iform {
+	tile = 34;
 	name = 'boots';
 	class = 'armor';
 	material = 'metal';
 	equipable = true;
-	char = '"';
 	weight = 4500;
 	modify_ac = 14;
 	slot = 'feet';
@@ -215,9 +215,9 @@ iform {
 
 -- To be categorized --
 iform {
+	tile = 35;
 	name = 'magic cape';
 	equipable = true;
-	char = '\\';
 	weight = 750;
 	modify_ac = 5;
 	modify_attack = 10;

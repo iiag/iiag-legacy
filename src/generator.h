@@ -8,7 +8,6 @@
 #define MAX_LEVEL 10
 
 typedef struct gelm gelm_t;
-typedef struct gitem gitem_t;
 typedef struct gclass gclass_t;
 
 #include "util.h"

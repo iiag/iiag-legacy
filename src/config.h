@@ -11,6 +11,7 @@
 typedef struct config {
 	const char * cfg_file;
 	const char * lua_init;
+	const char * tileset_file;
 	const char * ip;
 	int port;
 	int forget_walls;

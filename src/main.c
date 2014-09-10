@@ -58,7 +58,7 @@ static void step(void)
 
 static void sig_handler(int rc)
 {
-	end_disp();
+	disp_end();
 	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
@@ -77,7 +77,7 @@ int main(int argc, char ** argv)
 	signal(SIGSEGV, sig_handler);
 	signal(SIGINT,  sig_handler);
 
-	init_disp();
+	disp_init();
 	init_world();
 
 	if(config.multiplayer){
@@ -96,7 +96,7 @@ int main(int argc, char ** argv)
 
 	step();
 	for (;;) {
-		c = get_ctrl();
+		c = input_get_ctrl();
 		if(c != CTRL_SKIP_TURN || (!config.multiplayer))
 			reset_memos();
 

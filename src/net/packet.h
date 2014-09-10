@@ -39,7 +39,7 @@ struct item_subpacket{
 	int modify_attack;
 	int modify_ac;
 	int slot;
-	
+
 	//id for serialization
 	int gen_id;
 	int gen_mat_id;
@@ -75,7 +75,7 @@ struct creature_subpacket{
 };
 
 struct tile_packet{
-	chtype ch,show_ch;
+	int tile, show_tile;
 	int itemnum;
 	short crtr;
 	int impassible;

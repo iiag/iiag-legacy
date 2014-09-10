@@ -7,16 +7,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ncurses.h> // for KEY_UP, KEY_DOWN, etc.
 #include "log.h"
 #include "config.h"
 #include "controls.h"
+#include "io/input.h"
 
 ///// Default Configuration /////
 config_t config = {
 	NULL,               // cfg_file
 	"script/init.lua",  // lua_init
-	"127.0.0.1", 13699, //ip, port
+#ifdef SERVER
+	"tileset/none",     // tileset_name
+#else
+	"tileset/default",  // tileset_name
+#endif
+	"127.0.0.1", 13699, // ip, port
 	0,                  // forget_walls
 	0,                  // show_all
 	0,                  // all_alone
@@ -42,6 +47,7 @@ struct field {
 static const struct field cfg_fields[] = {
 	{ STRING,  "lua-init",         &config.lua_init         },
 	{ STRING,  "server-ip",        &config.ip               },
+	{ STRING,  "tileset-file",     &config.tileset_file     },
 	{ BOOLEAN, "show-all",         &config.show_all         },
 	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
@@ -102,35 +108,13 @@ static char * get_string(FILE * f)
 
 static int get_control(FILE * f)
 {
-	static const struct {
-		char * name;
-		int ctrl;
-	} special[] = {
-		{ "%up%",    KEY_UP    },
-		{ "%down%",  KEY_DOWN  },
-		{ "%left%",  KEY_LEFT  },
-		{ "%right%", KEY_RIGHT },
-	};
+	int ctrl;
+	char * s;
 
-	int ctrl, i;
-	char * s, * o;
+	s = get_string(f);
+	ctrl = key_from_name(s);
+	free(s);
 
-	o = s = get_string(f);
-
-	for (i = 0; i < sizeof(special) / sizeof(*special); i++) {
-		if (!strcmp(special[i].name, s)) {
-			ctrl = special[i].ctrl;
-			goto done;
-		}
-	}
-
-	if (isdigit(*s))
-		ctrl = atoi(s);
-	else
-		ctrl = *s;
-
-done:
-	free(o);
 	return ctrl;
 }
 
@@ -248,25 +232,10 @@ void save_config(const char* pname){
 	fprintf(f, "%s=%d\n","god-mode",config.god_mode);
 	fprintf(f, "%s=%d\n","real-time",config.real_time);
 	fprintf(f, "%s=%d\n","log-level",config.log_level);
-	fprintf(f, "%s=%d\n","anime_throw",config.throw_anim_delay);
+	fprintf(f, "%s=%d\n","throw-anim-delay",config.throw_anim_delay);
 
 	for(i=0;i<TOTAL_CONTROLS;i++){
-		switch(controls[i].key){
-			case KEY_UP:
-				fprintf(f, "%s=%%up%%\n",controls[i].field);
-			break;
-			case KEY_DOWN:
-				fprintf(f, "%s=%%down%%\n",controls[i].field);
-			break;
-			case KEY_LEFT:
-				fprintf(f, "%s=%%left%%\n",controls[i].field);
-			break;
-			case KEY_RIGHT:
-				fprintf(f, "%s=%%right%%\n",controls[i].field);
-			break;
-			default:
-				fprintf(f, "%s=%c\n",controls[i].field,controls[i].key);
-		}
+		fprintf(f, "%s=%s\n", controls[i].field, name_from_key(controls[i].key));
 	}
 	fclose(f);
 }
@@ -301,6 +270,8 @@ static void print_help()
 	"        Turn on all real time mode.\n"
 	"    -s\n"
 	"        Show everything.\n"
+	"    -t [tile set file]\n"
+	"        Specifies the tile set file.\n"
 	"\n"
 	);
 
@@ -350,6 +321,9 @@ void init_config(int argc, char ** argv)
 			#endif
 			case 'L':
 				config.log_level = (log_level_t) atoi(argv[++i]);
+				break;
+			case 't':
+				config.tileset_file = argv[++i];
 				break;
 			default:
 				warning("Ignoring unknown flag '%s'", argv[i]);

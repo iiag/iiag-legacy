@@ -5,7 +5,7 @@
 #ifndef IO_NCURSES_LOCAL_H
 #define IO_NCURSES_LOCAL_H
 
-#ifdef USE_NCURSES
+#ifdef WITH_NCURSES
 	#include <ncurses.h>
 
 	extern WINDOW * memoscr;

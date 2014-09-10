@@ -7,6 +7,8 @@
 #include <string.h>
 #include "config.h"
 #include "player.h"
+#include "controls.h"
+#include "tileset.h"
 #include "io/input.h"
 #include "io/display.h"
 #include "net/packet.h"
@@ -48,15 +50,15 @@ void update_vis(void)
 	}
 
 
-	wrefresh(dispscr);
+	disp_refresh();
 }
 
 // this probably should not be here
 static void redraw(void)
 {
-	wclear(dispscr);
+	disp_clear();
 	zone_draw(PLYR.z);
-	wrefresh(dispscr);
+	disp_refresh();
 }
 
 //
@@ -69,7 +71,7 @@ void plyr_act_pickup(int argc, const char ** argv)
 	if (PLYRT.inv->weight == 0) {
 		memo("There is nothing here to pick up.");
 	} else {
-		i = prompt_inv("Pick up what?", PLYRT.inv, NULL);
+		i = input_prompt_inv("Pick up what?", PLYRT.inv, NULL);
 
 		if (PLYRT.inv->size > i && PLYRT.inv->itms[i] != NULL) {
 			net_inv_prompt_data=i;
@@ -84,7 +86,7 @@ void plyr_act_pickup(int argc, const char ** argv)
 
 void plyr_act_drop(int argc, const char ** argv)
 {
-	int i = prompt_inv("You dropped what?", PLYR.inv, &PLYR);
+	int i = input_prompt_inv("You dropped what?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
 		net_inv_prompt_data=i;
@@ -98,27 +100,14 @@ void plyr_act_drop(int argc, const char ** argv)
 
 void plyr_act_inv(int argc, const char ** argv)
 {
-	prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
+	input_prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
 	redraw();
 }
 
 void plyr_act_equipped(int argc, const char ** argv)
 {
-	int i;
-
-	wmove(dispscr, 0, 0);
-	wprintw(dispscr, "Your equipment:\n");
-
-	for (i = 0; i < MAX_SLOTS; i++) {
-		wprintw(dispscr, " %s: ", slot_names[i]);
-
-		if (PLYR.slots[i] == NULL) wprintw(dispscr, "nothing\n");
-		else wprintw(dispscr, "%s\n", PLYR.slots[i]->name);
-	}
-
-	wgetch(dispscr);
-	zone_draw(PLYR.z);
-	wrefresh(dispscr);
+	input_prompt_equipped("Your equipment:", &PLYR);
+	redraw();
 }
 
 void plyr_act_move_left(int argc, const char ** argv)
@@ -190,8 +179,8 @@ void plyr_act_enter(int argc, const char ** argv)
 			t->link_x = ox;
 			t->link_y = oy;
 			t->link_z = oz;
-			t->ch = '@';
-			t->show_ch = '@';
+			t->tile = TILE_STAIRS;
+			t->show_tile = TILE_STAIRS;
 		} else {
 			if (!crtr_tele(&PLYR, t->link_x, t->link_y, t->link_z)) {
 				memo("Your way appears to be blocked?");
@@ -209,7 +198,7 @@ void plyr_act_consume(int argc, const char ** argv)
 {
 	int i;
 
-	i = prompt_inv("What dost thou consume?", PLYR.inv, &PLYR);
+	i = input_prompt_inv("What dost thou consume?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL) {
 		if (PLYR.inv->itms[i]->type & ITEM_CONSUMABLE) {
@@ -229,10 +218,10 @@ void plyr_act_throw(int argc, const char ** argv)
 {
 	int i, dx, dy;
 
-	i = prompt_inv("Throw what?", PLYR.inv, &PLYR);
+	i = input_prompt_inv("Throw what?", PLYR.inv, &PLYR);
 	redraw();
 
-	if (prompt_dir("Throw where?", &dx, &dy)) {
+	if (input_prompt_dir("Throw where?", &dx, &dy)) {
 		if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
 			crtr_act_throw(&PLYR, i, dx, dy);
 		} else {
@@ -249,7 +238,7 @@ void plyr_act_equip(int argc, const char ** argv)
 {
 	int i;
 
-	i = prompt_inv("What dost thou equip?", PLYR.inv, &PLYR);
+	i = input_prompt_inv("What dost thou equip?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL){
 		if (PLYR.inv->itms[i]->type & ITEM_EQUIPABLE){
@@ -301,7 +290,9 @@ void plyr_ev_birth(void)
 
 void plyr_ev_death(creature * p, const char * reasons)
 {
+	const char * qstr;
 	int i, was_quaz = 0;
+
 	for (i = 0; i < MAX_SLOTS; i++) {
 		if (PLYR.slots[i] == NULL) continue;
 		if (PLYR.slots[i]->mat == NULL) break;
@@ -311,14 +302,15 @@ void plyr_ev_death(creature * p, const char * reasons)
 		}
 	}
 
+	qstr = name_from_key(controls[CTRL_QUIT].key);
 	if (was_quaz) {
-		memo("Quaz o quaz, wherefore dost thou forsake me!? Press q to exit.");
+		memo("Quaz o quaz, wherefore dost thou forsake me!? Press %s to exit.", qstr);
 	} else {
-		memo("You die of %s, how unfortunate. Press q to exit.", reasons);
+		memo("You die of %s, how unfortunate. Press %s to exit.", reasons, qstr);
 	}
 
-	while (wgetch(memoscr) != 'q');
-	end_disp();
+	while (ctrl_by_key(input_get_ctrl()) != CTRL_QUIT);
+	disp_end();
 	exit(0);
 }
 

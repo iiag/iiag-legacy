@@ -7,7 +7,6 @@
 
 typedef struct creature creature;
 
-#include <ncurses.h>
 #include "item.h"
 #include "zone.h"
 #include "action.h"
@@ -22,12 +21,10 @@ typedef struct creature creature;
 // special value of 'creature.refs'
 #define NOFREE (-1)
 
-
 // some stance definitions
 #define STANCE_NEUTRAL 0
 #define STANCE_ATTACK 1
 #define STANCE_DEFENSE 2
-
 
 extern const char * slot_names[];
 
@@ -46,7 +43,7 @@ typedef enum slot {
 
 // The primary creature structure
 struct creature {
-	chtype ch;
+	int tile;
 
 	// iternalish stuff
 	int refs;
@@ -106,13 +103,13 @@ struct creature {
 // If called manually (i.e. not through crtr_new) then the creature should
 //   probably persist through the program.
 //
-void crtr_init(creature *, chtype);
+void crtr_init(creature *, int);
 
 //
 // Allocates memory for a creature, should be freed with crtr_free
 // Returns allocated creature
 //
-creature * crtr_new(chtype);
+creature * crtr_new(int);
 
 //
 // Copies a creature, useful for creating creatures from prototype creatures

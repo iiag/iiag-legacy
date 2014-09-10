@@ -6,6 +6,7 @@
 #include "packet.h"
 #include "../player.h"
 #include "../config.h"
+#include "../tileset.h"
 #include "../controls.h"
 #include "../inventory.h"
 #include "../generator.h"
@@ -102,8 +103,8 @@ void write_tile_packet(int sock, tile* t, int x, int y){
 	packet_header head;
 	tile_packet p;
 
-	p.ch=t->ch;
-	p.show_ch=t->show_ch;
+	p.tile=t->tile;
+	p.show_tile=t->show_tile;
 	p.itemnum=inv_count(t->inv);
 	p.crtr=(t->crtr?1:0);
 	p.impassible=t->impassible;
@@ -207,7 +208,7 @@ void subpack2crtr(creature* cr, creature_subpacket* crtr_sub){
 void handle_spawn(socket_node* s, void* pack, int len){
 	int x,y;
 
-	crtr_init(&(s->player), '@' | A_BOLD);
+	crtr_init(&(s->player), TILE_PLAYER);
 	//s->player.on_death.c_func    = (trigger_cfunc)plyr_ev_death;
 	s->player.on_lvlup.c_func    = (trigger_cfunc)plyr_ev_lvlup;
 	//s->player.on_act_comp.c_func = (trigger_cfunc)plyr_ev_act_comp;
@@ -328,15 +329,15 @@ void handle_tile(socket_node* s, void* pack, int len){
 		cr->y=t->y;
 		//creature is annother player!
 		if(cr->ai == 0)
-			cr->ch = ('@' | COLOR_PAIR(COLOR_OTHER));
+			cr->tile = TILE_OTHER_PLAYER;
 
 		crtr_tele(cr, t->x, t->y, z);
 	}
 
 
 	//if(t->impassible){
-		z->tiles[t->x][t->y].ch=t->ch;
-		z->tiles[t->x][t->y].show_ch=t->show_ch;
+		z->tiles[t->x][t->y].tile=t->tile;
+		z->tiles[t->x][t->y].show_tile=t->show_tile;
 	//}else
 		zone_update(z, t->x, t->y);
 
