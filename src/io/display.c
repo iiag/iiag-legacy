@@ -47,11 +47,9 @@ void disp_init(void)
 	switch (mode) {
 	case GR_MODE_NCURSES:
 	case GR_MODE_MC_NCURSES:
-		info("Goodbye :(");
 		nc_init(mode, f);
 		break;
 	default:
-		info("Hello!");
 		nogr_init();
 		break;
 	}
