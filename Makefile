@@ -63,6 +63,8 @@ clean:
 	rm -f $(CLIENT_TARGET)
 	rm -f $(SERVER_TARGET)
 
+rebuild: clean all
+
 install: all
 	mkdir -p $(DESTDIR)
 	cp iiag $(DESTDIR)

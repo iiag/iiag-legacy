@@ -128,6 +128,7 @@ void recipe_make(inventory* i, recipe* r){
 
 	ret->slot = r->slot;
 	ret->iclass = r->iclass;
+	ret->mat = r->mat;
 
 	ret->weight = r->weight;
 	ret->spikiness = r->spikiness;

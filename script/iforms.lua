@@ -7,6 +7,18 @@ iform {
 	material = 'iron';
 	char = '*';
 	weight = 2500;
+	modify_ac = 1;
+	modify_attack = 1;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ore';
+	material = 'slag';
+	char = '*';
+	weight = 2500;
+	modify_ac = 1;
+	modify_attack = 1;
 	freq = 20;
 }
 
@@ -15,6 +27,8 @@ iform {
 	material = 'quaz';
 	char = '*';
 	weight = 2500;
+	modify_ac = 3;
+	modify_attack = 1;
 	freq = 20;
 }
 
@@ -22,7 +36,9 @@ iform {
 	iclass = 'ore';
 	material = 'tin';
 	char = '*';
-	weight = 2500;
+	weight = 1500;
+	modify_ac = 1;
+	modify_attack = 2;
 	freq = 20;
 }
 
@@ -31,22 +47,28 @@ iform {
 	material = 'lead';
 	char = '*';
 	weight = 5000;
+	modify_ac = 1;
+	modify_attack = 1;
 	freq = 20;
 }
 
 iform {
 	iclass = 'ingot';
 	material = 'bronze';
-	char = '*';
+	char = '-';
 	weight = 2500;
+	modify_ac = 2;
+	modify_attack = 2;
 	freq = 20;
 }
 
 iform {
 	iclass = 'ingot';
 	material = 'brass';
-	char = '*';
+	char = '-';
 	weight = 2500;
+	modify_ac = 1;
+	modify_attack = 2;
 	freq = 20;
 }
 

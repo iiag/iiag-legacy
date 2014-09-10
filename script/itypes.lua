@@ -12,50 +12,100 @@ iclass {
 }
 
 iclass {
+	class = 'slag';
+	type_of = 'any';
+}
+
+iclass {
 	class = 'ingot';
-	type_of = 'ore';
+	type_of = 'slag';
 }
 
 iclass {
 	class = 'links';
-	type_of = 'ore';
+	type_of = 'slag';
 }
 
 iclass {
 	class = 'ring';
-	type_of = 'ore';
+	type_of = 'slag';
 }
 
 iclass {
 	class = 'blade';
-	type_of = 'ingot';
+	type_of = 'slag';
+}
+
+iclass {
+	class = 'serrated blade';
+	type_of = 'blade';
 }
 
 iclass {
 	class = 'hilt';
-	type_of = 'ingot';
+	type_of = 'slag';
+}
+
+iclass {
+	class = 'cross guard';
+	type_of = 'hilt';
+}
+
+iclass {
+	class = 'sinclair hilt';
+	type_of = 'hilt';
 }
 
 iclass {
 	class = 'shaft';
-	type_of = 'ingot';
+	type_of = 'slag';
 }
 
 iclass {
 	class = 'plate';
-	type_of = 'ingot';
+	type_of = 'slag';
 }
 
 -- weps --
 
 iclass {
 	class = 'wepon';
-	type_of = 'ore';
+	type_of = 'slag';
 }
 
 iclass {
 	class = 'sword';
 	type_of = 'wepon';
+}
+
+iclass {
+	class = 'xiphos';
+	type_of = 'sword';
+}
+
+iclass {
+	class = 'spatha';
+	type_of = 'sword';
+}
+
+iclass {
+	class = 'paramerion';
+	type_of = 'sword';
+}
+
+iclass {
+	class = 'estoc';
+	type_of = 'sword';
+}
+
+iclass {
+	class = 'flambard';
+	type_of = 'sword';
+}
+
+iclass {
+	class = 'schiavona';
+	type_of = 'sword';
 }
 
 iclass {
@@ -82,7 +132,7 @@ iclass {
 
 iclass {
 	class = 'armour';
-	type_of = 'ore';
+	type_of = 'slag';
 }
 
 iclass {

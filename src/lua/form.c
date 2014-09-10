@@ -261,14 +261,14 @@ int lcf_begin_recipe(lua_State * lstate)
 	int x;
 	char * tmp;
 
-	tmp = get_string(lstate, "class", NULL);
+	tmp = get_cstring(lstate, "class", NULL);
 
 	if(tmp == NULL)
 		return 0;
 
 	res->iclass = find_class(&item_types,tmp);
 	
-	tmp = get_string(lstate, "made_by", NULL);
+	tmp = get_cstring(lstate, "made_by", NULL);
 	res->obj_type=-1;
 	if(tmp)
 		for(x=0;x<OBJ_NUM;x++)
@@ -276,6 +276,12 @@ int lcf_begin_recipe(lua_State * lstate)
 				res->obj_type=x;
 				
 	res->obj_arg = get_int(lstate, "made_with",  0);
+
+	tmp = get_cstring(lstate, "mat", NULL);
+	if(tmp)
+		res->mat=find_str(&materials,tmp);
+	else
+		res->mat=-1;
 
 	//base stats
 	res->restore_health  = get_int(lstate, "restore_health",  0);

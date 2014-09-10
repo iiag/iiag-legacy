@@ -33,6 +33,7 @@ struct recipe{
 	int attrb; //consumable, equipable
 	int slot;
 	chtype ch;
+	int mat;
 
 	int obj_type; //type of tile object used to craft
 	int obj_arg;  //arg to tile object for crafting
