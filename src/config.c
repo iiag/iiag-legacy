@@ -232,7 +232,7 @@ void save_config(const char* pname){
 	fprintf(f, "%s=%d\n","god-mode",config.god_mode);
 	fprintf(f, "%s=%d\n","real-time",config.real_time);
 	fprintf(f, "%s=%d\n","log-level",config.log_level);
-	fprintf(f, "%s=%d\n","anime_throw",config.throw_anim_delay);
+	fprintf(f, "%s=%d\n","throw-anim-delay",config.throw_anim_delay);
 
 	for(i=0;i<TOTAL_CONTROLS;i++){
 		fprintf(f, "%s=%s\n", controls[i].field, name_from_key(controls[i].key));
