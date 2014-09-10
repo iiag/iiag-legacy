@@ -28,7 +28,9 @@ static const struct {
 	{ "cform",    lcf_creature },
 	{ "player",   lcf_player   },
 	{ "iform",    lcf_item     },
-	{ "material", lcf_material },
+	{ "iclass",   lcf_i_type   },
+	{ "recipe",   lcf_begin_recipe},
+	{ "comp",     lcf_component},
 	{ "rform",    lcf_room     },
 };
 

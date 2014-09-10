@@ -177,8 +177,13 @@ item_subpacket* make_item_subpacket(item* c){
 	ret->modify_attack=c->modify_attack;
 	ret->modify_ac=c->modify_ac;
 	ret->slot=c->slot;
-	ret->gen_id=c->gen_id;
-	ret->gen_mat_id=c->gen_mat_id;
+	ret->iclass=c->iclass;
+	ret->mat=c->mat;
+	ret->quality=c->quality;
+	ret->durability=c->durability;
+	ret->ch=c->ch;
+	ret->type=c->type;
+	//ret->gen_id=c->gen_id;
 
 	return ret;
 }
@@ -190,8 +195,15 @@ void subpack2item(item* it, item_subpacket* item_sub){
 	it->modify_attack=item_sub->modify_attack;
 	it->modify_ac=item_sub->modify_ac;
 	it->slot=item_sub->slot;
-	it->gen_id=item_sub->gen_id;
-	it->gen_mat_id=item_sub->gen_mat_id;
+	//it->gen_id=item_sub->gen_id;
+	it->iclass=item_sub->iclass;
+	it->mat=item_sub->mat;
+	it->quality=item_sub->quality;
+	it->durability=item_sub->durability;
+	it->ch=item_sub->ch;
+	it->type=item_sub->type;
+
+	item_gen_name(it);
 }
 
 creature_subpacket* make_crtr_subpacket(creature* c){
@@ -327,7 +339,7 @@ void handle_player(socket_node* s, void* pack, int len){
 
 	for(i=0;i<p->item_num;i++){
 		item_sub = subpack;
-		item* it = gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
+		item* it = item_new(item_sub->type,item_sub->ch);//gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
 
 		subpack2item(it,item_sub);
 
@@ -382,7 +394,7 @@ void handle_tile(socket_node* s, void* pack, int len){
 
 	for(i=0;i<t->itemnum;i++){
 		item_sub = subpack;
-		item* it = gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
+		item* it = item_new(item_sub->type,item_sub->ch);//gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
 
 		subpack2item(it,item_sub);
 

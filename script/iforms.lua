@@ -3,7 +3,48 @@
 -----------------------
 
 iform {
-	name = 'rock';
+	iclass = 'ore';
+	material = 'iron';
+	char = '*';
+	weight = 2500;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ore';
+	material = 'quaz';
+	char = '*';
+	weight = 2500;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ore';
+	material = 'tin';
+	char = '*';
+	weight = 2500;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ore';
+	material = 'lead';
+	char = '*';
+	weight = 5000;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ingot';
+	material = 'bronze';
+	char = '*';
+	weight = 2500;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ingot';
+	material = 'brass';
 	char = '*';
 	weight = 2500;
 	freq = 20;
@@ -11,9 +52,8 @@ iform {
 
 -- Foods --
 iform {
-	name = 'muffin';
-	class = 'food';
-	material = 'muffin';
+	iclass = 'muffin';
+	material = 'stale';
 	consumable = true;
 	char = '%';
 	weight = 35;
@@ -22,8 +62,8 @@ iform {
 }
 
 iform {
-	name = 'semi egg';
-	class = 'food';
+	iclass = 'semi egg';
+	material = 'rotting';
 	consumable = true;
 	equipable = true;
 	slot = 'head';
@@ -35,8 +75,8 @@ iform {
 }
 
 iform {
-	name = 'breadstick';
-	class = 'food';
+	iclass = 'breadstick';
+	material = 'hard';
 	consumable = true;
 	equipable = true;
 	char = '|';
@@ -50,7 +90,8 @@ iform {
 
 -- Potions --
 iform {
-	name = 'health-potion';
+	iclass = 'health-potion';
+	material = 'cloudy';
 	class = 'potion';
 	consumable = true;
 	char = '&';
@@ -61,9 +102,8 @@ iform {
 
 -- Melee weapons --
 iform {
-	name = 'sword';
-	class = 'weapon/melee';
-	material = 'metal';
+	iclass = 'sword';
+	material = 'rusty';
 	equipable = true;
 	char = '/';
 	weight = 2000;
@@ -73,9 +113,8 @@ iform {
 }
 
 iform {
-	name = 'axe';
-	class = 'weapon/melee';
-	material = 'metal';
+	iclass = 'axe';
+	material = 'rusty';
 	equipable = true;
 	char = '/';
 	weight = 3000;
@@ -85,9 +124,8 @@ iform {
 }
 
 iform {
-	name = 'mace';
-	class = 'weapon/melee';
-	material = 'metal';
+	iclass = 'mace';
+	material = 'rusty';
 	equipable = true;
 	char = '/';
 	weight = 3000;
@@ -97,9 +135,8 @@ iform {
 }
 
 iform {
-	name = 'sickle';
-	class = 'weapon/melee';
-	material = 'metal';
+	iclass = 'sickle';
+	material = 'rusty';
 	equipable = true;
 	char = '?';
 	weight = 1500;
@@ -109,9 +146,8 @@ iform {
 }
 
 iform {
-	name = 'whip';
-	class = 'weapon/melee';
-	equipable = true;
+	iclass = 'wepon';
+	material = 'rusty';
 	char = '$';
 	modify_attack = 9;
 	slot = 'right-hand';
@@ -121,9 +157,8 @@ iform {
 
 -- Throwing weapons --
 iform {
-	name = 'shuriken';
-	class = 'weapon/throwing';
-	equipable = true;
+	iclass = 'shuriken';
+	material = 'rusty';
 	char = '+';
 	weight = 75;
 	modify_attack = 2;
@@ -134,9 +169,8 @@ iform {
 
 -- Armor --
 iform {
-	name = 'barbute';
-	class = 'armor';
-	material = 'metal';
+	iclass = 'barbute';
+	material = 'rusty';
 	equipable = true;
 	char = '^';
 	weight = 1250;
@@ -146,9 +180,8 @@ iform {
 }
 
 iform {
-	name = 'mail coif';
-	class = 'armor';
-	material = 'metal';
+	iclass = 'mail coif';
+	material = 'rusty';
 	equipable = true;
 	char = '^';
 	weight = 1450;
@@ -158,9 +191,8 @@ iform {
 }
 
 iform {
-	name = 'cuirass';
-	class = 'armor';
-	material = 'metal';
+	iclass = 'cuirass';
+	material = 'rusty';
 	equipable = true;
 	char = ']';
 	weight = 5000;
@@ -170,9 +202,8 @@ iform {
 }
 
 iform {
-	name = 'hauberk';
-	class = 'armor';
-	material = 'metal';
+	iclass = 'hauberk';
+	material = 'rusty';
 	equipable = true;
 	char = ']';
 	weight = 3000;
@@ -182,9 +213,8 @@ iform {
 }
 
 iform {
-	name = 'greaves';
-	class = 'armor';
-	material = 'metal';
+	iclass = 'greaves';
+	material = 'rusty';
 	equipable = true;
 	char = '}';
 	weight = 4000;
@@ -194,9 +224,8 @@ iform {
 }
 
 iform {
-	name = 'boots';
-	class = 'armor';
-	material = 'metal';
+	iclass = 'boots';
+	material = 'rusty';
 	equipable = true;
 	char = '"';
 	weight = 4500;
@@ -207,7 +236,8 @@ iform {
 
 -- To be categorized --
 iform {
-	name = 'magic cape';
+	iclass = 'cape';
+	material = 'magic';
 	equipable = true;
 	char = '\\';
 	weight = 750;

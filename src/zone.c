@@ -191,19 +191,35 @@ static void generate(zone * z)
 			timeout--;
 		} while (z->tiles[x][y].impassible);
 
-		/*z->tiles[x][y].linked = 1;
-		z->tiles[x][y].link_z = NULL;
-		z->tiles[x][y].ch = '@';
-		z->tiles[x][y].show_ch = '@';*/
 
 		z->tiles[x][y].obj = make_stair();
 		zone_update(z, x, y);
 	}
 
-	// cleanup
-	//for (x = 0; x < z->width; x++) free(walls[x]);
-	//free(walls);
-	//free(rv);
+	for (i = 0; i < 4; i++) {
+		do {
+			x = random() % z->width;
+			y = random() % z->height;
+			timeout--;
+		} while (z->tiles[x][y].impassible);
+
+
+		z->tiles[x][y].obj = make_smelter();
+		zone_update(z, x, y);
+	}
+
+	for (i = 0; i < 4; i++) {
+		do {
+			x = random() % z->width;
+			y = random() % z->height;
+			timeout--;
+		} while (z->tiles[x][y].impassible);
+
+
+		z->tiles[x][y].obj = make_forge();
+		zone_update(z, x, y);
+	}
+
 }
 
 zone * zone_new(int w, int h)

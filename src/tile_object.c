@@ -5,9 +5,27 @@
 #include "io/display.h"
 #include "net/packet.h"
 #include "net/net.h"
+#include "recipe.h"
+#include "log.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+const char * tile_obj_names[OBJ_NUM]={
+"stair",
+"door",
+"smelter",
+"forge",
+"fire",
+};
+
+void (*use_object[OBJ_NUM])(tile* t, int x, int y,creature* c, zone* z) = {
+	use_stair,
+	use_door,
+	use_craft,
+	use_craft,
+	use_craft,
+};
 
 tile_object* make_stair(){
 	tile_object* ret;
@@ -21,11 +39,41 @@ tile_object* make_stair(){
 }
 
 tile_object* make_door(bool open){
-tile_object* ret;
+	tile_object* ret;
 	ret = malloc(sizeof(tile_object)); 
 
 	ret->type=OBJECT_DOOR;
 	ret->ch = ACS_DEGREE | (open?A_DIM:A_REVERSE);
+
+	return ret;
+}
+
+tile_object* make_smelter(){
+	tile_object* ret;
+	ret = malloc(sizeof(tile_object)); 
+
+	ret->type=OBJECT_SMELTER;
+	ret->ch = 164;
+
+	return ret;
+}
+
+tile_object* make_forge(){
+	tile_object* ret;
+	ret = malloc(sizeof(tile_object)); 
+
+	ret->type=OBJECT_FORGE;
+	ret->ch = ACS_DIAMOND;
+
+	return ret;
+}
+
+tile_object* make_fire(){
+	tile_object* ret;
+	ret = malloc(sizeof(tile_object)); 
+
+	ret->type=OBJECT_FIRE;
+	ret->ch = ACS_PLMINUS;
 
 	return ret;
 }
@@ -112,10 +160,48 @@ void use_door(tile* t, int x, int y,creature* c, zone* z){
 
 }
 
-void (*use_object[OBJECT_USE_SIZE])(tile* t, int x, int y,creature* c, zone* z) = {
-	use_stair,
-	use_door,
+void use_craft(tile* t, int x, int y,creature* c, zone* z){
+	
+	assert(t->obj);
 
-};
+	int k,i,j,f,f2,pos,dx,dy;
+	
+	dx = c->x-x;
+	dy = c->y-y;
+	pos = 3*(dy+1)+(dx+1)+1;
+
+	for(k=0;k<recipes.cnt;k++){
+
+		if(inv_count(t->inv) != ((recipe*)recipes.arr[k])->comps.cnt)
+			continue;
+		if(t->obj->type != ((recipe*)recipes.arr[k])->obj_type)
+			continue;
+		if(((recipe*)recipes.arr[k])->obj_arg && ((recipe*)recipes.arr[k])->obj_arg != pos)
+			continue;
+
+		f=1;
+		for(i=0;i<((recipe*)recipes.arr[k])->comps.cnt;i++){
+			f2=1;
+			for(j=0;j<t->inv->size;j++)
+				if(t->inv->itms[j])
+					if(is_class(((component*)((recipe*)recipes.arr[k])->comps.arr[i])->iclass, t->inv->itms[j]->iclass))
+						f2=0;
+			if(f2){
+				f=0;
+				break;
+			}
+		}
+
+		if(f){
+			recipe_make(t->inv,recipes.arr[k]);
+			info("smelting");/*make item and end*/
+			return;
+		}
+	}	
+
+
+	memo("Thou starest at the %s uselessly",tile_obj_names[t->obj->type]);
+
+}
 
 

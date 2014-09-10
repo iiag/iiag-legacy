@@ -158,24 +158,16 @@ static void * gen(gclass_t * cl, int lvl, int x)
 
 item * gen_item(gclass_t * cl, int lvl)
 {
-	gclass_t * mat_cl;
 	item * it;
-	int x,x2;
+	int x;
 
 	x = random() % cl->max_freq;
 
 	it = item_copy(gen(cl, lvl, x));
 
-	if (it->mat_class != NULL) {
-		mat_cl = get_gclass(it->mat_class, world.gmats);
-		x2 = random() % mat_cl->max_freq;
-		item_apply_mat(it, gen(mat_cl, lvl, x2));
-	}
-
 	info("Generated a %s", it->name);
 
 	it->gen_id=x;
-	it->gen_mat_id=x2;
 	it->ch |= COLOR_PAIR(COLOR_ITEM);
 
 	return it;
@@ -183,18 +175,11 @@ item * gen_item(gclass_t * cl, int lvl)
 
 item * gen_item_from_id(gclass_t * cl, int lvl, int x, int x2)
 {
-	gclass_t * mat_cl;
 	item * it;
 
 	it = item_copy(gen(cl, lvl, x));
 
-	if (it->mat_class != NULL) {
-		mat_cl = get_gclass(it->mat_class, world.gmats);
-		item_apply_mat(it, gen(mat_cl, lvl, x2));
-	}
-
 	it->gen_id=x;
-	it->gen_mat_id=x2;
 	it->ch |= COLOR_PAIR(COLOR_ITEM);
 
 	return it;

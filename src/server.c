@@ -41,6 +41,7 @@ int main(int argc, char ** argv)
 	int stall;
 
 	init_config(argc, argv);
+	init_recipes();
 	init_lua();
 
 	srandom(time(NULL));

@@ -65,14 +65,18 @@ static void sig_handler(int rc)
 	exit(rc);
 }
 
-
+#include "recipe.h"
 int main(int argc, char ** argv)
 {
 	int c;
 
 	init_introspection(argv[0]);
 	init_config(argc, argv);
+	init_recipes();
 	init_lua();
+
+	info("loaded %i recipes",recipes.cnt);
+	info("loaded %i types",item_types.cnt);
 
 	srandom(time(NULL));
 
@@ -129,6 +133,7 @@ int main(int argc, char ** argv)
 	}
 
 cleanup:
+	//TODO clean up world and recipes
 	end_disp();
 	deinit_commands();
 	return 0;

@@ -3,9 +3,10 @@
 -----------------------
 
 dofile "script/cforms.lua"
+dofile "script/itypes.lua"
 dofile "script/iforms.lua"
-dofile "script/mats.lua"
 dofile "script/rforms.lua"
+dofile "script/recipe.lua"
 
 player {
 	name = "you";

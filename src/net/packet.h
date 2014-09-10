@@ -33,6 +33,12 @@ struct command_packet{
 
 struct item_subpacket{
 
+	int iclass;
+	int mat;
+	int quality;
+	chtype ch;
+	short type;
+
 	// consumable-specific data
 	int restore_health;
 	int restore_stamina;
@@ -40,11 +46,12 @@ struct item_subpacket{
 	// equipable-specific data
 	int modify_attack;
 	int modify_ac;
+	int durability;
 	int slot;
 	
 	//id for serialization
-	int gen_id;
-	int gen_mat_id;
+	//int gen_id;
+
 };
 
 struct creature_subpacket{

@@ -11,6 +11,7 @@
 #include "config.h"
 #include "player.h"
 #include "io/display.h"
+#include "recipe.h"
 
 //
 // Allocates a new item
@@ -25,8 +26,9 @@ item * item_new(unsigned type, chtype ch)
 	it->weight = 1;
 	it->spikiness = 0;
 
-	it->mat_class = NULL;
-	it->mat = NULL;
+	it->iclass = -1;
+	it->mat = -1;
+	it->quality = -1;
 
 	it->of = NULL;
 	it->i = 0;
@@ -54,14 +56,13 @@ item * item_copy(const item * pt)
 	it->restore_stamina = pt->restore_stamina;
 	it->modify_attack   = pt->modify_attack;
 	it->modify_ac       = pt->modify_ac;
+	it->durability      = pt->durability;
+	it->iclass          = pt->iclass;
+	it->quality         = pt->quality;
 	it->slot            = pt->slot;
 	it->spikiness       = pt->spikiness;
-	it->mat_class       = copy_str(pt->mat_class);
 	it->mat             = pt->mat;
 	it->gen_id          = pt->gen_id;
-	it->gen_mat_id      = pt->gen_mat_id;
-
-	if (it->mat != NULL) it->mat->refs++;
 
 	return it;
 }
@@ -71,15 +72,8 @@ item * item_copy(const item * pt)
 //
 void item_free(item * it)
 {
-	if (it->mat != NULL) {
-		if (!--it->mat->refs) {
-			free(it->mat->name);
-			free(it->mat);
-		}
-	}
 
 	free(it->name);
-	free(it->mat_class);
 	free(it);
 }
 
@@ -189,25 +183,29 @@ cleanup:
 }
 
 //
-// Applies a material to an item
+// generates the items name
 //
-void item_apply_mat(item * it, material * mt)
-{
-	char * name;
+void item_gen_name(item * it){
+	if(it->name)
+		free(it->name);
 
-	assert(it->mat == NULL);
+	it->name = malloc((it->iclass != -1 ? strlen(((i_class*)item_types.arr[it->iclass])->name): 0)
+		 + (it->mat != -1 ? strlen((char*)materials.arr[it->mat]): 0)
+		 + (it->quality != -1 ?strlen(quality[it->quality]):0 ) +3);
 
-	mt->refs++;
-	it->mat = mt;
-	it->weight *= mt->mult_weight;
-	it->modify_attack *= mt->mult_attack;
-	it->modify_ac *= mt->mult_ac;
-	it->spikiness *= mt->mult_spikiness;
+	it->name[0]=0;
 
-	name = malloc(strlen(it->name) + strlen(mt->name) + 2);
-	strcpy(name, mt->name);
-	strcat(name, " ");
-	strcat(name, it->name);
-	free(it->name);
-	it->name = name;
+	if(it->quality != -1){
+		strcat(it->name, quality[it->quality]);
+		strcat(it->name, " ");
+	}
+	if(it->mat != -1){
+		strcat(it->name, (char*)materials.arr[it->mat]);
+		strcat(it->name, " ");
+	}
+	if(it->iclass != -1){
+		strcat(it->name, ((i_class*)item_types.arr[it->iclass])->name);
+	}
+
 }
+
