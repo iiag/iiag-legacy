@@ -6,18 +6,28 @@
 #include "input.h"
 #include "local.h"
 #include "display.h"
+#include "../input.h"
+#include "../display.h"
 #include "../../config.h"
+#include "../../controls.h"
 
-#ifdef USE_NCURSES
+#ifdef WITH_NCURSES
 
 #define MAX_CMD_ENTRY 100
+
+//
+// This just gets a key press
+//
+int nc_get_key(void)
+{
+	return wgetch(dispscr);
+}
 
 //
 // Gets a keypress and translates it into a control value
 //
 int nc_get_ctrl(void)
 {
-	int i;
 	int c = ERR;
 
 	if (config.real_time) {
@@ -28,12 +38,8 @@ int nc_get_ctrl(void)
 		} while (d != ERR);
 	} else c = wgetch(memoscr);
 
-	for (i = 0; i < TOTAL_CONTROLS; i++) {
-		if (config.ctrl[i] == c) return i;
-	}
-
-	if (c == ERR) return CTRL_SKIP_TURN;
-	return CTRL_INVALID;
+	if (c == ERR) return controls[CTRL_SKIP_TURN].key;
+	return c;
 }
 
 //
@@ -92,6 +98,9 @@ int nc_prompt_inv(const char * prompt, inventory * inv, creature * c)
 	return ch2ind(wgetch(dispscr));
 }
 
+//
+// Shows the equipped items
+//
 void nc_prompt_equipped(const char * msg, creature * c)
 {
 	int i;
@@ -109,13 +118,16 @@ void nc_prompt_equipped(const char * msg, creature * c)
 	wgetch(dispscr);
 }
 
-char * nc_prompt_command(void)
+//
+// Prompts for input in the form of a string
+//
+char * nc_prompt_string(const char * prompt)
 {
 	int c,i = 0;
 	char * string = calloc(1,MAX_CMD_ENTRY);
 
 	wmove(memoscr, 0, 0);
-	waddch(memoscr, ':');
+	waddstr(memoscr, prompt);
 
 	while ('\n' != c) {
 		string[i] = c = wgetch(memoscr);
@@ -131,7 +143,7 @@ char * nc_prompt_command(void)
 			continue;
 		}
 
-		// Cancel command input
+		// Cancel input
 		if (c == 27) { // Escape
 			wmove(memoscr, 0, 0);
 			for (c = 0; c < i + 1; c++) {
@@ -146,15 +158,6 @@ char * nc_prompt_command(void)
 		wrefresh(memoscr);
 	}
 	return string;
-}
-
-void nc_input_disp(void)
-{
-	input_get_ctrl        = nc_get_ctrl;
-	input_prompt_inv      = nc_prompt_inv;
-	input_prompt_dir      = nc_prompt_dir;
-	input_prompt_equipped = nc_prompt_equipped;
-	input_prompt_command  = nc_prompt_command;
 }
 
 #endif

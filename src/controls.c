@@ -10,20 +10,54 @@
 #include "controls.h"
 #include "io/input.h"
 #include "io/display.h"
-#include "io/controlls.h"
 
 // Some wrapper functions called from the controls structure
 static void cmd_quit(int argc, const char ** argv)
 {
-	end_disp();
+	disp_end();
 	exit(EXIT_SUCCESS);
 }
 
 static void cmd_command(int argc, const char ** argv)
 {
-	if (!str_command(prompt_string(":"))) {
+	if (!str_command(input_prompt_string(":"))) {
 		memo("Unrecognized command.");
 	}
+}
+
+static void scroll_view_center(int argc, const char ** argv)
+{
+	scroll_center(PLYR.x, PLYR.y);
+	zone_draw(PLYR.z);
+}
+
+static void scroll_view_left(int argc, const char ** argv)
+{
+	scroll_disp(-1, 0);
+	zone_draw(PLYR.z);
+}
+
+static void scroll_view_right(int argc, const char ** argv)
+{
+	scroll_disp(1, 0);
+	zone_draw(PLYR.z);
+}
+
+static void scroll_view_up(int argc, const char ** argv)
+{
+	scroll_disp(0, -1);
+	zone_draw(PLYR.z);
+}
+
+static void scroll_view_down(int argc, const char ** argv)
+{
+	scroll_disp(0, 1);
+	zone_draw(PLYR.z);
+}
+
+static void cmd_display_controls(int argc, const char ** argv)
+{
+	input_display_controls();
 }
 
 // The big controls structure
@@ -41,11 +75,11 @@ control_t controls[TOTAL_CONTROLS] = {
 	{ 'z', "enter",       "Enter",           plyr_act_enter          },
 
 	// scrolling
-	{ 'C',       "scroll-center", "Center scrolling", scroll_view_center },
-	{ KEY_UP,    "scroll-up",     "Scroll up",        scroll_view_up     },
-	{ KEY_DOWN,  "scroll-down",   "Scroll down",      scroll_view_down   },
-	{ KEY_LEFT,  "scroll-left",   "Scroll left",      scroll_view_left   },
-	{ KEY_RIGHT, "scroll-right",  "Scroll right",     scroll_view_right  },
+	{ 'C', "scroll-center", "Center scrolling", scroll_view_center },
+	{ 0,   "scroll-up",     "Scroll up",        scroll_view_up     },
+	{ 0,   "scroll-down",   "Scroll down",      scroll_view_down   },
+	{ 0,   "scroll-left",   "Scroll left",      scroll_view_left   },
+	{ 0,   "scroll-right",  "Scroll right",     scroll_view_right  },
 
 	// actions
 	{ 'i', "inventory", "Show inventory",   plyr_act_inv      },
@@ -64,7 +98,7 @@ control_t controls[TOTAL_CONTROLS] = {
 	// Miscellanious
 	{ ' ', "idle",      "Idle",             plyr_act_idle        },
 //	{ 'O', "save-ctrl", "Save controls",    prompt_save_controls },
-	{ 'o', "disp-ctrl", "Display controls", display_controls     },
+	{ 'o', "disp-ctrl", "Display controls", cmd_display_controls },
 	{ 'Q', "quit",      "Quit",             cmd_quit             },
 	{ ':', "command",   "Command prompt",   cmd_command          },
 };

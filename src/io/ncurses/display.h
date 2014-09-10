@@ -8,10 +8,10 @@
 #include <stdio.h>
 #include "../display.h"
 
-#ifdef USE_NCURSES
+#ifdef WITH_NCURSES
 	#include <ncurses.h>
 #endif
 
-void nc_init(FILE *);
+void nc_init(int, FILE *);
 
 #endif
