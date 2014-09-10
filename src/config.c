@@ -11,6 +11,7 @@
 #include "config.h"
 #include "controls.h"
 #include "io/input.h"
+#include "io/display.h"
 
 ///// Default Configuration /////
 config_t config = {
@@ -106,18 +107,6 @@ static char * get_string(FILE * f)
 #undef MAX
 }
 
-static int get_control(FILE * f)
-{
-	int ctrl;
-	char * s;
-
-	s = get_string(f);
-	ctrl = key_from_name(s);
-	free(s);
-
-	return ctrl;
-}
-
 static int get_boolean(FILE * f, const char * fn)
 {
 	int b;
@@ -183,7 +172,7 @@ static void load_config(const char * file)
 			ctrl = ctrl_by_field(name);
 
 			if (ctrl != CTRL_INVALID) {
-				controls[ctrl].key = get_control(f);
+				controls[ctrl].gr_name = get_string(f);
 			} else {
 				warning("%s: Unknown field '%s'", file, name);
 				free(get_string(f));
@@ -336,5 +325,15 @@ void init_config(int argc, char ** argv)
 	// load config file if given
 	if (config.cfg_file != NULL) {
 		load_config(config.cfg_file);
+	}
+
+	// so the controls are set correctly, this is done first
+	disp_init();
+
+	// set the controls value from the graphics mode-specific names
+	for (i = 0; i < TOTAL_CONTROLS; i++) {
+		if (controls[i].gr_name) {
+			controls[i].key = key_from_name(controls[i].gr_name);
+		}
 	}
 }
