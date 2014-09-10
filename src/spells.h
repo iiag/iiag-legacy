@@ -7,7 +7,7 @@ typedef struct spell spell;
 struct spell {
 	int caliber;
 
-	char * 	
+	char * name;
 
 };
 
@@ -21,10 +21,5 @@ spell * spell_new(void);
 //
 spell * spell_upgrade(spell *, spell *);
 
-void spell_free(spell *)
-{
-
-	free(spell);
-}
-
+void spell_free(spell *);
 #endif

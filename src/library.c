@@ -97,7 +97,7 @@ void lib_clear(library * lib)
 	lib->caliber = 0;
 }
 
-
+void prompt_lib(char * c, int * dx, int * dy) {} // TODO: Write this!
 
 
 

@@ -21,7 +21,6 @@ spell * spell_upgrade(spell * one, spell * two)
 
 void spell_free(spell * sp)
 {
-	
-
+	free(sp);
 }
 

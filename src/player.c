@@ -261,7 +261,7 @@ void plyr_act_cast(int argc, const char ** argv)
 	i = prompt_lib("Cast what?", PLYR.lib, &PLYR);
 	redraw();
 
-	if (prompt_dir("Cast where?", &dx, &dy)) {
+	if (input_prompt_dir("Cast where?", &dx, &dy)) {
 		if (PLYR.lib->size > i && PLYR.lib->spls[i] != NULL) {
 			crtr_act_cast(&PLYR, i, dx, dy);
 		} else {

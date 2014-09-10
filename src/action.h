@@ -18,7 +18,9 @@ typedef enum action_type {
 	ACT_DROP,
 	ACT_CONSUME,
 	ACT_EQUIP,
-	ACT_THROW
+	ACT_THROW,
+	ACT_LEARN,
+	ACT_CAST,
 } action_type;
 
 // Identifies how an action failed
@@ -35,6 +37,8 @@ typedef enum action_fail {
 	ACT_FAIL_EQUIP_ABLE,
 	ACT_FAIL_EQUIP_PRESENT,
 	ACT_FAIL_THROW,
+	ACT_FAIL_LEARN,
+	ACT_FAIL_CAST,
 } action_fail;
 
 #define V_ACT_FAIL_MOVE            ((void *) ACT_FAIL_MOVE)
@@ -48,6 +52,9 @@ typedef enum action_fail {
 #define V_ACT_FAIL_EQUIP_ABLE      ((void *) ACT_FAIL_EQUIP_ABLE)
 #define V_ACT_FAIL_EQUIP_PRESENT   ((void *) ACT_FAIL_EQUIP_PRESENT)
 #define V_ACT_FAIL_THROW           ((void *) ACT_FAIL_THROW)
+#define V_ACT_FAIL_LEARN           ((void *) ACT_FAIL_LEARN)
+#define V_ACT_FAIL_CAST            ((void *) ACT_FAIL_CAST)
+
 
 // structure containing information on an action to perform
 struct action {
@@ -62,6 +69,9 @@ struct action {
 		struct {
 			int ind, x, y;
 		} throw;
+		struct {
+			int ind, x, y;
+		}
 		int ind;
 	} p;
 };
