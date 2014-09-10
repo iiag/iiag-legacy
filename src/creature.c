@@ -79,6 +79,9 @@ void crtr_init(creature * c, int tile)
 	trigger_init(c->on_lvlup);
 	trigger_init(c->on_act_comp);
 	trigger_init(c->on_act_fail);
+	
+	lib_add(c->lib, spell_new());
+
 }
 
 //

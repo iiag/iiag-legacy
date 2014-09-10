@@ -25,11 +25,11 @@ int lib_add(library *, spell *);
 
 int lib_try(library *, spell *);
 
-int lib_count(library* lib);
+int lib_count(library * lib);
 
 void lib_clear(library * lib);
 
-void lib_empty(library* lib);
+void lib_empty(library * lib);
 
 spell * lib_rm(library *, int);
 
