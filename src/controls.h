@@ -55,6 +55,7 @@ typedef struct {
 	char * field;
 	char * pretty;
 	void (* func)(int, const char **);
+	char * gr_name;
 } control_t;
 
 extern control_t controls[TOTAL_CONTROLS];

@@ -274,7 +274,7 @@ void nc_init(int mode, FILE * f)
 	}
 
 	for (i = 0; i < tileset_size; i++) {
-		info("tileset[%d] = %c (%x)", i, tileset[i], tileset[i]);
+		debug("tileset[%d] = %c (%x)", i, tileset[i], tileset[i]);
 	}
 
 #undef MAX_SHOW_SIZE
