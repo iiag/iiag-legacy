@@ -323,6 +323,7 @@ void init_config(int argc, char ** argv)
 	}
 
 	// load config file if given
+	load_config("iiag.cfg");
 	if (config.cfg_file != NULL) {
 		load_config(config.cfg_file);
 	}
