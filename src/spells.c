@@ -8,14 +8,14 @@
 // TODO: Temporary testing function -> look into generics?
 void test_fire(creature * caster, creature * target)
 {
-	target->health -= 20;
+	target->health -= 10;
 
 	if (target->health <= 0) {
-//		memo("The fireball killed the %s!\n", crtr_name(target));
 		crtr_death(target, "fireball explosion");
+		memo("The %s has been killed with fire!\n", crtr_name(target));
+	} else {
+		memo("The fireball hits the %s\n", crtr_name(target));
 	}
-	memo("The fireball hits!");
-
 }
 
 
