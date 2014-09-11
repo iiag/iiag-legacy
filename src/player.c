@@ -180,7 +180,7 @@ void plyr_act_enter(int argc, const char ** argv)
 			t->link_y = oy;
 			t->link_z = oz;
 			t->tile = TILE_STAIRS;
-			t->show_tile = TILE_STAIRS;
+			t->show_tile = PLYR.tile;
 		} else {
 			if (!crtr_tele(&PLYR, t->link_x, t->link_y, t->link_z)) {
 				memo("Your way appears to be blocked?");
