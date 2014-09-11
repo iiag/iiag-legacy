@@ -35,6 +35,7 @@ enum {
 	CTRL_CONSUME,
 	CTRL_EQUIP,
 	CTRL_THROW,
+	CTRL_CAST,
 
 	// stancing
 	CTRL_STANCE_NEUTRAL,

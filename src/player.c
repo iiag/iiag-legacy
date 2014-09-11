@@ -258,7 +258,9 @@ void plyr_act_cast(int argc, const char ** argv)
 {
 	int i, dx, dy;
 	
-	i = prompt_lib("Cast what?", PLYR.lib, &PLYR);
+	//i = prompt_lib("Cast what?", PLYR.lib, &PLYR);
+	
+	i = 0;
 	redraw();
 
 	if (input_prompt_dir("Cast where?", &dx, &dy)) {
@@ -268,7 +270,7 @@ void plyr_act_cast(int argc, const char ** argv)
 			memo("Such a spell you knoweth not!");
 		}
 	} else {
-		memo("That is not a direction");
+		memo("That is not a direction!");
 	}
 
 	redraw();

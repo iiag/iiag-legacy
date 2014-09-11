@@ -657,7 +657,10 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 static int find_creature(creature ** ret, zone * z, int x, int y, int dx, int dy) {
 	int timeout = 100;
 
+	x += dx;
+	y += dy;
 	while (x >= 0 && y >= 0 && x < z->width && y < z->height && !z->tiles[x][y].impassible && timeout) {
+
 		if (x < 0 || x >= z->width) break;
 		if (y < 0 || y >= z->height) break;
 		if (z->tiles[x][y].impassible) break;
@@ -669,6 +672,8 @@ static int find_creature(creature ** ret, zone * z, int x, int y, int dx, int dy
 
 		timeout--;
 	}
+
+	*ret = NULL;
 
 	return 0; // No creature found
 }
@@ -683,6 +688,7 @@ void crtr_try_cast(creature * c, int i, int dx, int dy)
 			trigger_pull(&c->on_act_comp, c, NULL);
 			return;
 		}
+		memo("You spell hits the wall and fizzles!");
 	}
 
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_CAST);

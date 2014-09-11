@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "creature.h"
 #include "spells.h"
+#include "io/display.h"
 
 
 // TODO: Temporary testing function -> look into generics?
@@ -10,9 +11,10 @@ void test_fire(creature * caster, creature * target)
 	target->health -= 20;
 
 	if (target->health <= 0) {
-		memo("The fireball killed the %s!\n", crtr_name(target));
-		crtr_death(target, "projectile impact"); // TODO: spell cast?
+//		memo("The fireball killed the %s!\n", crtr_name(target));
+		crtr_death(target, "fireball explosion");
 	}
+	memo("The fireball hits!");
 
 }
 
