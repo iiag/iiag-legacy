@@ -4,6 +4,7 @@
 #include "spells.h"
 #include "io/display.h"
 #include "io/input.h"
+#include "player.h"
 
 static int find_creature(creature ** ret, zone * z, int x, int y, int dx, int dy, int range) {
 	int timeout = 100;
@@ -31,12 +32,20 @@ static int find_creature(creature ** ret, zone * z, int x, int y, int dx, int dy
 	return 1; // No creature found
 }
 
+// This probably shouldn't be here
+static void redraw(void)
+{
+	disp_clear();
+	zone_draw(PLYR.z);
+	disp_refresh();
+}
+
 static void spell_xp(spell * sp, int xp)
 {
 	sp->xp += xp;
 	if (sp->xp >= 5) {
 		sp->level++;
-		memo("You are getting better at casting %s %d", sp->name, sp->level);
+		memo("You are getting better at casting %s", sp->name);
 	} else if ((sp->xp < 0) && (sp->level > 1)) {
 		sp->level--;
 		memo("You are getting worse at casting %s", sp->name);
@@ -53,8 +62,10 @@ void test_fire(spell * sp, creature * c, zone * z)
 
 	if (!input_prompt_dir("Cast where?", &dx, &dy)) {
 		memo("That is not a direction!");
+		redraw();
 		return;
 	}
+	redraw();
 	ret = find_creature(&target, z, c->x, c->y, dx, dy, -1); // TODO: hook into spell's range
 
 	if (ret == 1) {
@@ -85,7 +96,7 @@ spell * spell_new()
 	strcpy(sp->name = calloc(1,sizeof(char) * strlen("fireball")+1), "fireball");
 	sp->effect = test_fire;
 	sp->xp = 0;
-	sp->level = 0;
+	sp->level = 1;
 
 	return sp;
 }
