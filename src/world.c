@@ -139,7 +139,7 @@ void step_world(void)
 					crtr_try_throw(a->c, a->p.throw.ind, a->p.throw.x, a->p.throw.y);
 					break;
 				case ACT_CAST:
-					crtr_try_cast(a->c, a->p.cast.ind, a->p.cast.x, a->p.cast.y);
+					crtr_try_cast(a->c, a->p.cast.ind);
 					break;
 				case ACT_LEARN:
 					// TODO: crtr_try_learn

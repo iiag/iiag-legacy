@@ -8,9 +8,10 @@ typedef struct spell spell;
 // TODO: Define spell structure
 struct spell {
 	char * name;
-	void (* effect)(creature *, creature *);
+	void (* effect)(creature *, zone *);
 
 	int caliber;
+	int range;
 };
 
 //

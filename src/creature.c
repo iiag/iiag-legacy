@@ -654,41 +654,16 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_THROW);
 }
 
-static int find_creature(creature ** ret, zone * z, int x, int y, int dx, int dy) {
-	int timeout = 100;
 
-	x += dx;
-	y += dy;
-	while (x >= 0 && y >= 0 && x < z->width && y < z->height && !z->tiles[x][y].impassible && timeout) {
-
-		if (x < 0 || x >= z->width) break;
-		if (y < 0 || y >= z->height) break;
-		if (z->tiles[x][y].impassible) break;
-
-		if (NULL != (*ret = z->tiles[x][y].crtr)) return 1;
-
-		x += dx;
-		y += dy;
-
-		timeout--;
-	}
-
-	*ret = NULL;
-
-	return 0; // No creature found
-}
-
-void crtr_try_cast(creature * c, int i, int dx, int dy)
+void crtr_try_cast(creature * c, int i)
 {
 	creature * other;
+	int ret;
 
 	if (i < c->lib->size && c->lib->spls[i] != NULL) {
-		if (find_creature(&other, c->z, c->x, c->y, dx, dy)) {
-			c->lib->spls[i]->effect(c, other);
-			trigger_pull(&c->on_act_comp, c, NULL);
-			return;
-		}
-		memo("You spell hits the wall and fizzles!");
+		c->lib->spls[i]->effect(c, c->z);
+		trigger_pull(&c->on_act_comp, c, NULL);
+		return;
 	}
 
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_CAST);

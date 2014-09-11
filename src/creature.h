@@ -216,7 +216,7 @@ void crtr_try_pickup(creature *, int);
 void crtr_try_drop(creature *, int);
 void crtr_try_consume(creature *, int);
 void crtr_try_equip(creature *, int);
-void crtr_try_cast(creature *, int, int, int); // item then dx, dy
+void crtr_try_cast(creature *, int);
 void crtr_try_throw(creature *, int, int, int); // item then dx, dy
 
 //
@@ -230,7 +230,7 @@ void crtr_act_drop(creature *, int);
 void crtr_act_consume(creature *, int);
 void crtr_act_equip(creature *, int);
 void crtr_act_throw(creature *, int, int, int);
-void crtr_act_cast(creature *, int, int, int);
+void crtr_act_cast(creature *, int);
 void crtr_act_idle(creature * c);
 
 #endif
