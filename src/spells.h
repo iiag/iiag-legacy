@@ -4,7 +4,6 @@
 typedef struct spell spell;
 
 #include "creature.h"
-#include "io/display.h"
 
 // TODO: Define spell structure
 struct spell {

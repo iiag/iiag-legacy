@@ -257,7 +257,8 @@ void plyr_act_equip(int argc, const char ** argv)
 void plyr_act_cast(int argc, const char ** argv)
 {
 	int i, dx, dy;
-	
+
+	// TODO: Actually prompt the user for the input	
 	//i = prompt_lib("Cast what?", PLYR.lib, &PLYR);
 	
 	i = 0;
