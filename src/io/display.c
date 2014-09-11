@@ -37,20 +37,23 @@ void disp_init(void)
 
 	if (f == NULL) {
 		error("Could not open tile set file '%s'.", config.tileset_file);
-		return;
+		goto use_nogr;
 	}
 
 	if (1 != fscanf(f, " %d ", &mode)) {
 		error("Could not read graphics mode from file '%s'.", config.tileset_file);
-		return;
+		goto use_nogr;
 	}
 
 	switch (mode) {
 	case GR_MODE_NCURSES:
 	case GR_MODE_MC_NCURSES:
+	case GR_MODE_UC_NCURSES:
+	case GR_MODE_MC_UC_NCURSES:
 		nc_init(mode, f);
 		break;
 	default:
+	use_nogr:
 		nogr_init();
 		break;
 	}
