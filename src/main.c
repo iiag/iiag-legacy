@@ -90,6 +90,7 @@ int main(int argc, char ** argv)
 
 	plyr_ev_birth();
 	scroll_center(PLYR.x, PLYR.y);
+	disp_clear();
 	zone_draw(PLYR.z);
 	update_status();
 
