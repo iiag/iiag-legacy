@@ -12,7 +12,7 @@ DESTDIR       = /opt/iiag
 # Add -DWITH_INTROSPECTION to *_CCFL to enable introspection
 CLIENT_CCFL  := -c -g -Wall -DWITH_NCURSES `pkg-config --cflags $(LUAV)`
 SERVER_CCFL	 := -c -g -Wall -DSERVER `pkg-config --cflags $(LUAV)`
-LDFL         := -Wall -lncurses -lm `pkg-config --libs $(LUAV)`
+LDFL         := -Wall -lncursesw -lm `pkg-config --libs $(LUAV)`
 
 CLIENT_SRCS := main.c world.c zone.c io/display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c io/input.c \

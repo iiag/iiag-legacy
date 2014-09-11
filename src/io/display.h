@@ -8,9 +8,11 @@
 #include "nogr/display.h"
 #include "ncurses/display.h"
 
-#define GR_MODE_NONE       0
-#define GR_MODE_NCURSES    1
-#define GR_MODE_MC_NCURSES 2 // monocolor
+#define GR_MODE_NONE          0
+#define GR_MODE_NCURSES       1
+#define GR_MODE_MC_NCURSES    2 // monocolor
+#define GR_MODE_UC_NCURSES    3 // unicode
+#define GR_MODE_MC_UC_NCURSES 4 // monocolor & unicode
 
 extern int disp_width;
 extern int disp_height;

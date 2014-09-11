@@ -17,11 +17,14 @@
 config_t config = {
 	NULL,               // cfg_file
 	"script/init.lua",  // lua_init
-#ifdef SERVER
-	"tileset/none",     // tileset_name
+
+	// The default tileset changes based on what is supported
+#ifdef WITH_NCURSES
+	"tileset/nc-unicode",
 #else
-	"tileset/default",  // tileset_name
+	"tileset/none",
 #endif
+
 	"127.0.0.1", 13699, // ip, port
 	0,                  // forget_walls
 	0,                  // show_all
