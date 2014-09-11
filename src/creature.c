@@ -67,6 +67,7 @@ void crtr_init(creature * c, int tile)
 	c->reflex  = 1;
 	c->throw   = 20;
 	c->ai	   = 1;
+	c->stance  = STANCE_NEUTRAL;
 	c->speed   = SEC(1.4);
 
 	c->inv = inv_new(25000);
@@ -494,6 +495,14 @@ int crtr_dodges(creature * c, int difficulty)
 	roll = random() % c->reflex;
 	return difficulty < roll || roll == c->reflex;
 }
+
+//
+// Change stance, see creatures.h
+//
+void crtr_stance(creature * c, int s){
+	c->stance = s;
+}
+
 
 //
 // The following functions are typically called when actions are completed

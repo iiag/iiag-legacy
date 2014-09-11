@@ -6,7 +6,7 @@
 recipe {
 	class = 'ingot';
 	made_by = 'smelter';
-	char = '-';
+	tile = 53;
 
 }
 
@@ -23,7 +23,7 @@ recipe {
 	class = 'ore';
 	made_by = 'smelter';
 	mat = 'slag';
-	char = '-';
+	tile = 21;
 	weight = 3000;
 	modify_ac = 1;
 	modify_attack = 1;
@@ -40,7 +40,7 @@ recipe {
 	class = 'links';
 	made_by = 'forge';
 	made_with = 2;
-	char = '8';
+	tile = 21;
 	modify_ac = 1;
 	modify_attack = 0;
 
@@ -59,7 +59,7 @@ recipe {
 	class = 'shaft';
 	made_by = 'forge';
 	made_with = 4;
-	char = '|';
+	tile = 20;
 	modify_attack = 1;
 	equipable = true;
 	slot = 'right-hand';
@@ -79,7 +79,7 @@ recipe {
 	class = 'plate';
 	made_by = 'forge';
 	made_with = 6;
-	char = '#';
+	tile = 19;
 	modify_ac = 1;
 
 }
@@ -96,7 +96,7 @@ recipe {
 	class = 'blade';
 	made_by = 'forge';
 	made_with = 8;
-	char = '|';
+	tile = 20;
 	modify_attack = 1;
 
 }
@@ -112,7 +112,7 @@ comp {
 recipe {
 	class = 'serrated blade';
 	made_by = 'forge';
-	char = '?';
+	tile = 26;
 	modify_attack = 1;
 
 }
@@ -129,7 +129,7 @@ recipe {
 	class = 'hilt';
 	made_by = 'forge';
 	made_with = 5;
-	char = 'T';
+	tile = 18;
 
 }
 
@@ -148,7 +148,7 @@ comp {
 recipe {
 	class = 'cross guard';
 	made_by = 'forge';
-	char = 'T';
+	tile = 18;
 	modify_ac = 1;
 }
 
@@ -169,7 +169,7 @@ comp {
 recipe {
 	class = 'sinclair hilt';
 	made_by = 'forge';
-	char = 'T';
+	tile = 18;
 	modify_ac = 2;
 }
 
@@ -190,7 +190,7 @@ comp {
 recipe {
 	class = 'xiphos';
 	made_by = 'forge';
-	char = '/';
+	tile = 23;
 	modify_attack = 2;
 	equipable = true;
 	slot = 'right-hand';
@@ -214,7 +214,7 @@ comp {
 recipe {
 	class = 'spatha';
 	made_by = 'forge';
-	char = '/';
+	tile = 23;
 	modify_attack = 2;
 	equipable = true;
 	slot = 'right-hand';
@@ -244,7 +244,7 @@ comp {
 recipe {
 	class = 'paramerion';
 	made_by = 'forge';
-	char = '/';
+	tile = 23;
 	modify_attack = 2;
 	equipable = true;
 	slot = 'right-hand';
@@ -280,7 +280,7 @@ comp {
 recipe {
 	class = 'estoc';
 	made_by = 'forge';
-	char = '/';
+	tile = 23;
 	modify_attack = 2;
 	equipable = true;
 	slot = 'right-hand';
@@ -322,7 +322,7 @@ comp {
 recipe {
 	class = 'flambard';
 	made_by = 'forge';
-	char = '/';
+	tile = 23;
 	modify_attack = 2;
 	equipable = true;
 	slot = 'right-hand';
@@ -370,7 +370,7 @@ comp {
 recipe {
 	class = 'schiavona';
 	made_by = 'forge';
-	char = '/';
+	tile = 23;
 	modify_attack = 2;
 	equipable = true;
 	slot = 'right-hand';
@@ -408,7 +408,7 @@ recipe {
 	class = 'mace';
 	made_by = 'forge';
 	equipable = true;
-	char = '/';
+	tile = 23;
 	weight = 3000;
 	modify_attack = 7;
 	slot = 'right-hand';
@@ -433,7 +433,7 @@ comp {
 recipe {
 	class = 'coif';
 	made_by = 'forge';
-	char = '^';
+	tile = 29;
 	equipable = true;
 	weight = 1450;
 	modify_ac = 2;
@@ -450,7 +450,7 @@ comp {
 recipe {
 	class = 'hauberk';
 	made_by = 'forge';
-	char = ']';
+	tile = 31;
 	weight = 3000;
 	modify_ac = 4;
 	slot = 'torso';

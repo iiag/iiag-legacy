@@ -334,18 +334,18 @@ void plyr_ev_act_fail(creature * p, void * how)
 
 void plyr_stance_neutral(int argc, const char ** argv)
 {
-	world.plyr.stance = STANCE_NEUTRAL;
+	crtr_stance(&PLYR,STANCE_NEUTRAL);
 	memo("You shift your stance to a more comfortable posture.");
 }
 
 void plyr_stance_defense(int argc, const char ** argv)
 {
-	world.plyr.stance = STANCE_DEFENSE;
+	crtr_stance(&PLYR,STANCE_DEFENSE);
 	memo("You square your shoulders, and prepare to defend yourself!");
 }
 
 void plyr_stance_attack(int argc, const char ** argv)
 {
-	world.plyr.stance = STANCE_ATTACK;
+	crtr_stance(&PLYR,STANCE_ATTACK);
 	memo("You lean your body forward, raise your arms, and snarl, ready to strike down all that stand before you!");
 }

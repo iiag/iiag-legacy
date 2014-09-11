@@ -340,8 +340,6 @@ void zone_draw(zone * z)
 {
 	int i, j;
 
-	disp_clear();
-
 	for (i = 0; i < z->width; i++) {
 		for (j = 0; j < z->height; j++) {
 			zone_draw_tile(z, i, j);

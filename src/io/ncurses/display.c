@@ -205,10 +205,6 @@ void nc_init(int mode, FILE * f)
 	cbreak();
 	noecho();
 
-	if (config.real_time) {
-		nodelay(memoscr, TRUE);
-	}
-
 	// just hide the cursor for now
 	curs_set(0);
 
@@ -222,6 +218,10 @@ void nc_init(int mode, FILE * f)
 		nc_end();
 		error("Failed to initialize ncurses!");
 		exit(EXIT_FAILURE);
+	}
+
+	if (config.real_time) {
+		nodelay(memoscr, TRUE);
 	}
 
 	keypad(stdscr,  TRUE);

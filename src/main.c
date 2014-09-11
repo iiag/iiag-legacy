@@ -24,6 +24,7 @@
 #include "net/net.h"
 #include "net/packet.h"
 #include "introspection.h"
+#include "recipe.h"
 
 static void update_status(void)
 {
@@ -63,7 +64,6 @@ static void sig_handler(int rc)
 	exit(rc);
 }
 
-#include "recipe.h"
 int main(int argc, char ** argv)
 {
 	int c;
@@ -95,13 +95,15 @@ int main(int argc, char ** argv)
 
 	plyr_ev_birth();
 	scroll_center(PLYR.x, PLYR.y);
+	disp_clear();
 	zone_draw(PLYR.z);
 	update_status();
-
+	info("begin");
 	step();
 	for (;;) {
 		c = input_get_ctrl();
-		if(c != CTRL_SKIP_TURN || (!config.multiplayer))
+		info("rebegin");
+		if(ctrl_by_key(c) != CTRL_SKIP_TURN || (!config.multiplayer))
 			reset_memos();
 
 		if (!key_command(c)) {
@@ -109,7 +111,7 @@ int main(int argc, char ** argv)
 		}
 
 		if(c != CTRL_SKIP_TURN)
-		write_command_packet(client_socket,c);
+		write_command_packet(client_socket,ctrl_by_key(c));
 
 		// TODO this delay should probably sync to game time
 		if(config.multiplayer) usleep(50000);

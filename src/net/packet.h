@@ -80,6 +80,7 @@ struct creature_subpacket{
 	int reflex;
 	int throw;
 	int speed;
+	int stance;
 
 };
 

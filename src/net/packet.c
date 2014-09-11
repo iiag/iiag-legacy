@@ -227,6 +227,7 @@ creature_subpacket* make_crtr_subpacket(creature* c){
 	ret->reflex=c->reflex;
 	ret->throw=c->throw;
 	ret->speed=c->speed;
+	ret->stance=c->stance;
 	ret->gen_id=c->gen_id;
 
 	return ret;
@@ -250,6 +251,7 @@ void subpack2crtr(creature* cr, creature_subpacket* crtr_sub){
 	cr->reflex=crtr_sub->reflex;
 	cr->throw=crtr_sub->throw;
 	cr->speed=crtr_sub->speed;
+	cr->stance=crtr_sub->stance;
 	cr->gen_id=crtr_sub->gen_id;
 }
 
@@ -297,6 +299,9 @@ void handle_command(socket_node* s, void* pack, int len){
 		if(act == CTRL_DLEFT)	crtr_act_aa_move(&(s->player), -1, 1);
 		if(act == CTRL_URIGHT)	crtr_act_aa_move(&(s->player), 1, -1);
 		if(act == CTRL_DRIGHT)	crtr_act_aa_move(&(s->player), 1, 1);
+		if(act == CTRL_STANCE_NEUTRAL) crtr_stance(&(s->player), STANCE_NEUTRAL);
+		if(act == CTRL_STANCE_DEFENSE) crtr_stance(&(s->player), STANCE_DEFENSE);
+		if(act == CTRL_STANCE_ATTACK)  crtr_stance(&(s->player), STANCE_ATTACK);
 
 		if(i != -1){
 			if(act == CTRL_DROP)	crtr_act_drop(&(s->player), i);
@@ -373,9 +378,15 @@ void handle_tile(socket_node* s, void* pack, int len){
 	}
 
 	if(t->object_type == OBJECT_STAIR)
-	z->tiles[t->x][t->y].obj = make_stair();
+		z->tiles[t->x][t->y].obj = make_stair();
 	if(t->object_type == OBJECT_DOOR)
-	z->tiles[t->x][t->y].obj = make_door(!t->impassible);
+		z->tiles[t->x][t->y].obj = make_door(!t->impassible);
+	if(t->object_type == OBJECT_SMELTER)
+		z->tiles[t->x][t->y].obj = make_smelter();
+	if(t->object_type == OBJECT_FORGE)
+		z->tiles[t->x][t->y].obj = make_forge();
+	if(t->object_type == OBJECT_FIRE)
+		z->tiles[t->x][t->y].obj = make_fire();
 
 
 	//clear inventory and creatures
@@ -454,6 +465,7 @@ void handle_zone(socket_node* s,void* pack, int len){
 		}
 
 	update_vis();
+	redraw();
 }
 
 void handle_memo(socket_node* s,void* pack, int len){

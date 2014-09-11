@@ -78,7 +78,7 @@ struct creature {
 	int reflex;
 	int throw;
 	int speed;
-    int stance;
+	int stance;
 
 	//id for serialization
 	int gen_id;
@@ -199,6 +199,12 @@ item * crtr_rm_item(creature *, int);
 // Tests if a creature can dodge something
 //
 int crtr_dodges(creature *, int);
+
+//
+// Change a creatues stance
+// TODO this should probably be implemented as a timed action instead of an instantanious effect
+//
+void crtr_stance(creature *, int);
 
 //
 // The following functions are called when an action is completed

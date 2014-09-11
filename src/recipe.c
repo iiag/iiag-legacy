@@ -1,5 +1,6 @@
 #include "recipe.h"
 #include "log.h"
+#include "io/display.h"
 #include <stdlib.h>
 
 vector_t item_types; //i_type
@@ -110,7 +111,6 @@ static void apply_stat(int* i, int* sub, char* str){
 static void apply_comp(item* i, component* c, item* sub){
 	if(c->mat)
 	i->mat = sub->mat;
-	i->tile = sub->tile;
 
 	apply_stat(STAT_PARAM(weight));
 	apply_stat(STAT_PARAM(spikiness));
@@ -130,6 +130,7 @@ void recipe_make(inventory* i, recipe* r){
 	ret->slot = r->slot;
 	ret->iclass = r->iclass;
 	ret->mat = r->mat;
+	ret->tile = r->ch;
 
 	ret->weight = r->weight;
 	ret->spikiness = r->spikiness;
