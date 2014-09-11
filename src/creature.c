@@ -657,11 +657,8 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 
 void crtr_try_cast(creature * c, int i)
 {
-	creature * other;
-	int ret;
-
 	if (i < c->lib->size && c->lib->spls[i] != NULL) {
-		c->lib->spls[i]->effect(c, c->z);
+		c->lib->spls[i]->effect(c->lib->spls[i], c, c->z);
 		trigger_pull(&c->on_act_comp, c, NULL);
 		return;
 	}
@@ -732,12 +729,10 @@ void crtr_act_throw(creature * c, int i, int x, int y)
 	schedule(a, c->speed);
 }
 
-void crtr_act_cast(creature * c, int i, int x, int y)
+void crtr_act_cast(creature * c, int i)
 {
 	ACT_TMPLT(ACT_CAST);
 	a->p.cast.ind = i;
-	a->p.throw.x  = x;
-	a->p.throw.y  = y;
 	schedule(a, c->speed);
 }
 

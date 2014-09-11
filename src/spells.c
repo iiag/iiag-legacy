@@ -31,8 +31,21 @@ static int find_creature(creature ** ret, zone * z, int x, int y, int dx, int dy
 	return 1; // No creature found
 }
 
+static void spell_xp(spell * sp, int xp)
+{
+	sp->xp += xp;
+	if (sp->xp >= 5) {
+		sp->level++;
+		memo("You are getting better at casting %s %d", sp->name, sp->level);
+	} else if ((sp->xp < 0) && (sp->level > 1)) {
+		sp->level--;
+		memo("You are getting worse at casting %s", sp->name);
+	}
+}
+
+
 // TODO: Temporary testing function -> look into generics?
-void test_fire(creature * c, zone * z)
+void test_fire(spell * sp, creature * c, zone * z)
 {
 	creature * target;
 	int ret;
@@ -42,7 +55,7 @@ void test_fire(creature * c, zone * z)
 		memo("That is not a direction!");
 		return;
 	}
-	ret = find_creature(&target, z, c->x, c->y, dx, dy, 7); // TODO: hook into spell's range
+	ret = find_creature(&target, z, c->x, c->y, dx, dy, -1); // TODO: hook into spell's range
 
 	if (ret == 1) {
 		memo("Your spell hits the wall and fizzles!");
@@ -52,7 +65,8 @@ void test_fire(creature * c, zone * z)
 		return;
 	}
 
-	target->health -= 10;
+	target->health -= sp->level * 2;
+	spell_xp(sp, 1);
 
 	if (target->health <= 0) {
 		crtr_death(target, "fireball explosion");
@@ -70,7 +84,8 @@ spell * spell_new()
 	sp->caliber = 0;
 	strcpy(sp->name = calloc(1,sizeof(char) * strlen("fireball")+1), "fireball");
 	sp->effect = test_fire;
-	sp->range = 7;
+	sp->xp = 0;
+	sp->level = 0;
 
 	return sp;
 }
