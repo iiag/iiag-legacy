@@ -98,11 +98,9 @@ int main(int argc, char ** argv)
 	disp_clear();
 	zone_draw(PLYR.z);
 	update_status();
-	info("begin");
 	step();
 	for (;;) {
 		c = input_get_ctrl();
-		info("rebegin");
 		if(ctrl_by_key(c) != CTRL_SKIP_TURN || (!config.multiplayer))
 			reset_memos();
 
