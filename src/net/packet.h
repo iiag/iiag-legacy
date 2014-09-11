@@ -24,12 +24,20 @@ struct spawn_packet{
 };
 
 extern int net_inv_prompt_data;
+extern short net_dir_prompt;
 struct command_packet{
 	int c;
 	int i;
+	short d;
 };
 
 struct item_subpacket{
+
+	int iclass;
+	int mat;
+	int quality;
+	int tile;
+	short type;
 
 	// consumable-specific data
 	int restore_health;
@@ -38,11 +46,12 @@ struct item_subpacket{
 	// equipable-specific data
 	int modify_attack;
 	int modify_ac;
+	int durability;
 	int slot;
 
 	//id for serialization
-	int gen_id;
-	int gen_mat_id;
+	//int gen_id;
+
 };
 
 struct creature_subpacket{
@@ -71,6 +80,7 @@ struct creature_subpacket{
 	int reflex;
 	int throw;
 	int speed;
+	int stance;
 
 };
 
@@ -79,8 +89,13 @@ struct tile_packet{
 	int itemnum;
 	short crtr;
 	int impassible;
+	int object_type;
 	int x,y;
 };
+
+
+short encode_dir(int x,int y);
+void  decode_dir(short d,int*x,int*y);
 
 creature_subpacket* make_crtr_subpacket(creature* c);
 item_subpacket* make_item_subpacket(item* c);
@@ -90,14 +105,18 @@ void write_command_packet(int sock, int c);
 void write_tile_packet(int sock, tile* t, int x, int y);
 void write_player_packet(int sock, creature* c);
 void write_time_packet(int sock, world_time_t* t);
+void write_zone_packet(int sock, char * c);
+void write_memo_packet(int sock, char * c);
 
 void handle_spawn(socket_node* s,void* pack, int len);
 void handle_command(socket_node* s,void* pack, int len);
 void handle_tile(socket_node* s,void* pack, int len);
 void handle_player(socket_node* s,void* pack, int len);
 void handle_time(socket_node* s,void* pack, int len);
+void handle_zone(socket_node* s,void* pack, int len);
+void handle_memo(socket_node* s,void* pack, int len);
 
-#define PACKET_HANDLERS_SIZE 5
+#define PACKET_HANDLERS_SIZE 7
 void (*packet_handlers[PACKET_HANDLERS_SIZE])(socket_node* s, void* pack, int len);
 
 #endif

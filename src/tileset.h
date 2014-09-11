@@ -24,6 +24,11 @@
 #define TILE_WALL_CROSS      15
 #define TILE_FLOOR           16
 #define TILE_STAIRS          17
+#define TILE_DOOR_OPEN       48
+#define TILE_DOOR_CLOSE      49
+#define TILE_SMELTER         50
+#define TILE_FORGE           51
+#define TILE_FIRE            52
 
 // The following are the tiles used by lua at the moment
 

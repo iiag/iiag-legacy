@@ -10,7 +10,9 @@
 int lcf_creature(lua_State *);
 int lcf_player(lua_State *);
 int lcf_item(lua_State *);
-int lcf_material(lua_State *);
 int lcf_room(lua_State *);
+int lcf_i_type(lua_State *);
+int lcf_begin_recipe(lua_State *);
+int lcf_component(lua_State *);
 
 #endif

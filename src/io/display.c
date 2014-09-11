@@ -7,6 +7,7 @@
 #include "display.h"
 #include "../log.h"
 #include "../config.h"
+#include "../player.h"
 
 // so that unset functions can be ignored
 static void dumb() {}
@@ -115,6 +116,13 @@ void disp_dim_update(void)
 		disp_width  = nw;
 		disp_height = nh;
 	}
+}
+
+void redraw(void)
+{
+	disp_clear();
+	zone_draw(PLYR.z);
+	disp_refresh();
 }
 
 void scroll_disp(int dx, int dy)

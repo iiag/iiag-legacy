@@ -19,28 +19,26 @@ typedef struct material material;
 #include "creature.h"
 #include "inventory.h"
 
-struct material {
-	int refs;
-	char * name;
-	float mult_weight;
-	float mult_attack;
-	float mult_ac;
-	float mult_spikiness;
-};
-
 struct item {
 	unsigned type;
 	int tile;
 	char * name;
-	int weight; // in 1/100ths of pounds
-	int spikiness;
 
-	char * mat_class;
-	material * mat;
+	int iclass;
+	int mat;
+	int quality;
+	
+	//id for serialization
+	int gen_id;
 
 	// where in what inventory
 	inventory * of;
 	int i;
+
+
+	int weight; // in 1/100ths of pounds
+	int spikiness;
+	int durability;
 
 	// consumable-specific data
 	int restore_health;
@@ -51,9 +49,6 @@ struct item {
 	int modify_ac;
 	int slot;
 
-	//id for serialization
-	int gen_id;
-	int gen_mat_id;
 };
 
 //
@@ -73,6 +68,12 @@ item * item_copy(const item *);
 //
 void item_free(item *);
 
+
+//
+// Generates the item name from its attributes
+//
+void item_gen_name(item *);
+
 //
 // Teleport an item to a given location
 // Sets 'of' and 'i' if successful
@@ -90,11 +91,5 @@ int item_equipped(item *, creature *);
 // Used for both actual throwing and firing projectiles
 //
 int item_throw(item *, int, int, zone *, int, int, int);
-
-//
-// Applies a material to an item
-// Does not overwrite a previous material
-//
-void item_apply_mat(item *, material *);
 
 #endif

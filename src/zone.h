@@ -10,20 +10,23 @@ typedef struct zone zone;
 
 #define TILE_MAX_WEIGHT 50000
 
+//multiplayer will break if zones of different sizes are introduced, sort of...
+#define ZONE_SIZE_X 150
+#define ZONE_SIZE_Y 50
+
 #include "util.h"
 #include "creature.h"
 #include "inventory.h"
+#include "tile_object.h"
 
 struct tile {
 	int tile, show_tile;
 	int show;
-	int impassible;  // whether the tile is pasible or not
-	creature * crtr; // creture that may be on the tile
-	inventory * inv; // inventory of the tile
+	int impassible;    // whether the tile is pasible or not
+	creature * crtr;   // creture that may be on the tile
+	inventory * inv;   // inventory of the tile
+	tile_object * obj; // objects affixed to the tile. Doors, Stairs, etc.	
 
-	int linked;
-	int link_x, link_y;
-	zone * link_z;
 };
 
 struct zone {
@@ -93,5 +96,10 @@ int zone_can_see(zone *, int, int, int, int, int);
 // Safely returns the name of a zone.
 //
 const char *zone_name(zone *);
+
+//
+// Updates an impassible tile
+//
+void set_wall_char(zone * z, int x, int y);
 
 #endif

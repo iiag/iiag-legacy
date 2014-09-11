@@ -151,6 +151,10 @@ static chtype special(const char * name)
 		{ "rtee", 0 },
 		{ "plus", 0 },
 		{ "\\", '\\' },
+		{ "degree", 0 },
+		{ "inv_degree", 0 },
+		{ "diamond", 0 },
+		{ "plminus", 0 },
 	};
 
 	int i;
@@ -170,6 +174,10 @@ static chtype special(const char * name)
 		map[10].ch = ACS_LTEE;
 		map[11].ch = ACS_RTEE;
 		map[12].ch = ACS_PLUS;
+		map[14].ch = ACS_DEGREE;
+		map[15].ch = ACS_DEGREE | A_REVERSE;
+		map[16].ch = ACS_DIAMOND;
+		map[17].ch = ACS_PLMINUS;
 
 		first = 0;
 	}
@@ -221,10 +229,6 @@ void nc_init(int mode, FILE * f)
 	cbreak();
 	noecho();
 
-	if (config.real_time) {
-		nodelay(memoscr, TRUE);
-	}
-
 	// just hide the cursor for now
 	curs_set(0);
 
@@ -238,6 +242,10 @@ void nc_init(int mode, FILE * f)
 		nc_end();
 		error("Failed to initialize ncurses!");
 		exit(EXIT_FAILURE);
+	}
+
+	if (config.real_time) {
+		nodelay(memoscr, TRUE);
 	}
 
 	keypad(stdscr,  TRUE);

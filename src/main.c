@@ -24,6 +24,7 @@
 #include "net/net.h"
 #include "net/packet.h"
 #include "introspection.h"
+#include "recipe.h"
 
 static void update_status(void)
 {
@@ -63,14 +64,17 @@ static void sig_handler(int rc)
 	exit(rc);
 }
 
-
 int main(int argc, char ** argv)
 {
 	int c;
 
 	init_introspection(argv[0]);
 	init_config(argc, argv);
+	init_recipes();
 	init_lua();
+
+	info("loaded %i recipes",recipes.cnt);
+	info("loaded %i types",item_types.cnt);
 
 	srandom(time(NULL));
 
@@ -80,7 +84,8 @@ int main(int argc, char ** argv)
 	init_world();
 
 	if(config.multiplayer){
-		client_connect(config.ip,config.port);
+		if(client_connect(config.ip,config.port))
+			goto cleanup;//failed to connect to server
 		write_spawn_packet(client_socket);
 
 		//wait for response
@@ -93,11 +98,10 @@ int main(int argc, char ** argv)
 	disp_clear();
 	zone_draw(PLYR.z);
 	update_status();
-
 	step();
 	for (;;) {
 		c = input_get_ctrl();
-		if(c != CTRL_SKIP_TURN || (!config.multiplayer))
+		if(ctrl_by_key(c) != CTRL_SKIP_TURN || (!config.multiplayer))
 			reset_memos();
 
 		if (!key_command(c)) {
@@ -105,7 +109,7 @@ int main(int argc, char ** argv)
 		}
 
 		if(c != CTRL_SKIP_TURN)
-		write_command_packet(client_socket,c);
+		write_command_packet(client_socket,ctrl_by_key(c));
 
 		// TODO this delay should probably sync to game time
 		if(config.multiplayer) usleep(50000);
@@ -119,6 +123,10 @@ int main(int argc, char ** argv)
 		if(config.multiplayer)
 			while(!read_packet(client_socket, NULL));
 	}
+
+	//TODO clean up world and recipes
+	cleanup:
+	disp_end();
 
 	return 0;
 }

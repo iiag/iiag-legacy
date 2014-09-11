@@ -53,14 +53,6 @@ void update_vis(void)
 	disp_refresh();
 }
 
-// this probably should not be here
-static void redraw(void)
-{
-	disp_clear();
-	zone_draw(PLYR.z);
-	disp_refresh();
-}
-
 //
 // The following functions are called through the command interface
 //
@@ -150,48 +142,22 @@ void plyr_act_move_downright(int argc, const char ** argv)
 	crtr_act_aa_move(&PLYR, 1, 1);
 }
 
-void plyr_act_enter(int argc, const char ** argv)
+void plyr_act_use(int argc, const char ** argv)
 {
-	int ox, oy;
-	zone * oz;
-	tile * t = tileof(&PLYR);
-
-	if (t->linked) {
-		// TODO generalize
-
-		if (t->link_z == NULL) {
-			ox = PLYR.x;
-			oy = PLYR.y;
-			oz = PLYR.z;
-
-			// generate new zone
-			vector_append(&world.zones, zone_new(150, 50)); // TODO why 150,50?
-			t->link_z = world.zones.arr[world.zones.cnt-1];
-
-			// place player randomly
-			crtr_spawn(&PLYR, t->link_z);
-			t->link_x = PLYR.x;
-			t->link_y = PLYR.y;
-
-			// link back
-			t = tileof(&PLYR);
-			t->linked = 1;
-			t->link_x = ox;
-			t->link_y = oy;
-			t->link_z = oz;
-			t->tile = TILE_STAIRS;
-			t->show_tile = PLYR.tile;
-		} else {
-			if (!crtr_tele(&PLYR, t->link_x, t->link_y, t->link_z)) {
-				memo("Your way appears to be blocked?");
+	int dx, dy;
+	if (input_prompt_dir("Use what?", &dx, &dy)) {
+		if(PLYR.z->tiles[PLYR.x+dx][PLYR.y+dy].obj){
+			net_dir_prompt = encode_dir(dx,dy);
+			if(!config.multiplayer){//let the server handle this
+				crtr_act_use(&PLYR, dx, dy);
 			}
-		}
+		}else
+			memo("There is nothing there to use.");
 
-		update_vis();
-		zone_draw(PLYR.z);
 	} else {
-		memo("I see no visible method of doing that.");
+		memo("That is not a direction.");
 	}
+	redraw();
 }
 
 void plyr_act_consume(int argc, const char ** argv)
@@ -223,6 +189,8 @@ void plyr_act_throw(int argc, const char ** argv)
 
 	if (input_prompt_dir("Throw where?", &dx, &dy)) {
 		if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
+			net_dir_prompt = encode_dir(dx,dy);
+			net_inv_prompt_data=i;
 			crtr_act_throw(&PLYR, i, dx, dy);
 		} else {
 			memo("Such an item existeth not.");
@@ -270,7 +238,12 @@ void plyr_ev_birth(void)
 
 void plyr_ev_death(creature * p, const char * reasons)
 {
+
+	int was_quaz = 0;
 	const char * qstr;
+
+	//TODO reimpliment with new materials
+	/*
 	int i, was_quaz = 0;
 
 	for (i = 0; i < MAX_SLOTS; i++) {
@@ -280,7 +253,7 @@ void plyr_ev_death(creature * p, const char * reasons)
 			was_quaz = 1;
 			break;
 		}
-	}
+	}*/
 
 	qstr = name_from_key(controls[CTRL_QUIT].key);
 	if (was_quaz) {
@@ -351,24 +324,27 @@ void plyr_ev_act_fail(creature * p, void * how)
 	case ACT_FAIL_EQUIP_ABLE:
 		memo("That's weird... it seems that that is no longer equipable.");
 		break;
+	case ACT_FAIL_USE:
+		memo("On closer inspection, it appears useless.");
+		break;
 	default:;
 	}
 }
 
 void plyr_stance_neutral(int argc, const char ** argv)
 {
-	world.plyr.stance = STANCE_NEUTRAL;
+	crtr_stance(&PLYR,STANCE_NEUTRAL);
 	memo("You shift your stance to a more comfortable posture.");
 }
 
 void plyr_stance_defense(int argc, const char ** argv)
 {
-	world.plyr.stance = STANCE_DEFENSE;
+	crtr_stance(&PLYR,STANCE_DEFENSE);
 	memo("You square your shoulders, and prepare to defend yourself!");
 }
 
 void plyr_stance_attack(int argc, const char ** argv)
 {
-	world.plyr.stance = STANCE_ATTACK;
+	crtr_stance(&PLYR,STANCE_ATTACK);
 	memo("You lean your body forward, raise your arms, and snarl, ready to strike down all that stand before you!");
 }

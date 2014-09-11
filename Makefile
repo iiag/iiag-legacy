@@ -16,17 +16,17 @@ LDFL         := -Wall -lncursesw -lm `pkg-config --libs $(LUAV)`
 
 CLIENT_SRCS := main.c world.c zone.c io/display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c io/input.c \
-               generator.c names.c room.c lua/init.c lua/io.c lua/form.c controls.c \
-               introspection.c net/net.c net/packet.c io/ncurses/controlls.c \
-               io/ncurses/input.c io/ncurses/display.c io/ncurses/keys.c io/nogr/display.c \
-               io/nogr/input.c
+               generator.c names.c room.c tile_object.c recipe.c lua/init.c lua/io.c \
+               lua/form.c controls.c introspection.c net/net.c net/packet.c \
+               io/ncurses/controlls.c io/ncurses/input.c io/ncurses/display.c \
+               io/ncurses/keys.c io/nogr/display.c io/nogr/input.c
 
 SERVER_SRCS := server.c world.c zone.c io/display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c io/input.c \
-               generator.c names.c room.c lua/init.c lua/io.c lua/form.c controls.c \
-               introspection.c net/net.c net/packet.c io/ncurses/controlls.c \
-               io/ncurses/input.c io/ncurses/display.c io/ncurses/keys.c io/nogr/display.c \
-               io/nogr/input.c
+               generator.c names.c room.c tile_object.c recipe.c lua/init.c lua/io.c \
+               lua/form.c controls.c introspection.c net/net.c net/packet.c \
+               io/ncurses/controlls.c io/ncurses/input.c io/ncurses/display.c \
+               io/ncurses/keys.c io/nogr/display.c io/nogr/input.c
 
 CLIENT_OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(CLIENT_SRCS)))
 CLIENT_DEPS := $(addprefix dep/,$(patsubst %.c,%.d,$(CLIENT_SRCS)))

@@ -21,6 +21,12 @@ void build_room(zone* z,room* r){
 	r->x = random() % (z->width - (r-> w +3)) + 2;
 	r->y = random() % (z->height - (r-> h +3)) + 2;
 
+	//TODO config options? better way to handle velapping rooms?
+	for(x=0;x<r->w;x++)
+	for(y=0;y<r->h;y++)
+		if(!z->tiles[x+r->x][y+r->y].impassible)
+			return;
+
 	if(r->shape == shape_square)
 		for(x=0;x<r->w;x++)
 		for(y=0;y<r->h;y++)
