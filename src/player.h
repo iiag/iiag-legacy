@@ -18,25 +18,29 @@
 void update_vis(void);
 
 // player willed actions
-void plyr_act_pickup(int, char **);
-void plyr_act_drop(int, char **);
-void plyr_act_inv(int, char **);
-void plyr_act_equipped(int, char **);
-void plyr_act_consume(int, char **);
-void plyr_act_equip(int, char **);
-void plyr_act_throw(int, char **);
-void plyr_act_idle(int, char **);
-void plyr_act_use(int, char **);
+void plyr_act_pickup(int, const char **);
+void plyr_act_drop(int, const char **);
+void plyr_act_inv(int, const char **);
+void plyr_act_equipped(int, const char **);
+void plyr_act_consume(int, const char **);
+void plyr_act_equip(int, const char **);
+void plyr_act_throw(int, const char **);
+void plyr_act_idle(int, const char **);
+void plyr_act_use(int, const char **);
+void plyr_stance_neutral(int, const char **);
+void plyr_stance_defense(int, const char **);
+void plyr_stance_attack(int, const char **);
 
 // player displacement
-void plyr_act_move_left(int, char **);
-void plyr_act_move_right(int, char **);
-void plyr_act_move_up(int, char **);
-void plyr_act_move_down(int, char **);
-void plyr_act_move_upleft(int, char **);
-void plyr_act_move_upright(int, char **);
-void plyr_act_move_downleft(int, char **);
-void plyr_act_move_downright(int, char **);
+void plyr_act_move_left(int, const char **);
+void plyr_act_move_right(int, const char **);
+void plyr_act_move_up(int, const char **);
+void plyr_act_move_down(int, const char **);
+void plyr_act_move_upleft(int, const char **);
+void plyr_act_move_upright(int, const char **);
+void plyr_act_move_downleft(int, const char **);
+void plyr_act_move_downright(int, const char **);
+void plyr_act_enter(int, const char **);
 
 // the inevitable
 void plyr_ev_birth(void);

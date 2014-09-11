@@ -110,6 +110,7 @@ static void apply_stat(int* i, int* sub, char* str){
 static void apply_comp(item* i, component* c, item* sub){
 	if(c->mat)
 	i->mat = sub->mat;
+	i->tile = sub->tile;
 
 	apply_stat(STAT_PARAM(weight));
 	apply_stat(STAT_PARAM(spikiness));

@@ -20,7 +20,7 @@ typedef struct zone zone;
 #include "tile_object.h"
 
 struct tile {
-	chtype ch, show_ch;
+	int tile, show_tile;
 	int show;
 	int impassible;    // whether the tile is pasible or not
 	creature * crtr;   // creture that may be on the tile

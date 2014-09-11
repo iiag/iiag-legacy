@@ -32,7 +32,7 @@ struct recipe{
 	int iclass;
 	int attrb; //consumable, equipable
 	int slot;
-	chtype ch;
+	int ch;
 	int mat;
 
 	int obj_type; //type of tile object used to craft

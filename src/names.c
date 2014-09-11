@@ -14,7 +14,7 @@ static void load_syl(vector_t * v, const char * dir, const char * file)
 	FILE * f;
 	char str[11];
 	char * cpy;
-	char * path = malloc(strlen(dir) + 12);
+	char * path = malloc(strlen(dir) + strlen(file) + 2);
 
 	str[10] = 0;
 	strcpy(path, dir);
@@ -41,6 +41,8 @@ static void load_syl(vector_t * v, const char * dir, const char * file)
 		// This is relatively normal, but it could be a typo in a file name
 		notice("Could not open file: %s", path);
 	}
+
+	free(path);
 }
 
 ethnicity * load_ethnicity(const char * dir)

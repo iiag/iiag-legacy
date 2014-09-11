@@ -7,6 +7,8 @@
 #include <string.h>
 #include "config.h"
 #include "player.h"
+#include "controls.h"
+#include "tileset.h"
 #include "io/input.h"
 #include "io/display.h"
 #include "net/packet.h"
@@ -48,20 +50,20 @@ void update_vis(void)
 	}
 
 
-	wrefresh(dispscr);
+	disp_refresh();
 }
 
 //
 // The following functions are called through the command interface
 //
-void plyr_act_pickup(int argc, char ** argv)
+void plyr_act_pickup(int argc, const char ** argv)
 {
 	int i;
 
 	if (PLYRT.inv->weight == 0) {
 		memo("There is nothing here to pick up.");
 	} else {
-		i = prompt_inv("Pick up what?", PLYRT.inv, NULL);
+		i = input_prompt_inv("Pick up what?", PLYRT.inv, NULL);
 
 		if (PLYRT.inv->size > i && PLYRT.inv->itms[i] != NULL) {
 			net_inv_prompt_data=i;
@@ -74,9 +76,9 @@ void plyr_act_pickup(int argc, char ** argv)
 	}
 }
 
-void plyr_act_drop(int argc, char ** argv)
+void plyr_act_drop(int argc, const char ** argv)
 {
-	int i = prompt_inv("You dropped what?", PLYR.inv, &PLYR);
+	int i = input_prompt_inv("You dropped what?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
 		net_inv_prompt_data=i;
@@ -88,77 +90,63 @@ void plyr_act_drop(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_inv(int argc, char ** argv)
+void plyr_act_inv(int argc, const char ** argv)
 {
-	prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
-
+	input_prompt_inv("You examine the contents of your inventory:", PLYR.inv, &PLYR);
 	redraw();
 }
 
-void plyr_act_equipped(int argc, char ** argv)
+void plyr_act_equipped(int argc, const char ** argv)
 {
-	int i;
-
-	wmove(dispscr, 0, 0);
-	wprintw(dispscr, "Your equipment:\n");
-
-	for (i = 0; i < MAX_SLOTS; i++) {
-		wprintw(dispscr, " %s: ", slot_names[i]);
-
-		if (PLYR.slots[i] == NULL) wprintw(dispscr, "nothing\n");
-		else wprintw(dispscr, "%s\n", PLYR.slots[i]->name);
-	}
-
-	wgetch(dispscr);
-	zone_draw(PLYR.z);
-	wrefresh(dispscr);
+	input_prompt_equipped("Your equipment:", &PLYR);
+	redraw();
 }
 
-void plyr_act_move_left(int argc, char ** argv)
+void plyr_act_move_left(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, -1, 0);
 }
 
-void plyr_act_move_right(int argc, char ** argv)
+void plyr_act_move_right(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 1, 0);
 }
 
-void plyr_act_move_up(int argc, char ** argv)
+void plyr_act_move_up(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 0, -1);
 }
 
-void plyr_act_move_down(int argc, char ** argv)
+void plyr_act_move_down(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 0, 1);
 }
 
-void plyr_act_move_upleft(int argc, char ** argv)
+void plyr_act_move_upleft(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, -1, -1);
 }
 
-void plyr_act_move_upright(int argc, char ** argv)
+void plyr_act_move_upright(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 1, -1);
 }
 
-void plyr_act_move_downleft(int argc, char ** argv)
+void plyr_act_move_downleft(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, -1, 1);
 }
 
-void plyr_act_move_downright(int argc, char ** argv)
+void plyr_act_move_downright(int argc, const char ** argv)
 {
 	crtr_act_aa_move(&PLYR, 1, 1);
 }
 
-void plyr_act_use(int argc, char ** argv)
+void plyr_act_use(int argc, const char ** argv)
 {
 
 	int dx, dy;
-	if (prompt_dir("Use what?", &dx, &dy)) {
+	if (input_prompt_dir("Use what?", &dx, &dy)) {
 		if(PLYR.z->tiles[PLYR.x+dx][PLYR.y+dy].obj){
 			net_dir_prompt = encode_dir(dx,dy);
 			if(!config.multiplayer){//let the server handle this
@@ -173,11 +161,11 @@ void plyr_act_use(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_consume(int argc, char ** argv)
+void plyr_act_consume(int argc, const char ** argv)
 {
 	int i;
 
-	i = prompt_inv("What dost thou consume?", PLYR.inv, &PLYR);
+	i = input_prompt_inv("What dost thou consume?", PLYR.inv, &PLYR);
 
 	if(PLYR.inv->size > i && PLYR.inv->itms[i]!=NULL) {
 		if (PLYR.inv->itms[i]->type & ITEM_CONSUMABLE) {
@@ -193,14 +181,14 @@ void plyr_act_consume(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_throw(int argc, char ** argv)
+void plyr_act_throw(int argc, const char ** argv)
 {
 	int i, dx, dy;
 
-	i = prompt_inv("Throw what?", PLYR.inv, &PLYR);
+	i = input_prompt_inv("Throw what?", PLYR.inv, &PLYR);
 	redraw();
 
-	if (prompt_dir("Throw where?", &dx, &dy)) {
+	if (input_prompt_dir("Throw where?", &dx, &dy)) {
 		if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL) {
 			net_dir_prompt = encode_dir(dx,dy);
 			net_inv_prompt_data=i;
@@ -215,11 +203,11 @@ void plyr_act_throw(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_equip(int argc, char ** argv)
+void plyr_act_equip(int argc, const char ** argv)
 {
 	int i;
 
-	i = prompt_inv("What dost thou equip?", PLYR.inv, &PLYR);
+	i = input_prompt_inv("What dost thou equip?", PLYR.inv, &PLYR);
 
 	if (PLYR.inv->size > i && PLYR.inv->itms[i] != NULL){
 		if (PLYR.inv->itms[i]->type & ITEM_EQUIPABLE){
@@ -235,7 +223,7 @@ void plyr_act_equip(int argc, char ** argv)
 	redraw();
 }
 
-void plyr_act_idle(int argc, char ** argv)
+void plyr_act_idle(int argc, const char ** argv)
 {
 	crtr_act_idle(&PLYR);
 }
@@ -251,9 +239,15 @@ void plyr_ev_birth(void)
 
 void plyr_ev_death(creature * p, const char * reasons)
 {
+
 	int was_quaz = 0;
+	const char * qstr;
+
 	//TODO reimpliment with new materials
-	/*for (i = 0; i < MAX_SLOTS; i++) {
+	/*
+	int i, was_quaz = 0;
+
+	for (i = 0; i < MAX_SLOTS; i++) {
 		if (PLYR.slots[i] == NULL) continue;
 		if (PLYR.slots[i]->mat == NULL) break;
 		if (strcmp(PLYR.slots[i]->mat->name, "quaz") == 0) {
@@ -262,14 +256,15 @@ void plyr_ev_death(creature * p, const char * reasons)
 		}
 	}*/
 
+	qstr = name_from_key(controls[CTRL_QUIT].key);
 	if (was_quaz) {
-		memo("Quaz o quaz, wherefore art thou forsaking me!? Press q to exit.");
+		memo("Quaz o quaz, wherefore dost thou forsake me!? Press %s to exit.", qstr);
 	} else {
-		memo("You die of %s, how unfortunate. Press q to exit.", reasons);
+		memo("You die of %s, how unfortunate. Press %s to exit.", reasons, qstr);
 	}
 
-	while (wgetch(memoscr) != 'q');
-	end_disp();
+	while (ctrl_by_key(input_get_ctrl()) != CTRL_QUIT);
+	disp_end();
 	exit(0);
 }
 
@@ -335,4 +330,22 @@ void plyr_ev_act_fail(creature * p, void * how)
 		break;
 	default:;
 	}
+}
+
+void plyr_stance_neutral(int argc, const char ** argv)
+{
+	world.plyr.stance = STANCE_NEUTRAL;
+	memo("You shift your stance to a more comfortable posture.");
+}
+
+void plyr_stance_defense(int argc, const char ** argv)
+{
+	world.plyr.stance = STANCE_DEFENSE;
+	memo("You square your shoulders, and prepare to defend yourself!");
+}
+
+void plyr_stance_attack(int argc, const char ** argv)
+{
+	world.plyr.stance = STANCE_ATTACK;
+	memo("You lean your body forward, raise your arms, and snarl, ready to strike down all that stand before you!");
 }

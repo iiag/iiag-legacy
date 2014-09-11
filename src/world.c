@@ -8,12 +8,12 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ncurses.h>
 #include "log.h"
 #include "util.h"
 #include "world.h"
 #include "config.h"
 #include "player.h"
+#include "tileset.h"
 #include "inventory.h"
 #include "io/display.h"
 
@@ -39,7 +39,7 @@ void assure_world(void)
 		world.tm.min   = 0;
 
 
-		crtr_init(&world.plyr, '@' | A_BOLD | COLOR_PAIR(COLOR_SELF));
+		crtr_init(&world.plyr, TILE_PLAYER);
 		world.plyr.specific_name = "Player"; // XXX Is this a good idea?
 
 		vector_init(&world.zones);

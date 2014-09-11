@@ -165,10 +165,9 @@ item * gen_item(gclass_t * cl, int lvl)
 
 	it = item_copy(gen(cl, lvl, x));
 
-	info("Generated a %s", it->name);
+	debug("Generated a %s", it->name);
 
 	it->gen_id=x;
-	it->ch |= COLOR_PAIR(COLOR_ITEM);
 
 	return it;
 }
@@ -180,7 +179,6 @@ item * gen_item_from_id(gclass_t * cl, int lvl, int x, int x2)
 	it = item_copy(gen(cl, lvl, x));
 
 	it->gen_id=x;
-	it->ch |= COLOR_PAIR(COLOR_ITEM);
 
 	return it;
 }
@@ -198,7 +196,6 @@ creature * gen_crtr_from_id(gclass_t * cl, int lvl, int x)
 
 	c = crtr_copy(gen(cl, lvl, x));
 	c->gen_id=x;
-	c->ch |= COLOR_PAIR(COLOR_ENEMY);
 
 	return c;
 }

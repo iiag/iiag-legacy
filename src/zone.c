@@ -35,19 +35,19 @@ static int on(int x, int y, zone * z)
 void set_wall_char(zone * z, int x, int y)
 {
 	int i, j;
-	unsigned char ch = 0;
+	unsigned char w = 0;
 
 	for (j = 1; j >= -1; j--) {
 		for (i = 1; i >= -1; i--) {
 			if (i != 0 || j != 0) {
-				ch <<= 1;
-				ch |= !!on( x + i, y + j, z);
+				w <<= 1;
+				w |= !!on( x + i, y + j, z);
 			}
 		}
 	}
 
-	z->tiles[x][y].ch = wall_chars[ch] | COLOR_PAIR(COLOR_WALL);
-	z->tiles[x][y].show_ch = z->tiles[x][y].ch;
+	z->tiles[x][y].tile = wall_chars[w];
+	z->tiles[x][y].show_tile = z->tiles[x][y].tile;
 }
 
 
@@ -292,7 +292,7 @@ void zone_rm_crtr(zone * z, creature * c)
 	tileof(c)->crtr = NULL;
 
 	zone_update(c->z, c->x, c->y);
-	if (c->z == PLYR.z) wrefresh(dispscr);
+	if (c->z == PLYR.z) disp_refresh();
 
 	c->z = NULL;
 	crtr_free(c);
@@ -303,9 +303,9 @@ void zone_draw_tile(zone * z, int x, int y)
 	if (z->tiles[x][y].show == 1 || config.show_all
 		|| (z->tiles[x][y].show && z->tiles[x][y].impassible)
 	) {
-		disp_put(x, y, z->tiles[x][y].show_ch);
+		disp_put(x, y, z->tiles[x][y].show_tile);
 	} else {
-		disp_put(x, y, ' ');
+		disp_put(x, y, TILE_BLANK);
 	}
 }
 
@@ -314,26 +314,25 @@ void zone_update(zone * z, int x, int y)
 	int i;
 	int weight = -1;
 	item * it;
-	chtype ch = z->tiles[x][y].ch;
+	int tile = z->tiles[x][y].tile;
 
 	if (z->tiles[x][y].crtr != NULL && z->tiles[x][y].crtr->health > 0) {
-		ch = z->tiles[x][y].crtr->ch;
+		tile = z->tiles[x][y].crtr->tile;
 	} else if(z->tiles[x][y].obj) {
-		ch = z->tiles[x][y].obj->ch;
+		tile = z->tiles[x][y].obj->tile;
 	} else {
 		for (i = 0; i < z->tiles[x][y].inv->size; i++) {
 			it = z->tiles[x][y].inv->itms[i];
 
 			if (it != NULL && it->weight > weight) {
 				weight = it->weight;
-				ch = it->ch;
+				tile = it->tile;
 			}
 		}
 	} 
 	
 
-
-	z->tiles[x][y].show_ch = ch;
+	z->tiles[x][y].show_tile = tile;
 	zone_draw_tile(z, x, y);
 }
 
@@ -341,7 +340,7 @@ void zone_draw(zone * z)
 {
 	int i, j;
 
-	wclear(dispscr);
+	disp_clear();
 
 	for (i = 0; i < z->width; i++) {
 		for (j = 0; j < z->height; j++) {
@@ -349,7 +348,7 @@ void zone_draw(zone * z)
 		}
 	}
 
-	wrefresh(dispscr);
+	disp_refresh();
 }
 
 tile * zone_at(zone * z, int x, int y)
@@ -419,8 +418,8 @@ int zone_can_see(zone * z, int x0, int y0, int x1, int y1, int dist)
 void zone_empty_tile(zone * z, int x, int y){
 
 	z->tiles[x][y].impassible = 0;
-	z->tiles[x][y].ch = ('.' | A_DIM);
-	z->tiles[x][y].show_ch = ('.' | A_DIM);
+	z->tiles[x][y].tile = TILE_FLOOR;
+	z->tiles[x][y].show_tile = TILE_FLOOR;
 
 }
 

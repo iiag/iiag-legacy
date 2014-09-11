@@ -34,11 +34,11 @@ static int req_xp(creature * c)
 // Initializes the creature, all values are set
 // Calls form_assign for f
 //
-void crtr_init(creature * c, chtype ch)
+void crtr_init(creature * c, int tile)
 {
 	int i;
 
-	c->ch = ch;
+	c->tile = tile;
 
 	c->refs = 1;
 	c->deceased = 0;
@@ -82,10 +82,10 @@ void crtr_init(creature * c, chtype ch)
 //
 // Basically allocates and wraps to crtr_init
 //
-creature * crtr_new(chtype ch)
+creature * crtr_new(int tile)
 {
 	creature * c = malloc(sizeof(creature));
-	crtr_init(c, ch);
+	crtr_init(c, tile);
 	return c;
 }
 
@@ -94,7 +94,7 @@ creature * crtr_new(chtype ch)
 //
 creature * crtr_copy(const creature * p)
 {
-	creature * c = crtr_new(p->ch);
+	creature * c = crtr_new(p->tile);
 
 	// There should be no reason for copying a deceased creature
 	assert(!p->deceased);
@@ -153,7 +153,7 @@ void crtr_spawn(creature * c, zone * z)
 	int timeout = SPAWN_TIMEOUT;
 	int x, y;
 
-	info("Spawning %s", crtr_name(c));
+	debug("Spawning %s", crtr_name(c));
 
 	do {
 		x = random() % z->width;
@@ -236,12 +236,12 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 		if (PLYR.z != NULL) {
 			if (crtr->z == PLYR.z) {
 				zone_update(crtr->z, crtr->x, crtr->y);
-				wrefresh(dispscr);
+				disp_refresh();
 			}
 
 			if (z == PLYR.z) {
 				zone_update(z, x, y);
-				wrefresh(dispscr);
+				disp_refresh();
 			}
 		}
 

@@ -7,6 +7,7 @@
 #include "net/net.h"
 #include "recipe.h"
 #include "log.h"
+#include "tileset.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,18 +33,18 @@ tile_object* make_stair(){
 	ret = malloc(sizeof(tile_object)); 
 
 	ret->type=OBJECT_STAIR;
-	ret->ch = '@';
+	ret->tile = TILE_STAIRS;
 	ret->link_z = NULL;
 
 	return ret;
 }
 
-tile_object* make_door(bool open){
+tile_object* make_door(int open){
 	tile_object* ret;
 	ret = malloc(sizeof(tile_object)); 
 
 	ret->type=OBJECT_DOOR;
-	ret->ch = ACS_DEGREE | (open?A_DIM:A_REVERSE);
+	ret->tile = (open?TILE_DOOR_OPEN:TILE_DOOR_CLOSE);
 
 	return ret;
 }
@@ -53,7 +54,7 @@ tile_object* make_smelter(){
 	ret = malloc(sizeof(tile_object)); 
 
 	ret->type=OBJECT_SMELTER;
-	ret->ch = 164;
+	ret->tile = TILE_SMELTER;
 
 	return ret;
 }
@@ -63,7 +64,7 @@ tile_object* make_forge(){
 	ret = malloc(sizeof(tile_object)); 
 
 	ret->type=OBJECT_FORGE;
-	ret->ch = ACS_DIAMOND;
+	ret->tile = TILE_FORGE;
 
 	return ret;
 }
@@ -73,7 +74,7 @@ tile_object* make_fire(){
 	ret = malloc(sizeof(tile_object)); 
 
 	ret->type=OBJECT_FIRE;
-	ret->ch = ACS_PLMINUS;
+	ret->tile = TILE_FIRE;
 
 	return ret;
 }
@@ -149,7 +150,7 @@ void use_door(tile* t, int x, int y,creature* c, zone* z){
 	assert(t->obj->type == OBJECT_DOOR);
 
 	z->tiles[x][y].impassible = !z->tiles[x][y].impassible;
-	t->obj->ch = ACS_DEGREE | (z->tiles[x][y].impassible?A_REVERSE:A_DIM);
+	t->obj->tile = (z->tiles[x][y].impassible?TILE_DOOR_CLOSE:TILE_DOOR_OPEN);
 	zone_update(z,x,y);
 	
 	#ifdef SERVER

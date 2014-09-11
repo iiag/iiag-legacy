@@ -1,147 +1,125 @@
 //
-// display.c
+// io/display.c
 //
 
-#include <ctype.h>
-#include <stdarg.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <string.h>
 #include "display.h"
-#include "../world.h"
+#include "../log.h"
 #include "../config.h"
 #include "../player.h"
 
-#define NONE (-1)
+// so that unset functions can be ignored
+static void dumb() {}
 
-static int max_width;
-static int max_height;
+void (* graphics_end)(void) = dumb;
+void (* graphics_put)(int, int, int) = dumb;
+void (* graphics_dim_update)(int *, int *) = dumb;
+void (* graphics_clear)  (void) = dumb;
 
-static int scroll_x = 0;
-static int scroll_y = 0;
+void (* disp_refresh)(void) = dumb;
 
-static int last_col = NONE;
-static int inited_disp = 0;
+void (* memo)(const char *, ...) = (void *)dumb;
+void (* reset_memos)(void) = dumb;
+void (* statline)(int, const char *, ...) = (void *)dumb;
 
-WINDOW * memoscr;
-WINDOW * dispscr;
-WINDOW * statscr;
+int disp_width = 0;
+int disp_height = 0;
+int scroll_x = 0;
+int scroll_y = 0;
 
-void init_disp(void)
+int ** cache = NULL;
+
+void disp_init(void)
 {
-	initscr();
-	if(has_colors()){
-		start_color();
-		if(can_change_color()){
-			//for the blackest of the blacks
-			init_color(COLOR_BLACK, 0, 0, 0);
-		}
+	int mode;
+	FILE * f = fopen(config.tileset_file, "rb");
 
-		init_pair(COLOR_SELF, COLOR_GREEN, COLOR_BLACK);
-		init_pair(COLOR_OTHER, COLOR_BLUE, COLOR_BLACK);
-		init_pair(COLOR_WALL, COLOR_WHITE, COLOR_BLACK);
-		//init_pair(COLOR_FLOOR, COLOR_GREY, COLOR_BLACK);
-		init_pair(COLOR_ENEMY, COLOR_RED, COLOR_BLACK);
-		init_pair(COLOR_ITEM, COLOR_YELLOW, COLOR_BLACK);
-	}
-	cbreak();
-	noecho();
-	getmaxyx(stdscr, max_height, max_width);
-
-	// just hide the cursor for now
-	curs_set(0);
-
-	memoscr = newwin(1, max_width, 0, 0);
-	dispscr = newwin(max_height - 4, max_width, 1, 0);
-	statscr = newwin(3, max_width, max_height - 3, 0);
-
-	if ( memoscr == NULL || dispscr == NULL || statscr == NULL ) {
-		end_disp();
-		fprintf(stderr, "Failed to initialize ncurses!\n");
-		exit(EXIT_FAILURE);
+	if (f == NULL) {
+		error("Could not open tile set file '%s'.", config.tileset_file);
+		return;
 	}
 
-	keypad(stdscr,  TRUE);
-	keypad(dispscr, TRUE);
-	keypad(memoscr, TRUE);
-	keypad(statscr, TRUE);
-
-	if(config.real_time){
-		nodelay(memoscr, TRUE);
+	if (1 != fscanf(f, " %d ", &mode)) {
+		error("Could not read graphics mode from file '%s'.", config.tileset_file);
+		return;
 	}
 
-	inited_disp = 1;
+	switch (mode) {
+	case GR_MODE_NCURSES:
+	case GR_MODE_MC_NCURSES:
+		nc_init(mode, f);
+		break;
+	default:
+		nogr_init();
+		break;
+	}
+
+	fclose(f);
 }
 
-void end_disp(void)
+void disp_end(void)
 {
-	if (inited_disp) {
-		endwin();
-	} else {
-		notice("Tried to end uninitialized display.");
-	}
+	graphics_end();
+	free(cache);
 }
 
-void disp_put(int x, int y, chtype ch)
+void disp_put(int x, int y, int tile)
 {
-	int w, h;
-
-	getmaxyx(dispscr, h, w);
+	disp_dim_update();
 
 	x -= scroll_x;
 	y -= scroll_y;
 
-	if (x >= 0 && y >= 0 && x < w && y < h) {
-		mvwaddch(dispscr, y, x, ch);
+	if (x >= 0 && y >= 0 && x < disp_width && y < disp_height) {
+		if (cache[x][y] != tile) {
+			cache[x][y] = tile;
+			graphics_put(x, y, tile);
+		}
 	}
 }
 
-void reset_memos(void)
+void disp_clear(void)
 {
-	wmove(memoscr, 0, 0);
-	wclrtoeol(memoscr);
-	last_col = NONE;
-}
-
-void memo(const char * fmt, ...)
-{
-	#ifndef SERVER
-	int dummy __attribute__((unused));;
-	va_list vl;
-	va_start(vl, fmt);
-
-	if (last_col != NONE) {
-		mvwprintw(memoscr, 0, last_col, "...");
-		wgetch(memoscr);
+	int x;
+	for (x = 0; x < disp_width; x++) {
+		memset(cache[x], 0, disp_height * sizeof(int));
 	}
-
-	wmove(memoscr, 0, 0);
-	wclrtoeol(memoscr);
-	vw_printw(memoscr, fmt, vl);
-	getyx(memoscr, dummy, last_col);
-	wrefresh(memoscr);
-
-	va_end(vl);
-	#endif
+	graphics_clear();
 }
 
-void statline(int ln, const char * fmt, ...)
+void disp_dim_update(void)
 {
-	va_list vl;
-	va_start(vl, fmt);
+	int x, y, nw, nh, min;
+	graphics_dim_update(&nw, &nh);
 
-	wmove(statscr, ln, 0);
-	wclrtoeol(statscr);
-	vw_printw(statscr, fmt, vl);
-	wrefresh(statscr);
+	if (nw != disp_width || nh != disp_height) {
+		info("Display tile dimensions is now %d by %d.", nw, nh);
 
-	va_end(vl);
+		cache = realloc(cache, nw * sizeof(int *));
+		min = disp_width < nw ? disp_width : nw;
+
+		for (x = 0; x < min; x++) {
+			cache[x] = realloc(cache[x], sizeof(int) * nh);
+			for (y = disp_height; y < nh; y++) {
+				cache[x][y] = 0;
+			}
+		}
+
+		for (; x < nw; x++) {
+			cache[x] = calloc(sizeof(int), nh);
+		}
+
+		disp_width  = nw;
+		disp_height = nh;
+	}
 }
 
 void redraw(void)
 {
-	wclear(dispscr);
+	disp_clear();
 	zone_draw(PLYR.z);
-	wrefresh(dispscr);
+	disp_refresh();
 }
 
 void scroll_disp(int dx, int dy)
@@ -157,10 +135,8 @@ void scroll_center(int x, int y)
 {
 	int cx, cy;
 
-	getmaxyx(dispscr, cy, cx);
-
-	cx /= 2;
-	cy /= 2;
+	cx = disp_width  / 2;
+	cy = disp_height / 2;
 
 	scroll_x = x - cx;
 	scroll_y = y - cy;
@@ -169,36 +145,3 @@ void scroll_center(int x, int y)
 	if (scroll_y < 0) scroll_y = 0;
 }
 
-//
-// The following functions move the view around
-//
-
-void scroll_view_center(int argc, char ** argv)
-{
-	scroll_center(PLYR.x, PLYR.y);
-	zone_draw(PLYR.z);
-}
-
-void scroll_view_left(int argc, char ** argv)
-{
-	scroll_disp(-1, 0);
-	zone_draw(PLYR.z);
-}
-
-void scroll_view_right(int argc, char ** argv)
-{
-	scroll_disp(1, 0);
-	zone_draw(PLYR.z);
-}
-
-void scroll_view_up(int argc, char ** argv)
-{
-	scroll_disp(0, -1);
-	zone_draw(PLYR.z);
-}
-
-void scroll_view_down(int argc, char ** argv)
-{
-	scroll_disp(0, 1);
-	zone_draw(PLYR.z);
-}

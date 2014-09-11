@@ -7,15 +7,22 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ncurses.h> // for KEY_UP, KEY_DOWN, etc.
 #include "log.h"
 #include "config.h"
+#include "controls.h"
+#include "io/input.h"
+#include "io/display.h"
 
 ///// Default Configuration /////
 config_t config = {
 	NULL,               // cfg_file
 	"script/init.lua",  // lua_init
-	"127.0.0.1", 13699, //ip, port
+#ifdef SERVER
+	"tileset/none",     // tileset_name
+#else
+	"tileset/default",  // tileset_name
+#endif
+	"127.0.0.1", 13699, // ip, port
 	0,                  // forget_walls
 	0,                  // show_all
 	0,                  // all_alone
@@ -24,47 +31,12 @@ config_t config = {
 	0,                  // multiplayer
 	LOG_INFO,           // log_level
 	20,                 // throw_anim_delay
-
-	{
-		// movement controls
-		'k', // up
-		'j', // down
-		'h', // left
-		'l', // right
-		'y', // up left
-		'u', // up right
-		'b', // down left
-		'n', // down right
-		'z', // modify z-axis
-
-		// scrolling controls
-		'C',
-		KEY_UP,
-		KEY_DOWN,
-		KEY_LEFT,
-		KEY_RIGHT,
-
-		// action controls
-		'i', // display inventory
-		'E', // display equipped
-		',', // pickup
-		'.', // drop
-		'c', // consume
-		'w', // equip
-		't', // throw
-
-		// miscellaneous controls
-		' ', // skip turn
-		'q', // quit
-		':', // command mode
-	},
 };
 
 ///// Define the Configuration Language /////
 struct field {
 	enum {
 		STRING,
-		CONTROL,
 		BOOLEAN,
 		INTEGER,
 	} type;
@@ -76,6 +48,7 @@ struct field {
 static const struct field cfg_fields[] = {
 	{ STRING,  "lua-init",         &config.lua_init         },
 	{ STRING,  "server-ip",        &config.ip               },
+	{ STRING,  "tileset-file",     &config.tileset_file     },
 	{ BOOLEAN, "show-all",         &config.show_all         },
 	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
@@ -84,27 +57,6 @@ static const struct field cfg_fields[] = {
 	{ INTEGER, "log-level",        &config.log_level        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
 	{ INTEGER, "port",             &config.port             },
-
-	// movement controls
-	{ CONTROL, "ctrl-up",     config.ctrl + CTRL_UP     },
-	{ CONTROL, "ctrl-down",   config.ctrl + CTRL_DOWN   },
-	{ CONTROL, "ctrl-left",   config.ctrl + CTRL_LEFT   },
-	{ CONTROL, "ctrl-right",  config.ctrl + CTRL_RIGHT  },
-	{ CONTROL, "ctrl-uleft",  config.ctrl + CTRL_ULEFT  },
-	{ CONTROL, "ctrl-uright", config.ctrl + CTRL_URIGHT },
-	{ CONTROL, "ctrl-dleft",  config.ctrl + CTRL_DLEFT  },
-	{ CONTROL, "ctrl-dright", config.ctrl + CTRL_DRIGHT },
-	{ CONTROL, "ctrl-use",    config.ctrl + CTRL_USE  },
-
-	// scrolling controls
-	{ CONTROL, "ctrl-scrl-center", config.ctrl + CTRL_SCRL_CENTER },
-	{ CONTROL, "ctrl-scrl-up",     config.ctrl + CTRL_SCRL_UP     },
-	{ CONTROL, "ctrl-scrl-down",   config.ctrl + CTRL_SCRL_DOWN   },
-	{ CONTROL, "ctrl-scrl-left",   config.ctrl + CTRL_SCRL_LEFT   },
-	{ CONTROL, "ctrl-scrl-right",  config.ctrl + CTRL_SCRL_RIGHT  },
-
-	// Miscellaneous
-	{ CONTROL, "ctrl-command", config.ctrl + CTRL_COMMAND },
 };
 
 ///// Configuration file parsing /////
@@ -155,40 +107,6 @@ static char * get_string(FILE * f)
 #undef MAX
 }
 
-static int get_control(FILE * f)
-{
-	static const struct {
-		char * name;
-		int ctrl;
-	} special[] = {
-		{ "%up%",    KEY_UP    },
-		{ "%down%",  KEY_DOWN  },
-		{ "%left%",  KEY_LEFT  },
-		{ "%right%", KEY_RIGHT },
-	};
-
-	int ctrl, i;
-	char * s, * o;
-
-	o = s = get_string(f);
-
-	for (i = 0; i < sizeof(special) / sizeof(*special); i++) {
-		if (!strcmp(special[i].name, s)) {
-			ctrl = special[i].ctrl;
-			goto done;
-		}
-	}
-
-	if (isdigit(*s))
-		ctrl = atoi(s);
-	else
-		ctrl = *s;
-
-done:
-	free(o);
-	return ctrl;
-}
-
 static int get_boolean(FILE * f, const char * fn)
 {
 	int b;
@@ -221,7 +139,7 @@ static void expect(char c, FILE * f, const char * fn)
 
 static void load_config(const char * file)
 {
-	int i;
+	int i, ctrl;
 	FILE * f;
 	char * name;
 	const struct field * fld;
@@ -251,8 +169,14 @@ static void load_config(const char * file)
 		expect('=', f, file);
 
 		if (fld == NULL) {
-			warning("%s: Unknown field '%s'", file, name);
-			free(get_string(f));
+			ctrl = ctrl_by_field(name);
+
+			if (ctrl != CTRL_INVALID) {
+				controls[ctrl].gr_name = get_string(f);
+			} else {
+				warning("%s: Unknown field '%s'", file, name);
+				free(get_string(f));
+			}
 		} else {
 			switch (fld->type) {
 			case STRING:
@@ -261,9 +185,6 @@ static void load_config(const char * file)
 				break;
 			case BOOLEAN:
 				*(int *)fld->ptr = get_boolean(f, file);
-				break;
-			case CONTROL:
-				*(int *)fld->ptr = get_control(f);
 				break;
 			case INTEGER:
 				*(int *)fld->ptr = get_integer(f);
@@ -276,6 +197,38 @@ static void load_config(const char * file)
 
 	if (f != stdin) fclose(f);
 }
+
+//controls with config
+void save_config(const char* pname){
+	int i;
+	FILE*f;
+
+	char * name = malloc(strlen(pname) + 5);
+	char* suffix=".cfg";
+
+	strcpy(name, pname);
+	strcat(name, suffix);
+	config.cfg_file=name;
+
+	f = fopen(name, "wb+");
+
+	fprintf(f, "%s=%s\n","lua",config.lua_init);
+	fprintf(f, "%s=%s\n","server-ip",config.ip);
+	fprintf(f, "%s=%d\n","port",config.port);
+    fprintf(f, "%s=%d\n","forget-walls",config.forget_walls);
+	fprintf(f, "%s=%d\n","show-all",config.show_all);
+	fprintf(f, "%s=%d\n","all-alone",config.all_alone);
+	fprintf(f, "%s=%d\n","god-mode",config.god_mode);
+	fprintf(f, "%s=%d\n","real-time",config.real_time);
+	fprintf(f, "%s=%d\n","log-level",config.log_level);
+	fprintf(f, "%s=%d\n","throw-anim-delay",config.throw_anim_delay);
+
+	for(i=0;i<TOTAL_CONTROLS;i++){
+		fprintf(f, "%s=%s\n", controls[i].field, name_from_key(controls[i].key));
+	}
+	fclose(f);
+}
+
 
 ///// Command line argument parsing /////
 static void print_help()
@@ -306,6 +259,8 @@ static void print_help()
 	"        Turn on all real time mode.\n"
 	"    -s\n"
 	"        Show everything.\n"
+	"    -t [tile set file]\n"
+	"        Specifies the tile set file.\n"
 	"\n"
 	);
 
@@ -356,6 +311,9 @@ void init_config(int argc, char ** argv)
 			case 'L':
 				config.log_level = (log_level_t) atoi(argv[++i]);
 				break;
+			case 't':
+				config.tileset_file = argv[++i];
+				break;
 			default:
 				warning("Ignoring unknown flag '%s'", argv[i]);
 			}
@@ -367,5 +325,15 @@ void init_config(int argc, char ** argv)
 	// load config file if given
 	if (config.cfg_file != NULL) {
 		load_config(config.cfg_file);
+	}
+
+	// so the controls are set correctly, this is done first
+	disp_init();
+
+	// set the controls value from the graphics mode-specific names
+	for (i = 0; i < TOTAL_CONTROLS; i++) {
+		if (controls[i].gr_name) {
+			controls[i].key = key_from_name(controls[i].gr_name);
+		}
 	}
 }

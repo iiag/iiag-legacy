@@ -36,7 +36,7 @@ struct item_subpacket{
 	int iclass;
 	int mat;
 	int quality;
-	chtype ch;
+	int tile;
 	short type;
 
 	// consumable-specific data
@@ -48,7 +48,7 @@ struct item_subpacket{
 	int modify_ac;
 	int durability;
 	int slot;
-	
+
 	//id for serialization
 	//int gen_id;
 
@@ -84,7 +84,7 @@ struct creature_subpacket{
 };
 
 struct tile_packet{
-	chtype ch,show_ch;
+	int tile, show_tile;
 	int itemnum;
 	short crtr;
 	int impassible;

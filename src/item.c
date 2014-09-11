@@ -16,12 +16,12 @@
 //
 // Allocates a new item
 //
-item * item_new(unsigned type, chtype ch)
+item * item_new(unsigned type, int tile)
 {
 	item * it = malloc(sizeof(item));
 
 	it->type = type;
-	it->ch = ch;
+	it->tile = tile;
 	it->name = NULL;
 	it->weight = 1;
 	it->spikiness = 0;
@@ -48,7 +48,7 @@ item * item_new(unsigned type, chtype ch)
 //
 item * item_copy(const item * pt)
 {
-	item * it = item_new(pt->type, pt->ch);
+	item * it = item_new(pt->type, pt->tile);
 
 	it->name            = copy_str(pt->name);
 	it->weight          = pt->weight;
@@ -120,7 +120,7 @@ int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
 	int ret, dam;
 	int anim = (z == PLYR.z) && config.throw_anim_delay;
 	int timeout = 100 * force / it->weight;
-	chtype tmp = 0;
+	int tmp = 0;
 
 	x += dx;
 	y += dy;
@@ -133,14 +133,14 @@ int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
 		// handle the animation
 		if (anim) {
 			if (tmp) {
-				z->tiles[x-dx][y-dy].ch = tmp;
+				z->tiles[x-dx][y-dy].show_tile = tmp;
 				zone_draw_tile(z, x-dx, y-dy);
 			}
 
-			tmp = z->tiles[x][y].ch;
-			z->tiles[x][y].ch = it->ch;
+			tmp = z->tiles[x][y].show_tile;
+			z->tiles[x][y].show_tile = it->tile;
 			zone_draw_tile(z, x, y);
-			wrefresh(dispscr);
+			disp_refresh();
 
 			usleep(1000 * config.throw_anim_delay);
 		}
@@ -178,7 +178,7 @@ int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
 cleanup:
 	ret = item_tele(it, x, y, z);
 	zone_update(z, x, y);
-	wrefresh(dispscr);
+	disp_refresh();
 	return ret;
 }
 

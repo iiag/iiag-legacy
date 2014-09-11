@@ -12,6 +12,7 @@
 #include "../world.h"
 #include "../faction.h"
 #include "../creature.h"
+#include "../tileset.h"
 #include "../room.h"
 #include "../recipe.h"
 #include "../tile_object.h"
@@ -38,13 +39,6 @@ static TY get_##TYNM(lua_State * lstate, const char * name, TY x) \
 	lua_pop(lstate, 1); \
 	return x; \
 }
-
-GET_TEMPLATE_FRONT(chtype, chtype)
-	if (lua_isstring(lstate, -1)) {
-		x = lua_tostring(lstate, -1)[0];
-	}
-GET_TEMPLATE_END
-
 
 GET_TEMPLATE_FRONT(int, int)
 	if (lua_isnumber(lstate, -1)) {
@@ -151,7 +145,7 @@ int lcf_creature(lua_State * lstate)
 	assert(lua_istable(lstate, 1));
 	assure_world();
 
-	c = crtr_new(get_chtype(lstate, "char", '?'));
+	c = crtr_new(get_int(lstate, "tile", TILE_UNKNOWN));
 	set_creature(lstate, c);
 
 	assure_world();
@@ -166,7 +160,7 @@ int lcf_player(lua_State * lstate)
 	assure_world();
 
 	set_creature(lstate, &world.plyr);
-	world.plyr.ch = get_chtype(lstate, "char", world.plyr.ch);
+	world.plyr.tile = get_int(lstate, "tile", world.plyr.tile);
 
 	return 0;
 }
@@ -177,7 +171,7 @@ int lcf_item(lua_State * lstate)
 
 	assert(lua_istable(lstate, 1));
 
-	it = item_new(0, get_chtype(lstate, "char", '?'));
+	it = item_new(0, get_int(lstate, "tile", TILE_UNKNOWN));
 
 	//it->name = get_string(lstate, "name", it->name);
 	//it->mat_class = get_string(lstate, "material", it->mat_class);
@@ -296,7 +290,7 @@ int lcf_begin_recipe(lua_State * lstate)
 	res->attrb = (res->attrb & ~ITEM_CONSUMABLE) | (get_bool(lstate, "consumable", res->attrb & ITEM_CONSUMABLE) << ITEM_CONSUMABLE_SFT);
 	res->attrb = (res->attrb & ~ITEM_EQUIPABLE)  | (get_bool(lstate, "equipable",  res->attrb & ITEM_EQUIPABLE)  << ITEM_EQUIPABLE_SFT);
 	res->slot = get_slot(lstate, "slot", 0);
-	res->ch = get_chtype(lstate, "char", '?');
+	res->ch = get_int(lstate, "tile", TILE_UNKNOWN);
 
 
 	vector_append(&recipes,res);

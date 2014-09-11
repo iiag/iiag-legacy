@@ -15,7 +15,6 @@
 #include "world.h"
 #include "config.h"
 #include "player.h"
-#include "commands.h"
 #include "creature.h"
 #include "inventory.h"
 #include "io/input.h"
@@ -23,16 +22,11 @@
 #include "lua/lua.h"
 #include "net/net.h"
 
-extern command_t * command_list;
-extern int num_commands;
-
-
 static void sig_handler(int rc)
 {
 	fprintf(stderr, "\nSignal %d caught.\n", rc);
 	exit(rc);
 }
-
 
 int main(int argc, char ** argv)
 {

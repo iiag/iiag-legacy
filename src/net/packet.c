@@ -4,9 +4,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include "packet.h"
-#include "../commands.h"
 #include "../player.h"
 #include "../config.h"
+#include "../tileset.h"
+#include "../controls.h"
 #include "../inventory.h"
 #include "../generator.h"
 #include "../io/display.h"
@@ -137,8 +138,8 @@ void write_tile_packet(int sock, tile* t, int x, int y){
 	packet_header head;
 	tile_packet p;
 
-	p.ch=t->ch;
-	p.show_ch=t->show_ch;
+	p.tile=t->tile;
+	p.show_tile=t->show_tile;
 	p.itemnum=inv_count(t->inv);
 	p.crtr=(t->crtr?1:0);
 	p.impassible=t->impassible;
@@ -181,7 +182,7 @@ item_subpacket* make_item_subpacket(item* c){
 	ret->mat=c->mat;
 	ret->quality=c->quality;
 	ret->durability=c->durability;
-	ret->ch=c->ch;
+	ret->tile=c->tile;
 	ret->type=c->type;
 	//ret->gen_id=c->gen_id;
 
@@ -200,7 +201,7 @@ void subpack2item(item* it, item_subpacket* item_sub){
 	it->mat=item_sub->mat;
 	it->quality=item_sub->quality;
 	it->durability=item_sub->durability;
-	it->ch=item_sub->ch;
+	it->tile=item_sub->tile;
 	it->type=item_sub->type;
 
 	item_gen_name(it);
@@ -257,7 +258,8 @@ void handle_spawn(socket_node* s, void* pack, int len){
 
 	info("Player Connected");
 
-	crtr_init(&(s->player), '@' | A_BOLD);
+	crtr_init(&(s->player), TILE_PLAYER);
+
 	//s->player.on_death.c_func    = (trigger_cfunc)plyr_ev_death;
 	s->player.on_lvlup.c_func    = (trigger_cfunc)plyr_ev_lvlup;
 	//s->player.on_act_comp.c_func = (trigger_cfunc)plyr_ev_act_comp;
@@ -339,7 +341,7 @@ void handle_player(socket_node* s, void* pack, int len){
 
 	for(i=0;i<p->item_num;i++){
 		item_sub = subpack;
-		item* it = item_new(item_sub->type,item_sub->ch);//gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
+		item* it = item_new(item_sub->type,item_sub->tile);//gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
 
 		subpack2item(it,item_sub);
 
@@ -394,7 +396,7 @@ void handle_tile(socket_node* s, void* pack, int len){
 
 	for(i=0;i<t->itemnum;i++){
 		item_sub = subpack;
-		item* it = item_new(item_sub->type,item_sub->ch);//gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
+		item* it = item_new(item_sub->type,item_sub->tile);//gen_item_from_id(world.gitems,1,item_sub->gen_id,item_sub->gen_mat_id);
 
 		subpack2item(it,item_sub);
 
@@ -413,14 +415,15 @@ void handle_tile(socket_node* s, void* pack, int len){
 		cr->y=t->y;
 		//creature is annother player!
 		if(cr->ai == 0)
-			cr->ch = ('@' | COLOR_PAIR(COLOR_OTHER));
+			cr->tile = TILE_OTHER_PLAYER;
 
 		crtr_tele(cr, t->x, t->y, z);
 	}
 
 
-		z->tiles[t->x][t->y].ch=t->ch;
-		z->tiles[t->x][t->y].show_ch=t->show_ch;
+		z->tiles[t->x][t->y].tile=t->tile;
+		z->tiles[t->x][t->y].show_tile=t->show_tile;
+
 		zone_update(z, t->x, t->y);
 
 }
@@ -451,7 +454,6 @@ void handle_zone(socket_node* s,void* pack, int len){
 		}
 
 	update_vis();
-	scroll_view_center(0,NULL);
 }
 
 void handle_memo(socket_node* s,void* pack, int len){

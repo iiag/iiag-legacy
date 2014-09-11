@@ -22,7 +22,7 @@ void (*use_object[OBJ_NUM])(tile* t, int x, int y,creature* c, zone* z);
 struct tile_object {
 
 	int type;
-	chtype ch;
+	int tile;
 
 	//teleporter stuff
 	int link_x, link_y;
@@ -32,7 +32,7 @@ struct tile_object {
 };
 
 tile_object* make_stair();
-tile_object* make_door(bool open);
+tile_object* make_door(int open);
 tile_object* make_smelter();
 tile_object* make_forge();
 tile_object* make_fire();

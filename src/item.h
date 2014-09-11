@@ -15,15 +15,13 @@ typedef struct material material;
 #define ITEM_CONSUMABLE_SFT 0
 #define ITEM_EQUIPABLE_SFT  1
 
-#include <ncurses.h>
 #include "zone.h"
 #include "creature.h"
 #include "inventory.h"
 
 struct item {
 	unsigned type;
-	chtype ch;
-	
+	int tile;
 	char * name;
 
 	int iclass;
@@ -50,15 +48,14 @@ struct item {
 	int modify_attack;
 	int modify_ac;
 	int slot;
-	
-	
+
 };
 
 //
 // Creates a new item, to be freed with item_free
 //   type, first argument, is a bit field
 //
-item * item_new(unsigned, chtype);
+item * item_new(unsigned, int);
 
 //
 // Copys an item, typically for instance from prototype creation
