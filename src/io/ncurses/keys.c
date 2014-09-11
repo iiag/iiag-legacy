@@ -12,6 +12,7 @@ struct {
 	char * name;
 	int key;
 } skeys[] = {
+	{ "space", ' ' },
 	{ "left",  KEY_LEFT  },
 	{ "right", KEY_RIGHT },
 	{ "up",    KEY_UP    },
