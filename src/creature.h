@@ -78,7 +78,7 @@ struct creature {
 	int reflex;
 	int throw;
 	int speed;
-    int stance;
+	int stance;
 
 	//id for serialization
 	int gen_id;
@@ -201,6 +201,12 @@ item * crtr_rm_item(creature *, int);
 int crtr_dodges(creature *, int);
 
 //
+// Change a creatues stance
+// TODO this should probably be implemented as a timed action instead of an instantanious effect
+//
+void crtr_stance(creature *, int);
+
+//
 // The following functions are called when an action is completed
 // Typically they should only be called as a result of calling crtr_act_*
 //
@@ -211,6 +217,7 @@ void crtr_try_drop(creature *, int);
 void crtr_try_consume(creature *, int);
 void crtr_try_equip(creature *, int);
 void crtr_try_throw(creature *, int, int, int); // item then dx, dy
+void crtr_try_use(creature *, int, int);
 
 //
 // The following functions schedule actions to happen
@@ -224,5 +231,6 @@ void crtr_act_consume(creature *, int);
 void crtr_act_equip(creature *, int);
 void crtr_act_throw(creature *, int, int, int);
 void crtr_act_idle(creature * c);
+void crtr_act_use(creature *, int, int);
 
 #endif

@@ -2,12 +2,81 @@
 -- script/iforms.lua --
 -----------------------
 
+iform {
+	iclass = 'ore';
+	material = 'iron';
+	tile = 21;
+	weight = 2500;
+	modify_ac = 1;
+	modify_attack = 1;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ore';
+	material = 'slag';
+	tile = 21;
+	weight = 2500;
+	modify_ac = 1;
+	modify_attack = 1;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ore';
+	material = 'quaz';
+	tile = 21;
+	weight = 2500;
+	modify_ac = 3;
+	modify_attack = 1;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ore';
+	material = 'tin';
+	tile = 21;
+	weight = 1500;
+	modify_ac = 1;
+	modify_attack = 2;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ore';
+	material = 'lead';
+	tile = 21;
+	weight = 5000;
+	modify_ac = 1;
+	modify_attack = 1;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ingot';
+	material = 'bronze';
+	char = 53;
+	weight = 2500;
+	modify_ac = 2;
+	modify_attack = 2;
+	freq = 20;
+}
+
+iform {
+	iclass = 'ingot';
+	material = 'brass';
+	tile = 53;
+	weight = 2500;
+	modify_ac = 1;
+	modify_attack = 2;
+	freq = 20;
+}
+
 -- Foods --
 iform {
+	iclass = 'muffin';
+	material = 'stale';
 	tile = 18;
-	name = 'muffin';
-	class = 'food';
-	material = 'muffin';
 	consumable = true;
 	weight = 35;
 	restore_stamina = 40;
@@ -15,9 +84,9 @@ iform {
 }
 
 iform {
+	iclass = 'semi egg';
+	material = 'rotting';
 	tile = 19;
-	name = 'semi egg';
-	class = 'food';
 	consumable = true;
 	equipable = true;
 	slot = 'head';
@@ -28,9 +97,9 @@ iform {
 }
 
 iform {
+	iclass = 'breadstick';
+	material = 'hard';
 	tile = 20;
-	name = 'breadstick';
-	class = 'food';
 	consumable = true;
 	equipable = true;
 	weight = 15;
@@ -42,24 +111,25 @@ iform {
 }
 
 -- Fruit --
-function fruit(n, w, s, f)
-	iform {
-		tile = 21;
-		name = n;
-		class = 'food/fruit';
-		consumable = true;
-		weight = w;
-		restore_stamina = s;
-		freq = f;
-	}
-end
+--function fruit(n, w, s, f)
+--	iform {
+--		tile = 21;
+--		name = n;
+--		class = 'food/fruit';
+--		consumable = true;
+--		weight = w;
+--		restore_stamina = s;
+--		freq = f;
+--	}
+--end
 
-fruit('papaya', 152, 10, 1);
+--fruit('papaya', 152, 10, 1);
 
 -- Potions --
 iform {
+	iclass = 'health-potion';
+	material = 'cloudy';
 	tile = 22;
-	name = 'health-potion';
 	class = 'potion';
 	consumable = true;
 	weight = 300;
@@ -69,10 +139,9 @@ iform {
 
 -- Melee weapons --
 iform {
+	iclass = 'sword';
+	material = 'rusty';
 	tile = 23;
-	name = 'sword';
-	class = 'weapon/melee';
-	material = 'metal';
 	equipable = true;
 	weight = 2000;
 	modify_attack = 6;
@@ -81,10 +150,10 @@ iform {
 }
 
 iform {
+	iclass = 'axe';
+	material = 'rusty';
 	tile = 24;
 	name = 'axe';
-	class = 'weapon/melee';
-	material = 'metal';
 	equipable = true;
 	weight = 3000;
 	modify_attack = 7;
@@ -93,10 +162,9 @@ iform {
 }
 
 iform {
+	iclass = 'mace';
+	material = 'rusty';
 	tile = 25;
-	name = 'mace';
-	class = 'weapon/melee';
-	material = 'metal';
 	equipable = true;
 	weight = 3000;
 	modify_attack = 7;
@@ -105,10 +173,9 @@ iform {
 }
 
 iform {
+	iclass = 'sickle';
+	material = 'rusty';
 	tile = 26;
-	name = 'sickle';
-	class = 'weapon/melee';
-	material = 'metal';
 	equipable = true;
 	weight = 1500;
 	modify_attack = 6;
@@ -117,9 +184,9 @@ iform {
 }
 
 iform {
+	iclass = 'wepon';
+	material = 'rusty';
 	tile = 27;
-	name = 'whip';
-	class = 'weapon/melee';
 	equipable = true;
 	modify_attack = 9;
 	slot = 'right-hand';
@@ -129,9 +196,9 @@ iform {
 
 -- Throwing weapons --
 iform {
+	iclass = 'shuriken';
+	material = 'rusty';
 	tile = 28;
-	name = 'shuriken';
-	class = 'weapon/throwing';
 	equipable = true;
 	weight = 75;
 	modify_attack = 2;
@@ -142,10 +209,9 @@ iform {
 
 -- Armor --
 iform {
+	iclass = 'barbute';
+	material = 'rusty';
 	tile = 29;
-	name = 'barbute';
-	class = 'armor';
-	material = 'metal';
 	equipable = true;
 	weight = 1250;
 	modify_ac = 4;
@@ -154,10 +220,9 @@ iform {
 }
 
 iform {
+	iclass = 'mail coif';
+	material = 'rusty';
 	tile = 30;
-	name = 'mail coif';
-	class = 'armor';
-	material = 'metal';
 	equipable = true;
 	weight = 1450;
 	modify_ac = 3;
@@ -166,10 +231,9 @@ iform {
 }
 
 iform {
+	iclass = 'cuirass';
+	material = 'rusty';
 	tile = 31;
-	name = 'cuirass';
-	class = 'armor';
-	material = 'metal';
 	equipable = true;
 	weight = 5000;
 	modify_ac = 9;
@@ -178,10 +242,9 @@ iform {
 }
 
 iform {
+	iclass = 'hauberk';
+	material = 'rusty';
 	tile = 32;
-	name = 'hauberk';
-	class = 'armor';
-	material = 'metal';
 	equipable = true;
 	weight = 3000;
 	modify_ac = 7;
@@ -190,10 +253,9 @@ iform {
 }
 
 iform {
+	iclass = 'greaves';
+	material = 'rusty';
 	tile = 33;
-	name = 'greaves';
-	class = 'armor';
-	material = 'metal';
 	equipable = true;
 	weight = 4000;
 	modify_ac = 7;
@@ -202,10 +264,9 @@ iform {
 }
 
 iform {
+	iclass = 'boots';
+	material = 'rusty';
 	tile = 34;
-	name = 'boots';
-	class = 'armor';
-	material = 'metal';
 	equipable = true;
 	weight = 4500;
 	modify_ac = 14;
@@ -215,8 +276,9 @@ iform {
 
 -- To be categorized --
 iform {
+	iclass = 'cape';
+	material = 'magic';
 	tile = 35;
-	name = 'magic cape';
 	equipable = true;
 	weight = 750;
 	modify_ac = 5;

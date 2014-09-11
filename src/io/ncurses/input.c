@@ -29,8 +29,9 @@ int nc_get_key(void)
 int nc_get_ctrl(void)
 {
 	int c = ERR;
-
+debug("start read %i %i",config.real_time,config.multiplayer);
 	if (config.real_time) {
+		
 		int d = ERR;
 		do {
 			c = d;
@@ -47,13 +48,13 @@ int nc_get_ctrl(void)
 //
 int nc_prompt_dir(const char * prompt, int * dx, int * dy)
 {
-	*dx = *dy = 0;
+	*dx = *dy = 13;
 
 	wmove(dispscr, 0, 0);
 	wprintw(dispscr, "%s\n", prompt);
 	wrefresh(dispscr);
 
-	switch (ctrl_by_key(input_get_ctrl())) {
+	switch (ctrl_by_key(input_get_key())) {
 	case CTRL_LEFT:   *dx = -1; *dy = 0; break;
 	case CTRL_DOWN:   *dx =  0; *dy = 1; break;
 	case CTRL_UP:     *dx =  0; *dy =-1; break;
@@ -62,10 +63,11 @@ int nc_prompt_dir(const char * prompt, int * dx, int * dy)
 	case CTRL_URIGHT: *dx =  1; *dy =-1; break;
 	case CTRL_DLEFT:  *dx = -1; *dy = 1; break;
 	case CTRL_DRIGHT: *dx =  1; *dy = 1; break;
+	case CTRL_SKIP_TURN: *dx =  0; *dy = 0; break;
 	}
 
 	wrefresh(dispscr);
-	return *dx || *dy;
+	return *dx != 13;
 }
 
 //

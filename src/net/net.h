@@ -31,5 +31,6 @@ int full_write(int sock, void* start, int len);
 
 void list_insert(socket_node** node, int s);
 void list_delete(socket_node** node, int s);
+int  list_find_sock(creature* c);
 
 #endif

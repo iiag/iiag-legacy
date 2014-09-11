@@ -25,6 +25,7 @@ void disp_put(int x, int y, int tile);
 void disp_dim_update(void);
 void disp_clear(void);
 
+void redraw(void);
 void scroll_disp(int, int);
 void scroll_center(int, int);
 

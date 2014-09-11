@@ -72,7 +72,7 @@ control_t controls[TOTAL_CONTROLS] = {
 	{ 'u', "move-uright", "Move up-right",   plyr_act_move_upright   },
 	{ 'b', "move-dleft",  "Move down-left",  plyr_act_move_downleft  },
 	{ 'n', "move-dright", "Move down-right", plyr_act_move_downright },
-	{ 'z', "enter",       "Enter",           plyr_act_enter          },
+	{ ';', "use",         "Use",             plyr_act_use            },
 
 	// scrolling
 	{ 'C', "scroll-center", "Center scrolling", scroll_view_center },
