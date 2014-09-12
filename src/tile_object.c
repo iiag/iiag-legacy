@@ -39,12 +39,17 @@ tile_object* make_stair(){
 	return ret;
 }
 
-tile_object* make_door(int open){
+tile_object* make_door(int open, int hdoor){
 	tile_object* ret;
 	ret = malloc(sizeof(tile_object)); 
 
 	ret->type=OBJECT_DOOR;
-	ret->tile = (open?TILE_DOOR_OPEN:TILE_DOOR_CLOSE);
+
+	if (hdoor) {
+		ret->tile = (open?TILE_HDOOR_OPEN:TILE_HDOOR_CLOSE);
+	} else {
+		ret->tile = (open?TILE_VDOOR_OPEN:TILE_VDOOR_CLOSE);
+	}
 
 	return ret;
 }
@@ -118,13 +123,13 @@ void use_stair(tile* t, int ox, int oy,creature* c, zone* oz){
 
 	zone_update(c->z,c->x,c->y);
 
-	#ifndef SERVER
+#ifndef SERVER
 	if(plyr_is_crtr(c)){
 		update_vis();
 		scroll_center(c->x,c->y);
 		zone_draw(c->z);
 	}
-	#else
+#else
 	int x,y;
 	if(plyr_is_crtr(c)){
 		int sock = list_find_sock(c);
@@ -134,39 +139,47 @@ void use_stair(tile* t, int ox, int oy,creature* c, zone* oz){
 		for(y=0;y<c->z->height;y++)
 			if(! (x == c->x && y == c->y) && (!list_altr))
 				write_tile_packet(sock,&(c->z->tiles[x][y]),x,y);
-		
+
 		if(!list_altr)
 		write_player_packet(sock,c);
 		if(!list_altr)
 		write_zone_packet(sock,c->z->name);
 	}
-	#endif
-	
+#endif
 }
 
-void use_door(tile* t, int x, int y,creature* c, zone* z){
-	
+void use_door(tile* t, int x, int y,creature* c, zone* z)
+{
 	assert(t->obj);
 	assert(t->obj->type == OBJECT_DOOR);
 
 	z->tiles[x][y].impassible = !z->tiles[x][y].impassible;
-	t->obj->tile = (z->tiles[x][y].impassible?TILE_DOOR_CLOSE:TILE_DOOR_OPEN);
+
+	switch (t->obj->tile) {
+	case TILE_VDOOR_OPEN:  t->obj->tile = TILE_VDOOR_CLOSE; break;
+	case TILE_VDOOR_CLOSE: t->obj->tile = TILE_VDOOR_OPEN;  break;
+	case TILE_HDOOR_OPEN:  t->obj->tile = TILE_HDOOR_CLOSE; break;
+	case TILE_HDOOR_CLOSE: t->obj->tile = TILE_HDOOR_OPEN;  break;
+	default:
+		error("Trying to use a door that is not a door tile.");
+		break;
+	}
 	zone_update(z,x,y);
-	
-	#ifdef SERVER
-		write_tile_packet(list_find_sock(c),t,x,y);
-	#else
-		redraw();
-	#endif
+
+#ifdef SERVER
+	write_tile_packet(list_find_sock(c),t,x,y);
+#else
+	redraw();
+#endif
 
 }
 
-void use_craft(tile* t, int x, int y,creature* c, zone* z){
-	
+void use_craft(tile* t, int x, int y,creature* c, zone* z)
+{
 	assert(t->obj);
 
 	int k,i,j,f,f2,pos,dx,dy;
-	
+
 	dx = c->x-x;
 	dy = c->y-y;
 	pos = 3*(dy+1)+(dx+1)+1;

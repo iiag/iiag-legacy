@@ -27,12 +27,10 @@ struct tile_object {
 	//teleporter stuff
 	int link_x, link_y;
 	zone * link_z;
-
-
 };
 
 tile_object* make_stair();
-tile_object* make_door(int open);
+tile_object* make_door(int open, int hdoor);
 tile_object* make_smelter();
 tile_object* make_forge();
 tile_object* make_fire();
@@ -41,10 +39,5 @@ void use_stair(tile* t, int x, int y,creature* c, zone* z);
 void use_door(tile* t, int x, int y,creature* c, zone* z);
 void use_craft(tile* t, int x, int y,creature* c, zone* z);
 
-
-
-
-
-
-
 #endif
+

@@ -53,12 +53,25 @@ void set_wall_char(zone * z, int x, int y)
 
 #define sign(x) (x==0?0:(x>0?1:-1))
 
+// returns 1 or 2 if the door should be a door, 0 otherwise
+// return 2 if horizontal door, 1 if vertical door, so the retval-1 can be passed to make_door
+// Might want to make this more intuitive in the future
+int door_good(zone * z, int x, int y)
+{
+	int l = (x - 1 < 0) ? 1 : z->tiles[x - 1][y].impassible;
+	int t = (y - 1 < 0) ? 1 : z->tiles[x][y - 1].impassible;
+	int r = (x + 1 >= z->width ) ? 1 : z->tiles[x + 1][y].impassible;
+	int b = (y + 1 >= z->height) ? 1 : z->tiles[x][y + 1].impassible;
+	if ( l &&  r && !t && !b) return 2;
+	if (!l && !r &&  t &&  b) return 1;
+	return 0;
+}
+
 // this function is really ugly
 static void generate(zone * z)
 {
-
 	int i, x, y, max, timeout;
-	int wall;
+	int wall, door_type;
 	int x1,x2,y1,y2;
 	int rc;
 	room ** rooms;
@@ -95,12 +108,12 @@ static void generate(zone * z)
 
 		if(x1 == -1 || x2 == -1){
 			warning("Room generation timed out!");
-			break;
+			continue;
 		}
 
 		for(;x1 != x2; x1-= sign(x1-x2)){
-			if(z->tiles[x1][y1].impassible && !wall){
-				z->tiles[x1][y1].obj = make_door(0);
+			if(z->tiles[x1][y1].impassible && !wall && (door_type = door_good(z, x1, y1))){
+				z->tiles[x1][y1].obj = make_door(0, door_type - 1);
 				zone_update(z,x1 ,y1);
 				wall=1;
 				continue;
@@ -108,8 +121,8 @@ static void generate(zone * z)
 
 			if(z->tiles[x1][y1].impassible)
 				 wall=1;
-			else if (wall){ 
-				z->tiles[x1 + sign(x1-x2)][y1].obj = make_door(0);
+			else if (wall && (door_type = door_good(z, x1 + sign(x1-x2), y1))){
+				z->tiles[x1 + sign(x1-x2)][y1].obj = make_door(0, door_type - 1);
 				z->tiles[x1 + sign(x1-x2)][y1].impassible = 1;
 				zone_update(z,x1 + sign(x1-x2) ,y1);
 				break;
@@ -119,8 +132,8 @@ static void generate(zone * z)
 		}
 
 		for(;y1 != y2; y1-= sign(y1-y2)){
-			if(z->tiles[x1][y1].impassible && !wall){
-				z->tiles[x1][y1].obj = make_door(0);
+			if(z->tiles[x1][y1].impassible && !wall && (door_type = door_good(z, x1, y1))){
+				z->tiles[x1][y1].obj = make_door(0, door_type - 1);
 				zone_update(z,x1 ,y1);
 				wall=1;
 				continue;
@@ -128,8 +141,8 @@ static void generate(zone * z)
 
 			if(z->tiles[x1][y1].impassible)
 				 wall=1;
-			else if (wall){ 
-				z->tiles[x1][y1 + sign(y1-y2)].obj = make_door(0);
+			else if (wall && (door_type = door_good(z, x1, y1 + sign(y1-y2)))){
+				z->tiles[x1][y1 + sign(y1-y2)].obj = make_door(0, door_type - 1);
 				z->tiles[x1][y1 + sign(y1-y2)].impassible = 1;
 				zone_update(z,x1 ,y1 + sign(y1-y2));
 				break;

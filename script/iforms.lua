@@ -55,7 +55,7 @@ iform {
 iform {
 	iclass = 'ingot';
 	material = 'bronze';
-	char = 53;
+	tile = 53;
 	weight = 2500;
 	modify_ac = 2;
 	modify_attack = 2;

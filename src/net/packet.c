@@ -380,7 +380,8 @@ void handle_tile(socket_node* s, void* pack, int len){
 	if(t->object_type == OBJECT_STAIR)
 		z->tiles[t->x][t->y].obj = make_stair();
 	if(t->object_type == OBJECT_DOOR)
-		z->tiles[t->x][t->y].obj = make_door(!t->impassible);
+		// TODO fix this, the code for the 2nd arg to make door is hackish and might not work in the 1st column
+		z->tiles[t->x][t->y].obj = make_door(!t->impassible, t->x > 0 && z->tiles[t->x-1][t->y].impassible);
 	if(t->object_type == OBJECT_SMELTER)
 		z->tiles[t->x][t->y].obj = make_smelter();
 	if(t->object_type == OBJECT_FORGE)
