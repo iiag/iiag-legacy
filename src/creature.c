@@ -745,3 +745,4 @@ void crtr_act_idle(creature * c)
 	ACT_TMPLT(ACT_IDLE);
 	schedule(a, c->speed);
 }
+

@@ -234,3 +234,4 @@ void crtr_act_idle(creature * c);
 void crtr_act_use(creature *, int, int);
 
 #endif
+

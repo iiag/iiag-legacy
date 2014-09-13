@@ -35,7 +35,6 @@ struct item {
 	inventory * of;
 	int i;
 
-
 	int weight; // in 1/100ths of pounds
 	int spikiness;
 	int durability;
@@ -48,7 +47,6 @@ struct item {
 	int modify_attack;
 	int modify_ac;
 	int slot;
-
 };
 
 //

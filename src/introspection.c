@@ -11,11 +11,10 @@
 
 void init_introspection(const char *prg_file)
 {
-	info("Introspection initialization with program %s", prg_file);
 	info("Introspection not enabled; no symbol information will be shown.");
 	debug("Compile with WITH_INTROSPECTION defined to enable.");
 }
-
+/*
 void get_location(void *loc, char *s, int sz)
 {
 	snprintf(s, sz, "<unknown>");
@@ -24,7 +23,7 @@ void get_location(void *loc, char *s, int sz)
 void *get_frame(int lev) { return (void *) 0; }
 
 const char *resolve_string(int idx) { return ""; }
-
+*/
 #else
 
 #include <sys/mman.h>
@@ -143,7 +142,7 @@ void get_location(void *loc, char *s, int sz) {
 			} else {
 				symname = "<unnamed symbol>";
 			}
-			offset = ((int) loc - entry->st_value);
+			offset = ((long) loc - entry->st_value);
 			break;
 		}
 	}

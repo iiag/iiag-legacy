@@ -27,26 +27,35 @@ static char * level_names[] = {
   "ERROR"
 };
 
+
 void wrlog(log_level_t loglevel, const char * fmt, ...)
 {
+#ifdef WITH_INTROSPECTION
+	#define HEADER(F) fprintf(F, "%s | %-32s %-7s ", tstr, loc, level_names[loglevel])
+#else
+	#define HEADER(F) fprintf(F, "%s | %-7s ", tstr, level_names[loglevel])
+#endif
+
 	static FILE * logf = NULL;
 
 	char * tstr;
 	time_t tm;
 	va_list vl;
-	char loc[64];
-	loc[63]=0;
 
 	if(loglevel < config.log_level) return;
 
 	if (logf == NULL) {
 		logf = fopen(log_file, "a");
-		if (logf == NULL) return;
+		if (logf == NULL) return; // TODO do something more useful here?
+
 		fprintf(logf, "===============================================================================\n");
 		wrlog(LOG_INFO, "Opened log file");
 	}
 
+#ifdef WITH_INTROSPECTION
+	char loc[64];
 	describe_caller(loc, 63);
+#endif
 
 	// get the time string
 	time(&tm);
@@ -56,7 +65,7 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 	// write to standard log file
 	va_start(vl, fmt);
 
-	fprintf(logf, "%s | %-32s %-7s ", tstr, loc, level_names[loglevel]);
+	HEADER(logf);
 	vfprintf(logf, fmt, vl);
 	fputc('\n', logf);
 
@@ -67,7 +76,7 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 #ifdef SERVER
 	va_start(vl, fmt);
 
-	fprintf(stderr, "%s | %-32s %-7s ", tstr, loc, level_names[loglevel]);
+	HEADER(stderr);
 	vfprintf(stderr, fmt, vl);
 	fputc('\n', stderr);
 

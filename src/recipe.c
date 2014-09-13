@@ -80,7 +80,7 @@ static void apply_stat(int* i, int* sub, char* str){
 
 		if(str[x]== 't')
 			num = *sub;
-	
+
 		if(str[x] == '+' || str[x] == '*'){
 			if(op == 0){
 				num2 = num2 + num;
@@ -102,8 +102,7 @@ static void apply_stat(int* i, int* sub, char* str){
 	if(op == 1){
 		num2 = num2 * num;
 	}
-	op=(str[x]=='*'?1:0);	
-	//info("%s = %f, %i %i",str,num2,*i,*sub);
+	op=(str[x]=='*'?1:0);
 	*i= (int)num2;
 }
 
@@ -122,7 +121,6 @@ static void apply_comp(item* i, component* c, item* sub){
 	apply_stat(STAT_PARAM(modify_ac));
 
 }
-
 
 void recipe_make(inventory* i, recipe* r){
 
@@ -161,8 +159,5 @@ void recipe_make(inventory* i, recipe* r){
 
 	inv_clear(i);
 	inv_add(i,ret);
-
 }
-
-
 

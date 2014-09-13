@@ -208,10 +208,9 @@ void use_craft(tile* t, int x, int y,creature* c, zone* z)
 
 		if(f){
 			recipe_make(t->inv,recipes.arr[k]);
-			info("smelting");/*make item and end*/
 			return;
 		}
-	}	
+	}
 
 
 	memo("Thou starest at the %s uselessly",tile_obj_names[t->obj->type]);

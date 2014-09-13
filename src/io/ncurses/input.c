@@ -29,9 +29,8 @@ int nc_get_key(void)
 int nc_get_ctrl(void)
 {
 	int c = ERR;
-debug("start read %i %i",config.real_time,config.multiplayer);
+
 	if (config.real_time) {
-		
 		int d = ERR;
 		do {
 			c = d;

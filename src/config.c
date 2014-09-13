@@ -19,6 +19,7 @@ config_t config = {
 	"script/init.lua",  // lua_init
 
 	// The default tileset changes based on what is supported
+	// TODO unicode support should probably be detected at runtime
 #ifdef WITH_NCURSES
 	"tileset/nc-unicode",
 #else
@@ -147,6 +148,7 @@ static void load_config(const char * file)
 	char * name;
 	const struct field * fld;
 
+	// Open the config file
 	if (!strcmp(file, "-")) {
 		f = stdin;
 	} else {
@@ -157,6 +159,7 @@ static void load_config(const char * file)
 		}
 	}
 
+	// Parse the config file
 	while (igspaces(f) != EOF) {
 		fld = NULL;
 		name = get_string(f);
@@ -198,37 +201,51 @@ static void load_config(const char * file)
 		free(name);
 	}
 
+	// Close the config file
 	if (f != stdin) fclose(f);
 }
 
-//controls with config
-void save_config(const char* pname){
+// controls with config
+void save_config(const char * pname)
+{
 	int i;
-	FILE*f;
+	FILE * f;
 
 	char * name = malloc(strlen(pname) + 5);
-	char* suffix=".cfg";
+	char * suffix = ".cfg";
 
 	strcpy(name, pname);
 	strcat(name, suffix);
-	config.cfg_file=name;
+	config.cfg_file = name;
 
 	f = fopen(name, "wb+");
 
-	fprintf(f, "%s=%s\n","lua",config.lua_init);
-	fprintf(f, "%s=%s\n","server-ip",config.ip);
-	fprintf(f, "%s=%d\n","port",config.port);
-    fprintf(f, "%s=%d\n","forget-walls",config.forget_walls);
-	fprintf(f, "%s=%d\n","show-all",config.show_all);
-	fprintf(f, "%s=%d\n","all-alone",config.all_alone);
-	fprintf(f, "%s=%d\n","god-mode",config.god_mode);
-	fprintf(f, "%s=%d\n","real-time",config.real_time);
-	fprintf(f, "%s=%d\n","log-level",config.log_level);
-	fprintf(f, "%s=%d\n","throw-anim-delay",config.throw_anim_delay);
+	// save fields as specified in cfg_fields
+	for (i = 0; i < sizeof(cfg_fields) / sizeof(*cfg_fields); i++) {
+		fprintf(f, "%s=", cfg_fields[i].name);
 
-	for(i=0;i<TOTAL_CONTROLS;i++){
+		switch (cfg_fields[i].type) {
+		case STRING:
+			fprintf(f, "%s\n", *(char **)cfg_fields[i].ptr);
+			break;
+		case BOOLEAN:
+			if (*(int *)cfg_fields[i].ptr) {
+				fputs("true\n", f);
+			} else {
+				fputs("false\n", f);
+			}
+			break;
+		case INTEGER:
+			fprintf(f, "%d\n", *(int *)cfg_fields[i].ptr);
+			break;
+		}
+	}
+
+	// save the controls
+	for (i = 0; i < TOTAL_CONTROLS; i++) {
 		fprintf(f, "%s=%s\n", controls[i].field, name_from_key(controls[i].key));
 	}
+
 	fclose(f);
 }
 

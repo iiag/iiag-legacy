@@ -97,7 +97,6 @@ control_t controls[TOTAL_CONTROLS] = {
 
 	// Miscellanious
 	{ ' ', "idle",      "Idle",             plyr_act_idle        },
-//	{ 'O', "save-ctrl", "Save controls",    prompt_save_controls },
 	{ 'o', "disp-ctrl", "Display controls", cmd_display_controls },
 	{ 'Q', "quit",      "Quit",             cmd_quit             },
 	{ ':', "command",   "Command prompt",   cmd_command          },
