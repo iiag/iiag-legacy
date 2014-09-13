@@ -72,5 +72,6 @@ install: all
 	cp iiag_server $(DESTDIR)
 	cp -r script $(DESTDIR)
 	cp -r names $(DESTDIR)
+	cp -r tileset $(DESTDIR)
 
 -include $(DEPS)
