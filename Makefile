@@ -28,12 +28,12 @@ SERVER_SRCS := server.c world.c zone.c io/display.c log.c inventory.c util.c ite
                io/ncurses/controlls.c io/ncurses/input.c io/ncurses/display.c \
                io/ncurses/keys.c io/nogr/display.c io/nogr/input.c
 
-CLIENT_OBJS := $(addprefix obj/,$(patsubst %.c,%.o,$(CLIENT_SRCS)))
-CLIENT_DEPS := $(addprefix dep/,$(patsubst %.c,%.d,$(CLIENT_SRCS)))
+CLIENT_OBJS := $(addprefix build/obj/,$(patsubst %.c,%.o,$(CLIENT_SRCS)))
+CLIENT_DEPS := $(addprefix build/dep/,$(patsubst %.c,%.d,$(CLIENT_SRCS)))
 CLIENT_SRCS := $(addprefix src/,$(CLIENT_SRCS))
 
-SERVER_OBJS := $(addprefix sobj/,$(patsubst %.c,%.o,$(SERVER_SRCS)))
-SERVER_DEPS := $(addprefix sdep/,$(patsubst %.c,%.d,$(SERVER_SRCS)))
+SERVER_OBJS := $(addprefix build/sobj/,$(patsubst %.c,%.o,$(SERVER_SRCS)))
+SERVER_DEPS := $(addprefix build/sdep/,$(patsubst %.c,%.d,$(SERVER_SRCS)))
 SERVER_SRCS := $(addprefix src/,$(SERVER_SRCS))
 
 .PHONY: all clean install
@@ -46,23 +46,20 @@ $(CLIENT_TARGET): $(CLIENT_OBJS)
 $(SERVER_TARGET): $(SERVER_OBJS)
 	$(CC) $(SERVER_OBJS) $(LDFL) -o $(SERVER_TARGET)
 
-obj/%.o: src/%.c
+build/obj/%.o: src/%.c
 	@ mkdir -p $(@D)
 	@ mkdir -p $(subst obj,dep,$(@D))
 	@ $(CC) -MM -MP -MT $@ -MF $(patsubst %.o,%.d,$(subst obj,dep,$@)) $<
 	$(CC) $(CLIENT_CCFL) $< -o $@
 
-sobj/%.o: src/%.c
+build/sobj/%.o: src/%.c
 	@ mkdir -p $(@D)
 	@ mkdir -p $(subst obj,dep,$(@D))
 	@ $(CC) -MM -MP -MT $@ -MF $(patsubst %.o,%.d,$(subst obj,dep,$@)) $<
 	$(CC) $(SERVER_CCFL) $< -o $@
 
 clean:
-	rm -rf obj
-	rm -rf dep
-	rm -rf sobj
-	rm -rf sdep
+	rm -rf build
 	rm -f $(CLIENT_TARGET)
 	rm -f $(SERVER_TARGET)
 
@@ -74,4 +71,4 @@ install: all
 	cp -r names $(DESTDIR)
 	cp -r tileset $(DESTDIR)
 
--include $(DEPS)
+-include $(CLIENT_DEPS) $(SERVER_DEPS)
