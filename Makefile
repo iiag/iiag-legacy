@@ -8,6 +8,7 @@ SERVER_TARGET = iiag_server
 CC            = gcc
 LUAV          = lua
 DESTDIR       = /opt/iiag
+MANDIR        = /usr/share/man/man6
 
 # Add -DWITH_INTROSPECTION to *_CCFL to enable introspection
 CLIENT_CCFL  := -c -g -Wall -DWITH_NCURSES `pkg-config --cflags $(LUAV)`
