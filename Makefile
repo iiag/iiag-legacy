@@ -70,7 +70,8 @@ install: all
 	cp -r script $(DESTDIR)
 	cp -r names $(DESTDIR)
 	cp -r tileset $(DESTDIR)
-	cp doc/iiag.6 /usr/share/man/man6
-	gzip /usr/share/man/man6/iiag.6
+	mkdir -p $(MANDIR)
+	cp doc/iiag.6 $(MANDIR)
+	gzip $(MANDIR)/iiag.6
 
 -include $(CLIENT_DEPS) $(SERVER_DEPS)
