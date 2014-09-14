@@ -46,13 +46,16 @@ int find_class(vector_t* vec, const char * c){
 return -1;
 }
 
-int  is_class(int i, int i2){
+int  is_class(int i, int i2, int match){
 	if(i == i2)
 		return 1;
 
+	if(match)
+		return 0;
+
 	if(((i_class*)item_types.arr[i2])->type_of == -1)
 		return 0;
-	return is_class(i,((i_class*)item_types.arr[i2])->type_of);
+	return is_class(i,((i_class*)item_types.arr[i2])->type_of,match);
 }
 
 static void apply_stat(int* i, int* sub, char* str){
@@ -143,7 +146,7 @@ void recipe_make(inventory* i, recipe* r){
 	for(x=0;x<r->comps.cnt;x++)
 	for(y=0;y<i->size;y++){
 		if(i->itms[y]){
-			if(is_class(((component*)r->comps.arr[x])->iclass,i->itms[y]->iclass)){
+			if(is_class(((component*)r->comps.arr[x])->iclass,i->itms[y]->iclass,((component*)r->comps.arr[x])->match_type)){
 				apply_comp(ret,r->comps.arr[x],i->itms[y]);
 				inv_rm(i,y);
 				break;

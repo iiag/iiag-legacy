@@ -46,6 +46,7 @@ struct recipe{
 struct component {
 	int iclass;
 	char* mat;  //to define material inheritance
+	int match_type;
 	STATS(char*)
 };
 
@@ -63,6 +64,6 @@ int  find_class(vector_t* vec, const char * c);
 void recipe_make(inventory* i, recipe* r);
 
 //checks if i2 is of type i
-int  is_class(int i, int i2);
+int  is_class(int i, int i2, int match);
 
 #endif
