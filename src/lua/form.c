@@ -325,7 +325,7 @@ int lcf_component(lua_State * lstate)
 	com->weight          = get_string(lstate, "weight",          NULL);
 	com->spikiness       = get_string(lstate, "spikiness",       NULL);
 	com->durability      = get_string(lstate, "durability",      NULL);
-	
+	com->match_type      = get_bool(lstate, "match_type",      0);
 
 	vector_append(&((recipe*)(recipes.arr[recipes.cnt-1]))->comps,com);
 

@@ -172,9 +172,7 @@ void plyr_act_use(int argc, const char ** argv)
 	if (input_prompt_dir("Use what?", &dx, &dy)) {
 		if(PLYR.z->tiles[PLYR.x+dx][PLYR.y+dy].obj){
 			net_dir_prompt = encode_dir(dx,dy);
-			if(!config.multiplayer){//let the server handle this
 				crtr_act_use(&PLYR, dx, dy);
-			}
 		}else
 			memo("There is nothing there to use.");
 

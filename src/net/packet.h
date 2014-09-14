@@ -39,6 +39,9 @@ struct item_subpacket{
 	int tile;
 	short type;
 
+	int weight; // in 1/100ths of pounds
+	int spikiness;
+
 	// consumable-specific data
 	int restore_health;
 	int restore_stamina;

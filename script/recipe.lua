@@ -120,6 +120,7 @@ recipe {
 comp {
 	mat = '1';
 	class = 'blade';
+	match_type = true;
 	weight = 't';
 	modify_attack = 'f + t';
 }

@@ -8,6 +8,7 @@
 #include "recipe.h"
 #include "log.h"
 #include "tileset.h"
+#include "config.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,6 +86,9 @@ tile_object* make_fire(){
 }
 
 void use_stair(tile* t, int ox, int oy,creature* c, zone* oz){
+
+	if(config.multiplayer)
+		return;
 
 	assert(t->obj);
 	assert(t->obj->type == OBJECT_STAIR);
@@ -175,7 +179,7 @@ void use_door(tile* t, int x, int y,creature* c, zone* z)
 #endif
 
 }
-
+//TODO fix long lines
 void use_craft(tile* t, int x, int y,creature* c, zone* z)
 {
 	assert(t->obj);
@@ -200,7 +204,7 @@ void use_craft(tile* t, int x, int y,creature* c, zone* z)
 			f2=1;
 			for(j=0;j<t->inv->size;j++)
 				if(t->inv->itms[j])
-					if(is_class(((component*)((recipe*)recipes.arr[k])->comps.arr[i])->iclass, t->inv->itms[j]->iclass))
+					if(is_class(((component*)((recipe*)recipes.arr[k])->comps.arr[i])->iclass, t->inv->itms[j]->iclass,((component*)((recipe*)recipes.arr[k])->comps.arr[i])->match_type))
 						f2=0;
 			if(f2){
 				f=0;
