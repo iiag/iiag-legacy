@@ -259,6 +259,8 @@ static void print_help()
 	"        Specify the configuration file to use (- for stdin).\n"
 	"    -f\n"
 	"        Turn on wall forgetting.\n"
+	"    -g\n"
+	"        Turn on god mode.\n"
 	"    -h\n"
 	"        Display this useful information.\n"
 	"    -i [lua init file]\n"
