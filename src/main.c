@@ -26,31 +26,6 @@
 #include "introspection.h"
 #include "recipe.h"
 
-static void update_status(void)
-{
-	static const char * stance_name[] = {"Neutral", "Attacking", "Defending"};
-	char time[100];
-
-	statline(0, " Hp: %d/%d | Stm: %.2f%% | Wt: %d.%d/%d.%d deben | Xp: %d/%d | Lvl: %d",
-		PLYR.health, PLYR.max_health,
-		100. * (double)PLYR.stamina / (double)PLYR.max_stamina,
-		PLYR.inv->weight / 100, PLYR.inv->weight % 100,
-		PLYR.inv->max_weight / 100, PLYR.inv->max_weight % 100,
-		PLYR.xp, PLYR.need_xp,
-		PLYR.level
-	);
-
-	statline(1, " Attack: %d | AC: %d | Stance: %s | Location: %s",
-		PLYR.attack,
-		PLYR.ac,
-		stance_name[PLYR.stance],
-		PLYR.z->name
-	);
-
-	get_time(time, 100);
-	statline(2, " %s", time);
-}
-
 static void step(void)
 {
 	step_world();
@@ -83,14 +58,16 @@ int main(int argc, char ** argv)
 
 	init_world();
 
-	if(config.multiplayer){
-		if(client_connect(config.ip,config.port))
-			goto cleanup;//failed to connect to server
+	if (config.multiplayer) {
+		if (client_connect(config.ip,config.port)) {
+			error("Faild to connect to server.");
+			goto cleanup; //failed to connect to server
+		}
 		write_spawn_packet(client_socket);
 
-		//wait for response
+		// wait for response
 		usleep(600000);
-		while(!read_packet(client_socket, NULL));
+		while (!read_packet(client_socket, NULL));
 	}
 
 	plyr_ev_birth();
@@ -99,6 +76,7 @@ int main(int argc, char ** argv)
 	zone_draw(PLYR.z);
 	update_status();
 	step();
+
 	for (;;) {
 		c = input_get_ctrl();
 		if(ctrl_by_key(c) != CTRL_SKIP_TURN || (!config.multiplayer))
@@ -113,20 +91,21 @@ int main(int argc, char ** argv)
 
 		// TODO this delay should probably sync to game time
 		if(config.multiplayer) usleep(50000);
-		else if (config.real_time ) usleep(250000);
+		else if (config.real_time) usleep(250000);
 
 		while (PLYR.act != NULL) {
 			// start_timer();
 			step();
 			// end_timer("step length");
 		}
-		if(config.multiplayer)
-			while(!read_packet(client_socket, NULL));
+
+		if (config.multiplayer) {
+			while (!read_packet(client_socket, NULL));
+		}
 	}
 
 	//TODO clean up world and recipes
-	cleanup:
+cleanup:
 	disp_end();
-
 	return 0;
 }

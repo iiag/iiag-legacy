@@ -16,6 +16,7 @@
 #endif
 
 void update_vis(void);
+void update_status(void);
 
 // player willed actions
 void plyr_act_pickup(int, const char **);

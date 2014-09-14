@@ -126,7 +126,9 @@ void use_stair(tile* t, int ox, int oy,creature* c, zone* oz){
 #ifndef SERVER
 	if(plyr_is_crtr(c)){
 		update_vis();
+		update_status();
 		scroll_center(c->x,c->y);
+		disp_clear();
 		zone_draw(c->z);
 	}
 #else

@@ -13,7 +13,6 @@
 #include "io/display.h"
 #include "net/packet.h"
 
-
 #define PLYRT (PLYR.z->tiles[PLYR.x][PLYR.y])
 
 void update_vis(void)
@@ -51,6 +50,31 @@ void update_vis(void)
 
 
 	disp_refresh();
+}
+
+void update_status(void)
+{
+	static const char * stance_name[] = {"Neutral", "Attacking", "Defending"};
+	char time[100];
+
+	statline(0, " Hp: %d/%d | Stm: %.2f%% | Wt: %d.%d/%d.%d deben | Xp: %d/%d | Lvl: %d",
+		PLYR.health, PLYR.max_health,
+		100. * (double)PLYR.stamina / (double)PLYR.max_stamina,
+		PLYR.inv->weight / 100, PLYR.inv->weight % 100,
+		PLYR.inv->max_weight / 100, PLYR.inv->max_weight % 100,
+		PLYR.xp, PLYR.need_xp,
+		PLYR.level
+	);
+
+	statline(1, " Attack: %d | AC: %d | Stance: %s | Location: %s",
+		PLYR.attack,
+		PLYR.ac,
+		stance_name[PLYR.stance],
+		PLYR.z->name
+	);
+
+	get_time(time, 100);
+	statline(2, " %s", time);
 }
 
 //
@@ -242,6 +266,8 @@ void plyr_ev_death(creature * p, const char * reasons)
 	int was_quaz = 0;
 	const char * qstr;
 
+	update_status();
+
 	//TODO reimpliment with new materials
 	/*
 	int i, was_quaz = 0;
@@ -269,10 +295,11 @@ void plyr_ev_death(creature * p, const char * reasons)
 
 void plyr_ev_lvlup(creature * p)
 {
-	memo("Level up!");
 	p->max_health += 5;
 	p->health += 5;
 	p->attack += 1;
+	update_status();
+	memo("Level up!");
 }
 
 void plyr_ev_act_comp(creature * p, item * it)

@@ -257,7 +257,7 @@ void nc_init(int mode, FILE * f)
 	graphics_end = nc_end;
 	graphics_put = nc_put;
 	graphics_dim_update = nc_dim_update;
-	graphics_clear   = nc_clear;
+	graphics_clear = nc_clear;
 
 	disp_refresh = nc_refresh;
 	memo         = nc_memo;
