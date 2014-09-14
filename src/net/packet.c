@@ -184,6 +184,8 @@ item_subpacket* make_item_subpacket(item* c){
 	ret->durability=c->durability;
 	ret->tile=c->tile;
 	ret->type=c->type;
+	ret->weight=c->weight;
+	ret->spikiness=c->spikiness;
 	//ret->gen_id=c->gen_id;
 
 	return ret;
@@ -203,6 +205,8 @@ void subpack2item(item* it, item_subpacket* item_sub){
 	it->durability=item_sub->durability;
 	it->tile=item_sub->tile;
 	it->type=item_sub->type;
+	it->weight=item_sub->weight;
+	it->spikiness=item_sub->spikiness;
 
 	item_gen_name(it);
 }
