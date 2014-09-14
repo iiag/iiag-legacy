@@ -86,12 +86,13 @@ int main(int argc, char ** argv)
 			memo("Unknown key press %d.\n", c);
 		}
 
-		if(c != CTRL_SKIP_TURN)
-		write_command_packet(client_socket,ctrl_by_key(c));
+		if (config.multiplayer && c != CTRL_SKIP_TURN) {
+			write_command_packet(client_socket,ctrl_by_key(c));
+		}
 
 		// TODO this delay should probably sync to game time
 		if(config.multiplayer) usleep(50000);
-		else if (config.real_time) usleep(250000);
+		else if (config.real_time) usleep(200000);
 
 		while (PLYR.act != NULL) {
 			// start_timer();
