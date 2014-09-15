@@ -73,6 +73,6 @@ install: all
 	cp -r tileset $(DESTDIR)
 	mkdir -p $(MANDIR)
 	cp doc/iiag.6 $(MANDIR)
-	gzip $(MANDIR)/iiag.6
+	gzip -f $(MANDIR)/iiag.6
 
 -include $(CLIENT_DEPS) $(SERVER_DEPS)

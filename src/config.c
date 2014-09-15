@@ -18,6 +18,14 @@ config_t config = {
 	NULL,               // cfg_file
 	"script/init.lua",  // lua_init
 
+	// log_file
+#ifdef SERVER
+	"server.log",
+#else
+	"iiag.log",
+#endif
+
+	// tileset_file
 	// The default tileset changes based on what is supported
 	// TODO unicode support should probably be detected at runtime
 #ifdef WITH_NCURSES
@@ -34,6 +42,15 @@ config_t config = {
 	0,                  // real_time
 	0,                  // multiplayer
 	LOG_INFO,           // log_level
+
+	// log_stderr
+	// The server by default also logs to stderr, otherwise not
+#ifdef SERVER
+	1,
+#else
+	0,
+#endif
+
 	20,                 // throw_anim_delay
 };
 
@@ -52,12 +69,15 @@ struct field {
 static const struct field cfg_fields[] = {
 	{ STRING,  "lua-init",         &config.lua_init         },
 	{ STRING,  "server-ip",        &config.ip               },
+	{ STRING,  "log-file",         &config.log_file         },
 	{ STRING,  "tileset-file",     &config.tileset_file     },
 	{ BOOLEAN, "show-all",         &config.show_all         },
 	{ BOOLEAN, "forget-walls",     &config.forget_walls     },
 	{ BOOLEAN, "all-alone",        &config.all_alone        },
 	{ BOOLEAN, "god-mode",         &config.god_mode         },
 	{ BOOLEAN, "real-time",        &config.real_time        },
+	{ BOOLEAN, "multiplayer",      &config.multiplayer      },
+	{ BOOLEAN, "log-stderr",       &config.log_stderr       },
 	{ INTEGER, "log-level",        &config.log_level        },
 	{ INTEGER, "throw-anim-delay", &config.throw_anim_delay },
 	{ INTEGER, "port",             &config.port             },
@@ -255,8 +275,12 @@ static void print_help()
 {
 	fprintf(stderr,
 	"\noptions:\n"
+	"    -a\n"
+	"        Turn on all alone mode, for debugging purposes.\n"
 	"    -c [config file]\n"
 	"        Specify the configuration file to use (- for stdin).\n"
+	"    -e\n"
+	"        Log errors to stderr as well as the log file.\n"
 	"    -f\n"
 	"        Turn on wall forgetting.\n"
 	"    -g\n"
@@ -265,8 +289,8 @@ static void print_help()
 	"        Display this useful information.\n"
 	"    -i [lua init file]\n"
 	"        The initial lua script to run.\n"
-	"    -l\n"
-	"        Turn on all alone mode, for debugging purposes.\n"
+	"    -l [log file]\n"
+	"        Set the log file to use.\n"
 	"    -L [log level]\n"
 	"        Set the logging level.\n"
 	"        Supported log levels:\n"
@@ -312,7 +336,7 @@ void init_config(int argc, char ** argv)
 			case 'f':
 				config.forget_walls = 1;
 				break;
-			case 'l':
+			case 'a':
 				config.all_alone = 1;
 				break;
 			case 'g':
@@ -320,6 +344,9 @@ void init_config(int argc, char ** argv)
 				break;
 			case 'r':
 				config.real_time = 1;
+				break;
+			case 'e':
+				config.log_stderr = 1;
 				break;
 			#ifndef SERVER
 			case 'n':
@@ -330,6 +357,9 @@ void init_config(int argc, char ** argv)
 
 				break;
 			#endif
+			case 'l':
+				config.log_file = argv[++i];
+				break;
 			case 'L':
 				config.log_level = (log_level_t) atoi(argv[++i]);
 				break;

@@ -10,12 +10,6 @@
 #include "introspection.h"
 #include "config.h"
 
-#ifdef SERVER
-const char * log_file = "server.log";
-#else
-const char * log_file = "iiag.log";
-#endif
-
 static clock_t sclock;
 
 static char * level_names[] = {
@@ -26,7 +20,6 @@ static char * level_names[] = {
   "WARNING",
   "ERROR"
 };
-
 
 void wrlog(log_level_t loglevel, const char * fmt, ...)
 {
@@ -45,7 +38,7 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 	if(loglevel < config.log_level) return;
 
 	if (logf == NULL) {
-		logf = fopen(log_file, "a");
+		logf = fopen(config.log_file, "a");
 		if (logf == NULL) return; // TODO do something more useful here?
 
 		fprintf(logf, "===============================================================================\n");
@@ -72,16 +65,16 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 	fflush(logf);
 	va_end(vl);
 
-	// Also write to stdout on servers
-#ifdef SERVER
-	va_start(vl, fmt);
+	// possibly also write to stderr
+	if (config.log_stderr) {
+		va_start(vl, fmt);
 
-	HEADER(stderr);
-	vfprintf(stderr, fmt, vl);
-	fputc('\n', stderr);
+		HEADER(stderr);
+		vfprintf(stderr, fmt, vl);
+		fputc('\n', stderr);
 
-	va_end(vl);
-#endif
+		va_end(vl);
+	}
 }
 
 void start_timer(void)

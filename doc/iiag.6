@@ -28,10 +28,19 @@ the mighty land fiish. Or something like that. Like other terminal games,
 creatures and other objects are represented as symbols when played in the
 terminal, and will eventually support other graphical environments as
 well.
+
+.PP
+It is not currently possible to win the game.
 .SH OPTIONS
+.TP
+\fB\-a\fR
+turn on lonely mode, where there are no monsters. (debugging)
 .TP
 \fB\-c\fR FILE
 play the game using the specified configuration file
+.TP
+\fB\-e\fR
+log errors to stderr as well as the log file
 .TP
 \fB\-f\fR
 turn on wall forgetting
@@ -45,8 +54,11 @@ display the useful help text
 \fB\-i\fR FILE
 run with a specific lua init file
 .TP
-\fB\-l\fR
-turn on lonely mode, where there are no monsters. (debugging)
+\fB\-l\fR FILE
+specifies the file to log to
+.TP
+\fB\-L\fR LOG-LEVEL
+specifies the log level to use
 .TP
 \fB\-n\fR ADDRESS
 connect to server for multiplayer
@@ -59,9 +71,6 @@ show everything
 .TP
 \fB\-t\fR FILE
 specify the tileset to use
-
-.PP
-It is not currently possible to win the game.
 .SH AUTHORS
 Chris Harding, Austin Lund, Eric Richter, Alex Macri, Adam "Baha" Kimball, et. al.
 .SH SEE ALSO

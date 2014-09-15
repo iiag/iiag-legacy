@@ -11,6 +11,7 @@
 typedef struct config {
 	const char * cfg_file;
 	const char * lua_init;
+	const char * log_file;
 	const char * tileset_file;
 	const char * ip;
 	int port;
@@ -21,6 +22,7 @@ typedef struct config {
 	int real_time;
 	int multiplayer;
 	log_level_t log_level;
+	int log_stderr;
 	int throw_anim_delay;
 } config_t;
 
