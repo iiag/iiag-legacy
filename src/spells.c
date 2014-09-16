@@ -53,7 +53,7 @@ static void spell_xp(spell * sp, int xp)
 }
 
 
-// TODO: Temporary testing function -> look into generics?
+// TODO: Example fire spell
 void test_fire(spell * sp, creature * c, zone * z)
 {
 	creature * target;
@@ -90,6 +90,8 @@ void test_fire(spell * sp, creature * c, zone * z)
 // TODO: Load in from config file or something here, remove crappy default information
 spell * spell_new()
 {
+	// SAMPLE CODE
+/*
 	spell * sp = malloc(sizeof(spell));
 
 	sp->caliber = 0;
@@ -99,6 +101,8 @@ spell * spell_new()
 	sp->level = 1;
 
 	return sp;
+*/
+	return NULL;
 }
 
 spell * spell_upgrade(spell * one, spell * two)
