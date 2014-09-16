@@ -141,6 +141,9 @@ void step_world(void)
 				case ACT_USE:
 					crtr_try_use(a->c, a->p.dir.x, a->p.dir.y);
 					break;
+				case ACT_CAST:
+					crtr_try_cast(a->c, a->p.cast.ind);
+					break;
 				}
 			}
 

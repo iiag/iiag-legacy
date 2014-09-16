@@ -13,6 +13,7 @@ typedef struct creature creature;
 #include "faction.h"
 #include "trigger.h"
 #include "inventory.h"
+#include "library.h"
 
 // used for return value of attack
 #define DEAD (-1)
@@ -65,6 +66,9 @@ struct creature {
 	inventory * inv;
 	item * slots[MAX_SLOTS];
 
+	// spells
+	library * lib;
+
 	// level/xp
 	int level;
 	int xp, need_xp;
@@ -91,6 +95,8 @@ struct creature {
 	trigger on_act_comp;
 	trigger on_act_fail;
 };
+
+// TODO: Hook spells into creature copying/init
 
 //
 // Sets the values of the given creature to the default values
@@ -216,6 +222,7 @@ void crtr_try_pickup(creature *, int);
 void crtr_try_drop(creature *, int);
 void crtr_try_consume(creature *, int);
 void crtr_try_equip(creature *, int);
+void crtr_try_cast(creature *, int);
 void crtr_try_throw(creature *, int, int, int); // item then dx, dy
 void crtr_try_use(creature *, int, int);
 
@@ -230,6 +237,7 @@ void crtr_act_drop(creature *, int);
 void crtr_act_consume(creature *, int);
 void crtr_act_equip(creature *, int);
 void crtr_act_throw(creature *, int, int, int);
+void crtr_act_cast(creature *, int);
 void crtr_act_idle(creature * c);
 void crtr_act_use(creature *, int, int);
 

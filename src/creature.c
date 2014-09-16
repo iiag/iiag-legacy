@@ -73,11 +73,14 @@ void crtr_init(creature * c, int tile)
 	c->inv = inv_new(25000);
 	for (i = 0; i < MAX_SLOTS; i++) c->slots[i] = NULL;
 
+	c->lib = lib_new(1000); // TODO: Set a good default intelligence value?
+
 	trigger_init(c->on_spawn);
 	trigger_init(c->on_death);
 	trigger_init(c->on_lvlup);
 	trigger_init(c->on_act_comp);
 	trigger_init(c->on_act_fail);
+	
 }
 
 //
@@ -105,7 +108,8 @@ creature * crtr_copy(const creature * p)
 	c->ability       = copy_str(p->ability);
 	c->fctn          = p->fctn;
 
-	// TODO inventory
+	// TODO: inventory
+	// TODO: library
 
 	c->level   = p->level;
 	c->xp      = p->xp;
@@ -670,6 +674,17 @@ void crtr_try_use(creature * c, int dx, int dy)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_USE);
 }
 
+void crtr_try_cast(creature * c, int i)
+{
+	if (i < c->lib->size && c->lib->spls[i] != NULL) {
+		c->lib->spls[i]->effect(c->lib->spls[i], c, c->z);
+		trigger_pull(&c->on_act_comp, c, NULL);
+		return;
+	}
+
+	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_CAST);
+}
+
 //
 // The following function schedule creature actions
 //
@@ -738,7 +753,15 @@ void crtr_act_use(creature * c, int x, int y)
 	ACT_TMPLT(ACT_USE);
 	a->p.dir.x   = x;
 	a->p.dir.y   = y;
-	schedule(a, c->speed);}
+	schedule(a, c->speed);
+}
+
+void crtr_act_cast(creature * c, int i)
+{
+	ACT_TMPLT(ACT_CAST);
+	a->p.cast.ind = i;
+	schedule(a, c->speed);
+}
 
 void crtr_act_idle(creature * c)
 {

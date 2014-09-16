@@ -89,6 +89,7 @@ control_t controls[TOTAL_CONTROLS] = {
 	{ 'c', "consume",   "Consume item",     plyr_act_consume  },
 	{ 'w', "equip",     "Equip item",       plyr_act_equip    },
 	{ 't', "throw",     "Throw item",       plyr_act_throw    },
+	{ 'f', "cast",      "Cast Spell",       plyr_act_cast     },
 
 	// stancing
 	{ '1', "stance-neutral", "Stance neutral", plyr_stance_neutral },

@@ -244,6 +244,25 @@ void plyr_act_equip(int argc, const char ** argv)
 	redraw();
 }
 
+void plyr_act_cast(int argc, const char ** argv)
+{
+	int i;
+
+	// TODO: Actually prompt the user for the input	
+	//i = prompt_lib("Cast what?", PLYR.lib, &PLYR);
+	
+	i = 0;
+	redraw();
+
+	if (PLYR.lib->size > i && PLYR.lib->spls[i] != NULL) {
+		crtr_act_cast(&PLYR, i);
+	} else {
+		memo("Such a spell you knoweth not!");
+	}
+
+	redraw();
+}
+
 void plyr_act_idle(int argc, const char ** argv)
 {
 	crtr_act_idle(&PLYR);
