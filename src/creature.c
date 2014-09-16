@@ -674,10 +674,10 @@ void crtr_try_use(creature * c, int dx, int dy)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_USE);
 }
 
-void crtr_try_cast(creature * c, int i)
+void crtr_try_cast(creature * c, int i, int argc, void ** argv)
 {
 	if (i < c->lib->size && c->lib->spls[i] != NULL) {
-		c->lib->spls[i]->effect(c->lib->spls[i], c, c->z);
+		c->lib->spls[i]->effect(c->lib->spls[i], c, argc, argv);
 		trigger_pull(&c->on_act_comp, c, NULL);
 		return;
 	}
@@ -756,10 +756,12 @@ void crtr_act_use(creature * c, int x, int y)
 	schedule(a, c->speed);
 }
 
-void crtr_act_cast(creature * c, int i)
+void crtr_act_cast(creature * c, int i, int argc, void ** argv)
 {
 	ACT_TMPLT(ACT_CAST);
-	a->p.cast.ind = i;
+	a->p.parms.ind = i;
+	a->p.parms.argc = argc;
+	a->p.parms.argv = argv;
 	schedule(a, c->speed);
 }
 

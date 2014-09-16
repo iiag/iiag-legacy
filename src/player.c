@@ -255,7 +255,7 @@ void plyr_act_cast(int argc, const char ** argv)
 	redraw();
 
 	if (PLYR.lib->size > i && PLYR.lib->spls[i] != NULL) {
-		crtr_act_cast(&PLYR, i);
+		crtr_act_cast(&PLYR, i, 0, NULL);
 	} else {
 		memo("Such a spell you knoweth not!");
 	}

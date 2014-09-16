@@ -47,7 +47,7 @@ static void spell_xp(spell * sp, int xp)
 
 
 // TODO: Example fire spell
-void test_fire(spell * sp, creature * c, zone * z)
+void test_fire(spell * sp, creature * c, int argc, void ** argv)
 {
 	creature * target;
 	int ret;
@@ -59,7 +59,7 @@ void test_fire(spell * sp, creature * c, zone * z)
 		return;
 	}
 	redraw();
-	ret = find_creature(&target, z, c->x, c->y, dx, dy, -1); // TODO: hook into spell's range
+	ret = find_creature(&target, c->z, c->x, c->y, dx, dy, -1); // TODO: hook into spell's range
 
 	if (ret == 1) {
 		memo("Your spell hits the wall and fizzles!");

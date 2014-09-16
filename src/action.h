@@ -70,8 +70,9 @@ struct action {
 			int ind, x, y;
 		} throw;
 		struct {
-			int ind, x, y;
-		} cast;
+			int ind, argc;
+			void ** argv;
+		} parms;
 		int ind;
 	} p;
 };
