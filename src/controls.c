@@ -97,10 +97,11 @@ control_t controls[TOTAL_CONTROLS] = {
 	{ '3', "stance-attack",  "Stance attack",  plyr_stance_attack  },
 
 	// Miscellanious
-	{ ' ', "idle",      "Idle",             plyr_act_idle        },
-	{ 'o', "disp-ctrl", "Display controls", cmd_display_controls },
-	{ 'Q', "quit",      "Quit",             cmd_quit             },
-	{ ':', "command",   "Command prompt",   cmd_command          },
+	{ ' ',  "idle",      "Idle",             plyr_act_idle        },
+	{ 'o',  "disp-ctrl", "Display controls", cmd_display_controls },
+	{ 'Q',  "quit",      "Quit",             cmd_quit             },
+	{ ':',  "command",   "Command prompt",   cmd_command          },
+	{ '\n', "select",    "Select",           NULL                 },
 };
 
 // Some functions from managing the commands and controls
@@ -124,7 +125,7 @@ int ctrl_by_key(int key)
 
 int execute(int c, int argc, const char ** argv)
 {
-	if (c >= 0 && c < TOTAL_CONTROLS) {
+	if (c >= 0 && c < TOTAL_CONTROLS && controls[c].func != NULL) {
 		controls[c].func(argc, argv);
 		return 1;
 	}

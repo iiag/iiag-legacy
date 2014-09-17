@@ -9,6 +9,7 @@
 #include "local.h"
 #include "display.h"
 #include "controlls.h"
+#include "../input.h"
 #include "../display.h"
 #include "../../player.h"
 #include "../../config.h"
@@ -101,9 +102,9 @@ void nc_display_controls(){
 	draw_controls(offset,spot,ysize);
 
 	while(num){
-		int letter=wgetch(dispscr);
-		switch(letter){
-			case KEY_UP: case KEY_LEFT:
+		int ctrl = ctrl_by_key(input_get_key());
+		switch(ctrl){
+			case CTRL_UP: case CTRL_LEFT:
 				mvwaddch(dispscr,1+spot,0,' ');
 				spot--;
 				check_spot(&spot,&offset,ysize);
@@ -114,8 +115,8 @@ void nc_display_controls(){
 					check_offset(&offset,ysize);
 					draw_controls(offset,spot,ysize);
 				}
-			break;
-			case KEY_DOWN: case KEY_RIGHT:
+				break;
+			case CTRL_DOWN: case CTRL_RIGHT:
 				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,' ');
 				spot++;
 				check_spot(&spot,&offset,ysize);
@@ -126,19 +127,20 @@ void nc_display_controls(){
 					check_offset(&offset,ysize);
 					draw_controls(offset,spot,ysize);
 				}
-			break;
-			case '\n':continue;
-			default :
-				if (letter == controls[CTRL_DISCTRL].key) {
-					if(duplicates()){
-						wclear(memoscr);
-						memo("There are Duplicates %d",duplicates());
-					}else{
-						num=!num;
-					}
+				break;
+			case CTRL_SELECT:
+				wmove(dispscr, spot+1, 0);
+				wprintw(dispscr, " %s = <Press a Key>\n", controls[spot].pretty);
+				int key = input_get_key();
+				controls[spot].key = key;
+				draw_controls(offset,spot,ysize);
+				break;
+			case CTRL_QUIT: case CTRL_DISCTRL:
+				if(duplicates()){
+					wclear(memoscr);
+					memo("There are Duplicates %d",duplicates());
 				}else{
-					controls[spot].key=letter;
-					statline(2,"%c=%d",(char)letter,letter);
+					num=!num;
 				}
 				wrefresh(statscr);
 				wrefresh(memoscr);
