@@ -12,11 +12,12 @@ struct {
 	char * name;
 	int key;
 } skeys[] = {
-	{ "space", ' ' },
-	{ "left",  KEY_LEFT  },
-	{ "right", KEY_RIGHT },
-	{ "up",    KEY_UP    },
-	{ "down",  KEY_DOWN  },
+	{ "space",  ' ' },
+	{ "left",   KEY_LEFT  },
+	{ "right",  KEY_RIGHT },
+	{ "up",     KEY_UP    },
+	{ "down",   KEY_DOWN  },
+	{ "return", '\n' },
 };
 
 const char * nc_name_from_key(int key)
