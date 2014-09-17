@@ -90,7 +90,6 @@ void nc_display_controls(){
 	int num=1;
 	int offset=0;
 	int ysize = disp_height - 1;
-	//memo("offset: %d spot: %d ysize: %d",offset,spot,ysize);
 
 	wclear(dispscr);
 	wclear(memoscr);
@@ -105,7 +104,6 @@ void nc_display_controls(){
 		int letter=wgetch(dispscr);
 		switch(letter){
 			case KEY_UP: case KEY_LEFT:
-				//memo("offset: %d spot: %d ysize: %d controls: %d",offset,spot,ysize,TOTAL_CONTROLS);
 				mvwaddch(dispscr,1+spot,0,' ');
 				spot--;
 				check_spot(&spot,&offset,ysize);
@@ -118,7 +116,6 @@ void nc_display_controls(){
 				}
 			break;
 			case KEY_DOWN: case KEY_RIGHT:
-				//memo("offset: %d spot: %d ysize: %d controls: %d",offset,spot,ysize,TOTAL_CONTROLS);
 				mvwaddch(dispscr,(spot>ysize-1)?ysize:1+spot,0,' ');
 				spot++;
 				check_spot(&spot,&offset,ysize);
@@ -132,7 +129,6 @@ void nc_display_controls(){
 			break;
 			case '\n':continue;
 			default :
-			//memo("letter: %c control: %c",letter,config.ctrl[spot]);
 				if (letter == controls[CTRL_DISCTRL].key) {
 					if(duplicates()){
 						wclear(memoscr);
@@ -149,8 +145,9 @@ void nc_display_controls(){
 				draw_controls(offset,spot,ysize);
 		}
 	}
+	disp_clear();
 	zone_draw(PLYR.z);
-	wrefresh(dispscr);
+	disp_refresh();
 }
 
 //saving controls
