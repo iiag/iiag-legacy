@@ -66,16 +66,16 @@ iclass {
 	type_of = 'slag';
 }
 
--- weps --
+-- weapons --
 
 iclass {
-	class = 'wepon';
+	class = 'weapon';
 	type_of = 'slag';
 }
 
 iclass {
 	class = 'sword';
-	type_of = 'wepon';
+	type_of = 'weapon';
 }
 
 iclass {
@@ -110,22 +110,22 @@ iclass {
 
 iclass {
 	class = 'axe';
-	type_of = 'wepon';
+	type_of = 'weapon';
 }
 
 iclass {
 	class = 'mace';
-	type_of = 'wepon';
+	type_of = 'weapon';
 }
 
 iclass {
 	class = 'sickle';
-	type_of = 'wepon';
+	type_of = 'weapon';
 }
 
 iclass {
 	class = 'shuriken';
-	type_of = 'wepon';
+	type_of = 'weapon';
 }
 
 --armour--
