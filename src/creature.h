@@ -59,7 +59,6 @@ struct creature {
 	// identification
 	char * specific_name;
 	char * generic_name;
-	char * ability;
 	faction * fctn;
 
 	// item fields

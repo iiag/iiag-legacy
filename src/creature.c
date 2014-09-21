@@ -50,7 +50,6 @@ void crtr_init(creature * c, int tile)
 
 	c->specific_name = NULL;
 	c->generic_name = NULL;
-	c->ability = NULL;
 	c->fctn = NULL;
 
 	c->level = 1;
@@ -105,7 +104,6 @@ creature * crtr_copy(const creature * p)
 
 	c->specific_name = copy_str(p->specific_name);
 	c->generic_name  = copy_str(p->generic_name);
-	c->ability       = copy_str(p->ability);
 	c->fctn          = p->fctn;
 
 	// TODO: inventory
@@ -181,7 +179,6 @@ void crtr_free(creature * c)
 		inv_free(c->inv);
 		free(c->generic_name);
 		free(c->specific_name);
-		free(c->ability);
 		free(c);
 	}
 }
