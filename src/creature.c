@@ -79,7 +79,6 @@ void crtr_init(creature * c, int tile)
 	trigger_init(c->on_lvlup);
 	trigger_init(c->on_act_comp);
 	trigger_init(c->on_act_fail);
-	
 }
 
 //
@@ -208,14 +207,6 @@ void crtr_death(creature * c, char * meth)
 //
 int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
-
-	/*#ifdef SERVER
-		zone* old_zone;
-		int old_x,old_y;
-		old_zone=crtr->z;
-		old_x=crtr->x;
-		old_y=crtr->y;
-	#endif*/
 	if (crtr_can_tele(crtr, x, y, z)) {
 		z->tiles[x][y].crtr = crtr;
 
@@ -238,24 +229,19 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 		if (PLYR.z != NULL) {
 			if (crtr->z == PLYR.z) {
 				zone_update(crtr->z, crtr->x, crtr->y);
-				disp_refresh();
 			}
 
 			if (z == PLYR.z) {
 				zone_update(z, x, y);
-				disp_refresh();
 			}
+
+			disp_refresh();
 		}
 
 		// update coordinates
 		crtr->x = x;
 		crtr->y = y;
 		crtr->z = z;
-
-		/*#ifdef SERVER
-			if(old_zone)
-				server_tile_update(&(old_zone->tiles[old_x][old_y]), old_x, old_y);
-		#endif*/
 
 		return 1;
 	}
@@ -286,7 +272,7 @@ int crtr_move(creature * crtr, int dx, int dy)
 }
 
 //
-// Gives a creature expirence points an
+// Gives a creature experience points and levels up if merited
 //
 void crtr_xp_up(creature * c, int xp)
 {
@@ -588,6 +574,10 @@ void crtr_try_drop(creature * c, int i)
 
 	if (c->inv->size > i && c->inv->itms[i] != NULL) {
 		if ((j = inv_add(t->inv, c->inv->itms[i])) != INVALID) {
+			if (item_equipped(c->inv->itms[i], c)) {
+				crtr_unequip(c, c->inv->itms[i]->slot);
+			}
+
 			c->inv->itms[i]->i = j;
 			inv_rm(c->inv, i);
 
