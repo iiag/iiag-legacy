@@ -184,7 +184,7 @@ iform {
 }
 
 iform {
-	iclass = 'wepon';
+	iclass = 'weapon';
 	material = 'rusty';
 	tile = 27;
 	equipable = true;
@@ -220,7 +220,7 @@ iform {
 }
 
 iform {
-	iclass = 'mail coif';
+	iclass = 'coif';
 	material = 'rusty';
 	tile = 30;
 	equipable = true;
