@@ -11,7 +11,7 @@
 #include "keys.h"
 #include "local.h"
 #include "display.h"
-#include "controlls.h"
+#include "controls.h"
 #include "../input.h"
 #include "../display.h"
 #include "../../config.h"
