@@ -39,9 +39,7 @@ void disp_init(void)
 	if (f == NULL) {
 		error("Could not open tile set file '%s'.", config.tileset_file);
 		mode = GR_MODE_NONE;
-	}
-
-	if (1 != fscanf(f, " %d ", &mode)) {
+	} else if (1 != fscanf(f, " %d ", &mode)) {
 		error("Could not read graphics mode from file '%s'.", config.tileset_file);
 		mode = GR_MODE_NONE;
 	}
