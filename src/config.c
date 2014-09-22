@@ -317,6 +317,25 @@ void init_config(int argc, char ** argv)
 {
 	int i;
 
+	// find just the config file name
+	for (i = 1; i < argc; i++) {
+		if (argv[i][0] == '-') {
+			if (argv[i][1] == 'c') {
+				config.cfg_file = argv[++i];
+			}
+		}
+	}
+
+	// load config file if given
+#ifdef SERVER
+	load_config("server.cfg");
+#else
+	load_config("iiag.cfg");
+#endif
+	if (config.cfg_file != NULL) {
+		load_config(config.cfg_file);
+	}
+
 	// handle arguments
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
@@ -325,7 +344,8 @@ void init_config(int argc, char ** argv)
 				print_help();
 				break;
 			case 'c':
-				config.cfg_file = argv[++i];
+				// just ignore the config file now
+				i++;
 				break;
 			case 'i':
 				config.lua_init = argv[++i];
@@ -372,16 +392,6 @@ void init_config(int argc, char ** argv)
 		} else {
 			warning("Command line argument '%s' ignored.", argv[i]);
 		}
-	}
-
-	// load config file if given
-#ifdef SERVER
-	load_config("server.cfg");
-#else
-	load_config("iiag.cfg");
-#endif
-	if (config.cfg_file != NULL) {
-		load_config(config.cfg_file);
 	}
 
 	// so the controls are set correctly, this is done first
