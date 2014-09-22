@@ -14,16 +14,7 @@ void init_introspection(const char *prg_file)
 	info("Introspection not enabled; no symbol information will be shown.");
 	debug("Compile with WITH_INTROSPECTION defined to enable.");
 }
-/*
-void get_location(void *loc, char *s, int sz)
-{
-	snprintf(s, sz, "<unknown>");
-}
 
-void *get_frame(int lev) { return (void *) 0; }
-
-const char *resolve_string(int idx) { return ""; }
-*/
 #else
 
 #include <sys/mman.h>
@@ -34,22 +25,23 @@ const char *resolve_string(int idx) { return ""; }
 #include <elf.h>
 #include <stdlib.h>
 #include <errno.h>
+#include "arch.h"
 
 //Change this between 32/64-bit headers
 //TODO: Is there a way to do this at compile-time?
 
-#if defined(_32BIT)
+#if defined(__i386__)
 
 #define ElfN(tp) Elf32_##tp
 #define GET_BASEPOINTER() asm("mov %ebp, __ebp")
 
-#elif defined(_64BIT)
+#elif defined(__amd64__)
 
 #define ElfN(tp) Elf64_##tp
 #define GET_BASEPOINTER() asm("mov %rbp, __ebp")
 
 #else
-#error WITH_INTROSPECTION: Must define _32BIT or _64BIT
+#error WITH_INTROSPECTION: Architecture does not support introspection
 #endif
 
 static void *exec_map=NULL;
