@@ -66,7 +66,9 @@ void disp_init(void)
         break;
     case GR_MODE_NONE:
 	default:
+#ifndef SERVER
 	use_nogr:
+#endif
 		nogr_init();
 		break;
 	}
