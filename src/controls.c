@@ -25,9 +25,20 @@ static void cmd_command(int argc, const char ** argv)
 	}
 }
 
+static void cmd_zoom_out(int argc, const char ** argv)
+{
+    disp_zoom(-1, -1);
+}
+
+static void cmd_zoom_in(int argc, const char ** argv)
+{
+    disp_zoom(1, 1);
+}
+
 static void scroll_view_center(int argc, const char ** argv)
 {
 	scroll_center(PLYR.x, PLYR.y);
+	disp_clear();
 	zone_draw(PLYR.z);
 }
 
@@ -102,6 +113,8 @@ control_t controls[TOTAL_CONTROLS] = {
 	{ 'Q',  "quit",      "Quit",             cmd_quit             },
 	{ ':',  "command",   "Command prompt",   cmd_command          },
 	{ '\n', "select",    "Select",           NULL                 },
+	{ '-',  "zoom-out",  "Zoom Out",         cmd_zoom_out         },
+	{ '+',  "zoom-in",   "Zoom In",          cmd_zoom_in          },
 };
 
 // Some functions from managing the commands and controls

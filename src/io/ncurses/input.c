@@ -92,6 +92,8 @@ int nc_prompt_inv(const char * prompt, inventory * inv, creature * c)
 			}
 
 			wprintw(dispscr, "\n");
+		} else {
+            warning("Encountered NULL item in %s inventory at index %d", crtr_name(c), i);
 		}
 	}
 

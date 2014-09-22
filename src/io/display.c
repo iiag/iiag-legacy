@@ -16,6 +16,7 @@ void (* graphics_end)(void) = dumb;
 void (* graphics_put)(int, int, int) = dumb;
 void (* graphics_dim_update)(int *, int *) = dumb;
 void (* graphics_clear)  (void) = dumb;
+void (* graphics_zoom)(int, int) = dumb;
 
 void (* disp_refresh)(void) = dumb;
 
@@ -33,6 +34,11 @@ int ** cache = NULL;
 void disp_init(void)
 {
 	int mode;
+#ifdef SERVER
+    FILE * f = NULL;
+    mode = GR_MODE_NONE;
+    info("Initializing fake display for server");
+#else
 	FILE * f = fopen(config.tileset_file, "rb");
 
 	if (f == NULL) {
@@ -45,6 +51,9 @@ void disp_init(void)
 		goto use_nogr;
 	}
 
+	info("Initializing display, mode %d (from file %s)", mode, config.tileset_file);
+#endif
+
 	switch (mode) {
 	case GR_MODE_NCURSES:
 	case GR_MODE_MC_NCURSES:
@@ -52,13 +61,17 @@ void disp_init(void)
 	case GR_MODE_MC_UC_NCURSES:
 		nc_init(mode, f);
 		break;
+    case GR_MODE_SDL2D:
+        sdl_init(f);
+        break;
+    case GR_MODE_NONE:
 	default:
 	use_nogr:
 		nogr_init();
 		break;
 	}
 
-	fclose(f);
+	if(f) fclose(f);
 }
 
 void disp_end(void)
@@ -148,3 +161,8 @@ void scroll_center(int x, int y)
 	if (scroll_y < 0) scroll_y = 0;
 }
 
+void disp_zoom(int sx, int sy)
+{
+    graphics_zoom(sx, sy);
+    redraw();
+}

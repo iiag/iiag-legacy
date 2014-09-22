@@ -41,7 +41,7 @@
 //  21 - fruit
 //  22 - potion
 //  23 - sword
-//  24 - ace
+//  24 - axe	
 //  25 - mace
 //  26 - sickle
 //  27 - whip
@@ -53,6 +53,7 @@
 //  33 - greaves
 //  34 - boots
 //  35 - cape
+//  53 - iron ingot
 
 // Creatures
 //  36 - gnat
