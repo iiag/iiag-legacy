@@ -150,7 +150,7 @@ creature * crtr_clone(creature * x)
 //
 // TODO fix what happens on timeout
 //
-void crtr_spawn(creature * c, zone * z)
+int crtr_spawn(creature * c, zone * z)
 {
 	int timeout = SPAWN_TIMEOUT;
 	int x, y;
@@ -160,10 +160,15 @@ void crtr_spawn(creature * c, zone * z)
 	do {
 		x = random() % z->width;
 		y = random() % z->height;
-		assert(timeout--); // FIXME
+		if(!(timeout--)) {
+            c->z = z;
+            crtr_death(c, "overcrowding");
+            return 0;
+		}
 	} while (!crtr_tele(c, x, y, z));
 
 	trigger_pull(&c->on_spawn, c, NULL);
+	return 1;
 }
 
 //

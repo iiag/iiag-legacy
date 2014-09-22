@@ -126,7 +126,7 @@ creature * crtr_clone(creature *);
 // x, y, and z of creature set
 // Triggers on_spawn
 //
-void crtr_spawn(creature *, zone *);
+int crtr_spawn(creature *, zone *);
 
 //
 // Frees a creature allocated with crtr_new

@@ -191,7 +191,9 @@ static void generate(zone * z)
 		max = random() % (z->width * z->height / CRTR_INFREQ) + CRTR_MIN;
 		for (i = max; i >= 0; i--) {
 			cr = gen_crtr(world.gcrtrs, 1);
-			crtr_spawn(cr, z);
+			if(!crtr_spawn(cr, z)) {
+                crtr_free(cr); //Screw it
+			}
 			zone_update(z, cr->x, cr->y);
 		}
 	}
@@ -342,8 +344,8 @@ void zone_update(zone * z, int x, int y)
 				tile = it->tile;
 			}
 		}
-	} 
-	
+	}
+
 
 	z->tiles[x][y].show_tile = tile;
 	zone_draw_tile(z, x, y);

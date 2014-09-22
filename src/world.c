@@ -73,7 +73,7 @@ void init_world(void)
 
 	z = zone_new(ZONE_SIZE_X, ZONE_SIZE_Y);
 	vector_append(&world.zones, z);
-	
+
 	debug("Initializing player triggers...");
 
 	#ifndef SERVER
@@ -83,7 +83,9 @@ void init_world(void)
 	world.plyr.on_act_fail.c_func = (trigger_cfunc)plyr_ev_act_fail;
 	world.plyr.refs = NOFREE;
 
-	crtr_spawn(&world.plyr, z);
+	if(!crtr_spawn(&world.plyr, z)) {
+        fatal("The player cannot be spawned in the initial zone.");
+	}
 	zone_update(z, world.plyr.x, world.plyr.y);
 	#endif
 }

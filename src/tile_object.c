@@ -9,6 +9,7 @@
 #include "log.h"
 #include "tileset.h"
 #include "config.h"
+#include "util.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,7 +32,7 @@ void (*use_object[OBJ_NUM])(tile* t, int x, int y,creature* c, zone* z) = {
 
 tile_object* make_stair(){
 	tile_object* ret;
-	ret = malloc(sizeof(tile_object)); 
+	ret = malloc(sizeof(tile_object));
 
 	ret->type=OBJECT_STAIR;
 	ret->tile = TILE_STAIRS;
@@ -42,7 +43,7 @@ tile_object* make_stair(){
 
 tile_object* make_door(int open, int hdoor){
 	tile_object* ret;
-	ret = malloc(sizeof(tile_object)); 
+	ret = malloc(sizeof(tile_object));
 
 	ret->type=OBJECT_DOOR;
 
@@ -57,7 +58,7 @@ tile_object* make_door(int open, int hdoor){
 
 tile_object* make_smelter(){
 	tile_object* ret;
-	ret = malloc(sizeof(tile_object)); 
+	ret = malloc(sizeof(tile_object));
 
 	ret->type=OBJECT_SMELTER;
 	ret->tile = TILE_SMELTER;
@@ -67,7 +68,7 @@ tile_object* make_smelter(){
 
 tile_object* make_forge(){
 	tile_object* ret;
-	ret = malloc(sizeof(tile_object)); 
+	ret = malloc(sizeof(tile_object));
 
 	ret->type=OBJECT_FORGE;
 	ret->tile = TILE_FORGE;
@@ -77,7 +78,7 @@ tile_object* make_forge(){
 
 tile_object* make_fire(){
 	tile_object* ret;
-	ret = malloc(sizeof(tile_object)); 
+	ret = malloc(sizeof(tile_object));
 
 	ret->type=OBJECT_FIRE;
 	ret->tile = TILE_FIRE;
@@ -104,7 +105,14 @@ void use_stair(tile* t, int ox, int oy,creature* c, zone* oz){
 		obj->link_z = world.zones.arr[world.zones.cnt-1];
 
 		// place player randomly
-		crtr_spawn(c, obj->link_z);
+		if(!crtr_spawn(c, obj->link_z)) {
+            error("Could not spawn player in new dimension %s; deleting.", zone_name(obj->link_z));
+            obj->link_z = NULL;
+            zone_free(world.zones.arr[world.zones.cnt-1]);
+            vector_remove(&world.zones, world.zones.cnt-1);
+            memo("You try to ascend, but your path is blocked.");
+            return;
+		}
 		obj->link_x = c->x;
 		obj->link_y = c->y;
 

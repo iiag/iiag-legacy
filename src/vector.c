@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include <assert.h>
 #include "util.h"
 
 #define REALLOC_SIZE 16
@@ -32,5 +33,18 @@ void vector_append(vector_t * v, void * x)
 		v->arr = realloc(v->arr, (v->cnt + REALLOC_SIZE) * sizeof(void *));
 	}
 	v->arr[v->cnt++] = x;
+}
+
+void vector_remove(vector_t *v, int idx)
+{
+    int i;
+
+    assert(idx>0 && idx<v->cnt);
+
+    for(i = idx + 1; i < v->cnt; i++) {
+        v->arr[i-1] = v->arr[i];
+    }
+
+    v->cnt--;
 }
 

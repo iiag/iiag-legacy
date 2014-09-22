@@ -11,7 +11,8 @@ typedef enum {
   LOG_INFO,     //Write/filter events that are business as usual.
   LOG_NOTICE,   //Write/filter events that are worthy of note, but not likely to be erroneous.
   LOG_WARNING,  //Write/filter events that are unusual and possibly erroneous.
-  LOG_ERROR     //Write/filter events that are erroneous.
+  LOG_ERROR,    //Write/filter events that are erroneous.
+  LOG_FATAL     //Write/filter events that are invariably fatal.
 } log_level_t;
 
 void wrlog(log_level_t, const char *, ...);
@@ -20,6 +21,7 @@ void wrlog(log_level_t, const char *, ...);
 #define notice(msg, ...) wrlog(LOG_NOTICE, msg, ##__VA_ARGS__)
 #define warning(msg, ...) wrlog(LOG_WARNING, msg, ##__VA_ARGS__)
 #define error(msg, ...) wrlog(LOG_ERROR, msg, ##__VA_ARGS__)
+#define fatal(msg, ...) wrlog(LOG_FATAL, msg, ##__VA_ARGS__)
 
 void start_timer(void);
 void end_timer(const char *);

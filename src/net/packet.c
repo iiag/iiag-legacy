@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include "packet.h"
 #include "../player.h"
 #include "../config.h"
@@ -262,7 +263,7 @@ void subpack2crtr(creature* cr, creature_subpacket* crtr_sub){
 void handle_spawn(socket_node* s, void* pack, int len){
 	int x,y;
 
-	info("Player Connected");
+	info("Player connected, socket id %d", s->sock);
 
 	crtr_init(&(s->player), TILE_PLAYER);
 
@@ -274,7 +275,11 @@ void handle_spawn(socket_node* s, void* pack, int len){
 	s->player.ai = 0;
 
 	zone* z = world.zones.arr[0];
-	crtr_spawn(&(s->player), z);
+	if(!crtr_spawn(&(s->player), z)) {
+        error("Failed to spawn player; dropping socket %d", s->sock);
+        close(s->sock);
+        cleanup_socket(s->sock);
+	}
 	zone_update(z, s->player.x, s->player.y);
 
 	list_altr=0;
@@ -376,7 +381,7 @@ void handle_tile(socket_node* s, void* pack, int len){
 		z->tiles[t->x][t->y].show=0;
 
 	//clear tile objects and load new one
-	if(z->tiles[t->x][t->y].obj){ 
+	if(z->tiles[t->x][t->y].obj){
 		free(z->tiles[t->x][t->y].obj);
 		z->tiles[t->x][t->y].obj= NULL;
 	}
@@ -419,7 +424,7 @@ void handle_tile(socket_node* s, void* pack, int len){
 		inv_add(z->tiles[t->x][t->y].inv,it);
 		subpack += sizeof(item_subpacket);
 	}
-	
+
 	//read creature
 	if(t->crtr){
 		crtr_sub=subpack;

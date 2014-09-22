@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
 #include "log.h"
 #include "introspection.h"
 #include "config.h"
@@ -18,7 +19,8 @@ static char * level_names[] = {
   "INFO",
   "NOTICE",
   "WARNING",
-  "ERROR"
+  "ERROR",
+  "FATAL"
 };
 
 void wrlog(log_level_t loglevel, const char * fmt, ...)
@@ -66,7 +68,7 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 	va_end(vl);
 
 	// possibly also write to stderr
-	if (config.log_stderr) {
+	if (config.log_stderr || loglevel == LOG_FATAL) {
 		va_start(vl, fmt);
 
 		HEADER(stderr);
@@ -75,6 +77,8 @@ void wrlog(log_level_t loglevel, const char * fmt, ...)
 
 		va_end(vl);
 	}
+
+	if(loglevel == LOG_FATAL) exit(EXIT_FAILURE);
 }
 
 void start_timer(void)

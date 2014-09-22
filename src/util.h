@@ -14,6 +14,7 @@ void vector_init(vector_t *);
 vector_t * vector_new(void);
 void vector_free(vector_t *);
 void vector_append(vector_t *, void *);
+void vector_remove(vector_t *, int);
 
 void * choose_random(vector_t *, int, int);
 
