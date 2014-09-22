@@ -180,7 +180,8 @@ void sdl_init(FILE *conf)
         exit(EXIT_FAILURE);
 	}
 
-	if(!(font = TTF_OpenFont("DejaVuSansMono.ttf", 8))) {
+	// TODO not compiled in font name
+	if(!(font = TTF_OpenFont("GohuFont-Medium.ttf", 8))) {
         error("Could not open font: %s", TTF_GetError());
         exit(EXIT_FAILURE);
 	}
