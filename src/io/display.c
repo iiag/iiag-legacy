@@ -34,25 +34,19 @@ int ** cache = NULL;
 void disp_init(void)
 {
 	int mode;
-#ifdef SERVER
-    FILE * f = NULL;
-    mode = GR_MODE_NONE;
-    info("Initializing fake display for server");
-#else
 	FILE * f = fopen(config.tileset_file, "rb");
 
 	if (f == NULL) {
 		error("Could not open tile set file '%s'.", config.tileset_file);
-		goto use_nogr;
+		mode = GR_MODE_NONE;
 	}
 
 	if (1 != fscanf(f, " %d ", &mode)) {
 		error("Could not read graphics mode from file '%s'.", config.tileset_file);
-		goto use_nogr;
+		mode = GR_MODE_NONE;
 	}
 
 	info("Initializing display, mode %d (from file %s)", mode, config.tileset_file);
-#endif
 
 	switch (mode) {
 	case GR_MODE_NCURSES:
@@ -66,9 +60,6 @@ void disp_init(void)
         break;
     case GR_MODE_NONE:
 	default:
-#ifndef SERVER
-	use_nogr:
-#endif
 		nogr_init();
 		break;
 	}
