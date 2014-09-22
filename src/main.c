@@ -83,7 +83,7 @@ int main(int argc, char ** argv)
 			reset_memos();
 
 		if (!key_command(c)) {
-			memo("Unknown key press %d.\n", c);
+			memo("Unknown key press `%s`.\n", name_from_key(c));
 		}
 
 		if (config.multiplayer && c != CTRL_SKIP_TURN) {
