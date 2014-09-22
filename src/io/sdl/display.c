@@ -203,8 +203,8 @@ void sdl_init(FILE *conf)
     getcwd(curwd, 256);
     debug("Current working directory: %s", curwd);
 
-	if(!(conf = fopen("tileset.cfg", "r"))) {
-        error("Could not open tileset.cfg; aborting.");
+	if(!(conf = fopen("tileset", "r"))) {
+        error("Could not open tileset; aborting.");
         exit(EXIT_FAILURE);
 	}
 
