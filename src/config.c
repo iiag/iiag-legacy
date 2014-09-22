@@ -375,7 +375,11 @@ void init_config(int argc, char ** argv)
 	}
 
 	// load config file if given
+#ifdef SERVER
+	load_config("server.cfg");
+#else
 	load_config("iiag.cfg");
+#endif
 	if (config.cfg_file != NULL) {
 		load_config(config.cfg_file);
 	}

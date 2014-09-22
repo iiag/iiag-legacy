@@ -16,6 +16,7 @@ void (* graphics_end)(void) = dumb;
 void (* graphics_put)(int, int, int) = dumb;
 void (* graphics_dim_update)(int *, int *) = dumb;
 void (* graphics_clear)  (void) = dumb;
+void (* graphics_zoom)(int, int) = dumb;
 
 void (* disp_refresh)(void) = dumb;
 
@@ -37,13 +38,13 @@ void disp_init(void)
 
 	if (f == NULL) {
 		error("Could not open tile set file '%s'.", config.tileset_file);
-		goto use_nogr;
+		mode = GR_MODE_NONE;
+	} else if (1 != fscanf(f, " %d ", &mode)) {
+		error("Could not read graphics mode from file '%s'.", config.tileset_file);
+		mode = GR_MODE_NONE;
 	}
 
-	if (1 != fscanf(f, " %d ", &mode)) {
-		error("Could not read graphics mode from file '%s'.", config.tileset_file);
-		goto use_nogr;
-	}
+	info("Initializing display, mode %d (from file %s)", mode, config.tileset_file);
 
 	switch (mode) {
 	case GR_MODE_NCURSES:
@@ -52,13 +53,16 @@ void disp_init(void)
 	case GR_MODE_MC_UC_NCURSES:
 		nc_init(mode, f);
 		break;
+    case GR_MODE_SDL2D:
+        sdl_init(f);
+        break;
+    case GR_MODE_NONE:
 	default:
-	use_nogr:
 		nogr_init();
 		break;
 	}
 
-	fclose(f);
+	if(f) fclose(f);
 }
 
 void disp_end(void)
@@ -148,3 +152,8 @@ void scroll_center(int x, int y)
 	if (scroll_y < 0) scroll_y = 0;
 }
 
+void disp_zoom(int sx, int sy)
+{
+    graphics_zoom(sx, sy);
+    redraw();
+}

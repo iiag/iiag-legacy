@@ -11,23 +11,26 @@ DESTDIR       = /opt/iiag
 MANDIR        = /usr/share/man/man6
 
 # Add -DWITH_INTROSPECTION to *_CCFL to enable introspection
-CLIENT_CCFL  := -c -g -Wall -DWITH_NCURSES `pkg-config --cflags $(LUAV)`
+CLIENT_CCFL  := -c -g -Wall -DWITH_NCURSES -DWITH_SDL `pkg-config --cflags $(LUAV)`
 SERVER_CCFL	 := -c -g -Wall -DSERVER `pkg-config --cflags $(LUAV)`
-LDFL         := -Wall -lncursesw -lm `pkg-config --libs $(LUAV)`
+CLIENT_LDFL         := -Wall -lncursesw -lSDL2 -lSDL2_ttf -lm `pkg-config --libs $(LUAV)`
+SERVER_LDFL            := -Wall -lm `pkg-config --libs $(LUAV)`
 
 CLIENT_SRCS := main.c world.c zone.c io/display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c io/input.c \
                generator.c names.c room.c tile_object.c recipe.c lua/init.c lua/io.c \
                lua/form.c controls.c introspection.c net/net.c net/packet.c \
                io/ncurses/controls.c io/ncurses/input.c io/ncurses/display.c \
-               io/ncurses/keys.c io/nogr/display.c io/nogr/input.c spells.c library.c
+               io/ncurses/keys.c io/nogr/display.c io/nogr/input.c spells.c library.c \
+               io/sdl/display.c io/sdl/input.c
 
 SERVER_SRCS := server.c world.c zone.c io/display.c log.c inventory.c util.c item.c \
                creature.c player.c vector.c trigger.c config.c faction.c io/input.c \
                generator.c names.c room.c tile_object.c recipe.c lua/init.c lua/io.c \
                lua/form.c controls.c introspection.c net/net.c net/packet.c \
                io/ncurses/controls.c io/ncurses/input.c io/ncurses/display.c \
-               io/ncurses/keys.c io/nogr/display.c io/nogr/input.c spells.c library.c
+               io/ncurses/keys.c io/nogr/display.c io/nogr/input.c spells.c library.c \
+               io/sdl/display.c io/sdl/input.c
 
 CLIENT_OBJS := $(addprefix build/obj/,$(patsubst %.c,%.o,$(CLIENT_SRCS)))
 CLIENT_DEPS := $(addprefix build/dep/,$(patsubst %.c,%.d,$(CLIENT_SRCS)))
@@ -42,10 +45,10 @@ SERVER_SRCS := $(addprefix src/,$(SERVER_SRCS))
 all: $(CLIENT_TARGET) $(SERVER_TARGET)
 
 $(CLIENT_TARGET): $(CLIENT_OBJS)
-	$(CC) $(CLIENT_OBJS) $(LDFL) -o $(CLIENT_TARGET)
+	$(CC) $(CLIENT_OBJS) $(CLIENT_LDFL) -o $(CLIENT_TARGET)
 
 $(SERVER_TARGET): $(SERVER_OBJS)
-	$(CC) $(SERVER_OBJS) $(LDFL) -o $(SERVER_TARGET)
+	$(CC) $(SERVER_OBJS) $(SERVER_LDFL) -o $(SERVER_TARGET)
 
 build/obj/%.o: src/%.c
 	@ mkdir -p $(@D)
