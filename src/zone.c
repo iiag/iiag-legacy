@@ -179,9 +179,11 @@ static void generate(zone * z)
 		} while ((z->tiles[x][y].impassible || !inv_try(z->tiles[x][y].inv, it)) && timeout);
 
 		if (timeout) {
+            debug("Generated %s at %s@%d,%d", it->name, zone_name(z), x, y);
 			item_tele(it, x, y, z);
 			zone_update(z, x, y);
 		} else {
+            warning("Failed to generate item %s (could not place in %s)", it->name, zone_name(z));
 			item_free(it);
 		}
 	}
@@ -192,6 +194,7 @@ static void generate(zone * z)
 		for (i = max; i >= 0; i--) {
 			cr = gen_crtr(world.gcrtrs, 1);
 			if(!crtr_spawn(cr, z)) {
+                warning("Failed to spawn %s (no room in %s)", crtr_name(cr), zone_name(z));
                 crtr_free(cr); //Screw it
 			}
 			zone_update(z, cr->x, cr->y);

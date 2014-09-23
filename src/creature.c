@@ -560,9 +560,6 @@ void crtr_try_pickup(creature * c, int i)
 
 	if (t->inv->size > i && t->inv->itms[i] != NULL) {
 		if ((j = inv_add(c->inv, t->inv->itms[i])) != INVALID) {
-			t->inv->itms[i]->i = j;
-			inv_rm(t->inv, i);
-
 			trigger_pull(&c->on_act_comp, c, c->inv->itms[j]);
 		} else {
 			trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_PICKUP_HEAVY);
@@ -582,9 +579,6 @@ void crtr_try_drop(creature * c, int i)
 			if (item_equipped(c->inv->itms[i], c)) {
 				crtr_unequip(c, c->inv->itms[i]->slot);
 			}
-
-			c->inv->itms[i]->i = j;
-			inv_rm(c->inv, i);
 
 			trigger_pull(&c->on_act_comp, c, t->inv->itms[j]);
 		} else {
@@ -644,7 +638,7 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 
 	if (i < c->inv->size && c->inv->itms[i] != NULL) {
 		if (item_throw(c->inv->itms[i], c->x, c->y, c->z, dx, dy, c->throw)) {
-			crtr_rm_item(c, i);
+			//crtr_rm_item(c, i);
 			trigger_pull(&c->on_act_comp, c, NULL);
 			return;
 		}

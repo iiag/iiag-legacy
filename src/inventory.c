@@ -47,6 +47,8 @@ int inv_add(inventory * inv, item * it)
 
 	int i;
 
+	if(it->of) inv_rm(it->of, it->i);
+
 	// See if item fits
 	if (!inv_try(inv, it)) return INVALID;
 	inv->weight += it->weight;
@@ -55,6 +57,8 @@ int inv_add(inventory * inv, item * it)
 	for (i = 0; i < inv->size; i++) {
 		if (inv->itms[i] == NULL) {
 			inv->itms[i] = it;
+			it->of = inv;
+			it->i = i;
 			return i;
 		}
 	}
@@ -66,6 +70,8 @@ int inv_add(inventory * inv, item * it)
 		);
 	}
 	inv->itms[inv->size] = it;
+	it->of = inv;
+	it->i = inv->size;
 
 	for (i = 1; i < REALLOC_SIZE; i++) {
 		inv->itms[i + inv->size] = NULL;
@@ -96,6 +102,8 @@ item * inv_rm(inventory * inv, int i)
 	item * ret = inv->itms[i];
 	inv->weight -= inv->itms[i]->weight;
 	inv->itms[i] = NULL;
+	ret->of = NULL;
+	ret->i = -1;
 
 	return ret;
 }

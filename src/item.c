@@ -13,6 +13,8 @@
 #include "io/display.h"
 #include "recipe.h"
 
+#define ASSERT_ITEM_VALID(it) assert(it->of?(it->of->itms[it->i])==it:1)
+
 //
 // Allocates a new item
 //
@@ -83,20 +85,7 @@ void item_free(item * it)
 //
 int item_tele(item * it, int x, int y, zone * z)
 {
-	int i = inv_add(z->tiles[x][y].inv, it);
-
-	if (i != INVALID) {
-		if (it->of != NULL) {
-			inv_rm(it->of, it->i);
-		}
-
-		it->of = z->tiles[x][y].inv;
-		it->i = i;
-
-		return 1;
-	}
-
-	return 0;
+	return inv_add(z->tiles[x][y].inv, it) != INVALID;
 }
 
 //
@@ -104,6 +93,8 @@ int item_tele(item * it, int x, int y, zone * z)
 //
 int item_equipped(item * it, creature * c)
 {
+    if(!it) return 0;
+    ASSERT_ITEM_VALID(it);
 	return it->type & ITEM_EQUIPABLE && c->slots[it->slot] == it;
 }
 
@@ -121,6 +112,8 @@ int item_throw(item * it, int x, int y, zone * z, int dx, int dy, int force)
 	int anim = (z == PLYR.z) && config.throw_anim_delay;
 	int timeout = 100 * force / it->weight;
 	int tmp = 0;
+
+	ASSERT_ITEM_VALID(it);
 
 	x += dx;
 	y += dy;
@@ -186,6 +179,8 @@ cleanup:
 // generates the items name
 //
 void item_gen_name(item * it){
+    ASSERT_ITEM_VALID(it);
+
 	if(it->name)
 		free(it->name);
 
