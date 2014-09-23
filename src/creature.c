@@ -473,7 +473,7 @@ item * crtr_rm_item(creature * c, int i)
 		crtr_unequip(c, it->slot);
 	}
 
-	inv_rm(c->inv, i);
+	inv_rm(it);
 	return it;
 }
 

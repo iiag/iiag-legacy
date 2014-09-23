@@ -148,7 +148,7 @@ void recipe_make(inventory* i, recipe* r){
 		if(i->itms[y]){
 			if(is_class(((component*)r->comps.arr[x])->iclass,i->itms[y]->iclass,((component*)r->comps.arr[x])->match_type)){
 				apply_comp(ret,r->comps.arr[x],i->itms[y]);
-				inv_rm(i,y);
+				inv_rm(i->itms[y]);
 				break;
 			}
 		}

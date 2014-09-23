@@ -47,7 +47,7 @@ int inv_add(inventory * inv, item * it)
 
 	int i;
 
-	if(it->of) inv_rm(it->of, it->i);
+	if(it->of) inv_rm(it);
 
 	// See if item fits
 	if (!inv_try(inv, it)) return INVALID;
@@ -95,17 +95,16 @@ int inv_try(inventory * inv, item * it)
 //
 // Should we check for the index being outside the inventory
 //
-item * inv_rm(inventory * inv, int i)
+item * inv_rm(item *it)
 {
-	if (inv->itms[i] == NULL) return NULL;
+	if (!it->of) return NULL;
 
-	item * ret = inv->itms[i];
-	inv->weight -= inv->itms[i]->weight;
-	inv->itms[i] = NULL;
-	ret->of = NULL;
-	ret->i = -1;
+	it->of->weight -= it->weight;
+	it->of->itms[it->i] = NULL;
+	it->of = NULL;
+	it->i = -1;
 
-	return ret;
+	return it;
 }
 
 //

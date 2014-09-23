@@ -62,7 +62,7 @@ void inv_empty(inventory* inv);
 //
 // Removes an item at a given index from an inventory
 //
-item * inv_rm(inventory *, int);
+item * inv_rm(item *it);
 
 //
 // These 2 functions convert between indicies and character representations of
