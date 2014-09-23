@@ -46,9 +46,6 @@ int inv_add(inventory * inv, item * it)
 #define REALLOC_SIZE 8
 
 	int i;
-
-	if(it->of) inv_rm(it);
-
 	// See if item fits
 	if (!inv_try(inv, it)) return INVALID;
 	inv->weight += it->weight;
@@ -57,6 +54,7 @@ int inv_add(inventory * inv, item * it)
 	for (i = 0; i < inv->size; i++) {
 		if (inv->itms[i] == NULL) {
 			inv->itms[i] = it;
+			if(it->of) inv_rm(it);
 			it->of = inv;
 			it->i = i;
 			return i;
@@ -70,6 +68,7 @@ int inv_add(inventory * inv, item * it)
 		);
 	}
 	inv->itms[inv->size] = it;
+	if(it->of) inv_rm(it);
 	it->of = inv;
 	it->i = inv->size;
 
