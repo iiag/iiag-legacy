@@ -22,18 +22,23 @@
 // iterations before spawn attempts timeout
 #define SPAWN_TIMEOUT 5000
 
-//
-// For a given creature, calculates the required XP to level up
-//
+///
+/// For a given creature, calculates the required XP to level up.
+///
+/// \param c The operand creature.
+/// \return The calculated amount of XP.
+///
 static int req_xp(creature * c)
 {
 	return (int) (ceil(exp(c->level)) * LEVELING_CONSTANT);
 }
 
-//
-// Initializes the creature, all values are set
-// Calls form_assign for f
-//
+///
+/// Initializes the creature, all values are set.
+///
+/// \param c The creature to initialize.
+/// \param tile The tilenum to use for the creature.
+///
 void crtr_init(creature * c, int tile)
 {
 	int i;
@@ -81,9 +86,13 @@ void crtr_init(creature * c, int tile)
 	trigger_init(c->on_act_fail);
 }
 
-//
-// Basically allocates and wraps to crtr_init
-//
+///
+/// Basically allocates and wraps to crtr_init
+///
+/// \newref{crtr_free}
+///
+/// \return A new creature.
+///
 creature * crtr_new(int tile)
 {
 	creature * c = malloc(sizeof(creature));
@@ -91,9 +100,17 @@ creature * crtr_new(int tile)
 	return c;
 }
 
-//
-// Just copies a creature
-//
+///
+/// Just copies a creature
+///
+/// \note
+/// At present, this does not work with deceased creatures.
+///
+/// \newref{crtr_free}
+///
+/// \param p The creature to copy.
+/// \return A new creature.
+///
 creature * crtr_copy(const creature * p)
 {
 	creature * c = crtr_new(p->tile);
@@ -133,9 +150,15 @@ creature * crtr_copy(const creature * p)
 	return c;
 }
 
-//
-// Increments the reference count and returns the creature
-//
+///
+/// Increments the reference count and returns the creature
+///
+/// \note
+/// This function returns the parameter verbatim.
+///
+/// \param x The operand creature.
+/// \return x.
+///
 creature * crtr_clone(creature * x)
 {
 	if (x->refs != NOFREE) {
@@ -144,12 +167,18 @@ creature * crtr_clone(creature * x)
 	return x;
 }
 
-//
-// Places the creature at a random location in the zone
-// crtr_tele handles placing the creature
-//
-// TODO fix what happens on timeout
-//
+///
+/// Places the creature at a random location in the zone
+///
+/// \note
+/// This process can fail; if so, it returns a false value.
+///
+/// \trigger{on_spawn}
+///
+/// \param c The operand creature.
+/// \param z The zone to place the creature in.
+/// \return Boolean success of the spawn.
+///
 int crtr_spawn(creature * c, zone * z)
 {
 	int timeout = SPAWN_TIMEOUT;
@@ -171,10 +200,18 @@ int crtr_spawn(creature * c, zone * z)
 	return 1;
 }
 
-//
-// Frees the creature if c->nofree not set
-// Will try to remove self from zone
-//
+///
+/// Frees the creature if c->nofree not set
+///
+/// \note
+/// At present, the creature must be deceased for this to work.
+///
+/// \warning
+/// This does not remove the creature from the zone; use
+/// \ref zone_rm_crtr for that.
+///
+/// \param c The creature to free.
+///
 void crtr_free(creature * c)
 {
 	if (c->refs != NOFREE && !--c->refs) {
@@ -187,9 +224,18 @@ void crtr_free(creature * c)
 	}
 }
 
-//
-// Wraps to crtr_free and pulls the on_death trigger
-//
+///
+/// Sets deceased, pulls the on_death trigger, and remove from
+/// the zone.
+///
+/// \note
+/// At present, the creature must be in a zone for this to work.
+///
+/// \trigger{on_death}
+///
+/// \param c The operand creature.
+/// \param meth A string representing the type of death that occured.
+///
 void crtr_death(creature * c, char * meth)
 {
 	assert(c->z != NULL);
@@ -202,14 +248,24 @@ void crtr_death(creature * c, char * meth)
 	zone_rm_crtr(c->z, c);
 }
 
-//
-// This takes a creature, and tries to place it somewhere
-//
-// Will fail if target square is:
-//   already occupied
-//   impassible
-//   nonexistant
-//
+///
+/// This takes a creature, and tries to place it somewhere
+///
+/// Will fail if target square is:
+/// * already occupied
+/// * impassible
+/// * nonexistant
+///
+/// \note
+/// This will remove the creature from any previous zone it
+/// was occupying.
+///
+/// \param crtr The creature to move
+/// \param x The x coordinate.
+/// \param y The y coordinate.
+/// \param z The zone to move to.
+/// \return Whether or not the move succeeded.
+///
 int crtr_tele(creature * crtr, int x, int y, zone * z)
 {
 	if (crtr_can_tele(crtr, x, y, z)) {
@@ -256,18 +312,29 @@ int crtr_tele(creature * crtr, int x, int y, zone * z)
 	return 0;
 }
 
-//
-// Checks if a creature can move/teleport into a space
-//
+///
+/// Checks if a creature can move/teleport into a space
+///
+/// \param crtr The operant creature.
+/// \param x The x coordinate.
+/// \param y The y coordinate.
+/// \param z The target zone.
+/// \return Whether or not the creature can move to that destination.
+///
 int crtr_can_tele(creature * crtr, int x, int y, zone * z)
 {
 	tile * t = zone_at(z, x, y);
 	return t != NULL && t->crtr == NULL && !t->impassible;
 }
 
-//
-// Simply wraps to crtr_tele, but relative
-//
+///
+/// Simply wraps to \ref crtr_tele, but relative
+///
+/// \param crtr The operant creature.
+/// \param dx Delta in the x direction.
+/// \param dy Delta in the y direction.
+/// \return Success of the move.
+///
 int crtr_move(creature * crtr, int dx, int dy)
 {
 	int nx = crtr->x + dx;
@@ -276,9 +343,14 @@ int crtr_move(creature * crtr, int dx, int dy)
 	return crtr_tele(crtr, nx, ny, crtr->z);
 }
 
-//
-// Gives a creature experience points and levels up if merited
-//
+///
+/// Gives a creature experience points and levels up if merited
+///
+/// \trigger{on_lvlup}
+///
+/// \param c The operant creature.
+/// \param xp The experience to award.
+///
 void crtr_xp_up(creature * c, int xp)
 {
 	debug("%s received %d xp", crtr_name(c), xp);
@@ -293,9 +365,13 @@ void crtr_xp_up(creature * c, int xp)
 	}
 }
 
-//
-// Unequips an item
-//
+///
+/// Unequips an item.
+/// This never fails, even when no item is equipped there.
+///
+/// \param c The operant creature.
+/// \param sl The slot to remove an item from.
+///
 void crtr_unequip(creature * c, slot sl)
 {
 	if (c->slots[sl] != NULL) {
@@ -305,9 +381,14 @@ void crtr_unequip(creature * c, slot sl)
 	}
 }
 
-//
-// Equips an item, unequips whatever was there first
-//
+///
+/// Equips an item, unequips whatever was there first
+///
+/// \param c The operant creature.
+/// \param it The item to equip.
+/// \param sl The slot to equip the item to.
+/// \return Whether or not the equip succeeded.
+///
 int crtr_equip(creature * c, item * it, slot sl)
 {
 	if (it->type & ITEM_EQUIPABLE) {
@@ -324,10 +405,16 @@ int crtr_equip(creature * c, item * it, slot sl)
 }
 
 
-//
-// The attacker attacks the defender (attack vs ac)
-// Does not free any resources when the defender is killed
-//
+///
+/// The attacker attacks the defender (attack vs ac).
+///
+/// \note
+/// Does not free any resources when the defender is killed.
+///
+/// \param attacker The attacking creature.
+/// \param defender The defending creature.
+/// \return The damage dealt, or `DEAD` if a the defender died.
+///
 int crtr_attack(creature * attacker, creature * defender)
 {
 	int damage, xp;
@@ -356,10 +443,13 @@ int crtr_attack(creature * attacker, creature * defender)
 	return damage;
 }
 
-//
-// Returns the creature name
-//  specific>generic>'mysterious creature'
-//
+///
+/// Returns the creature name
+///  specific>generic>'mysterious creature'
+///
+/// \param c The operant creature.
+/// \return A pointer to a displayable name.
+///
 const char * crtr_name(const creature * c)
 {
 	if (c->specific_name != NULL) return c->specific_name;
@@ -367,20 +457,32 @@ const char * crtr_name(const creature * c)
 	return "mysterious creature";
 }
 
-//
-// As of now, only takes into consideration faction relations
-//
+///
+/// Returns the disposition creature a feels toward creature b.
+/// This is a signed integer value whose sign indicates amiability
+/// (positive) or hostility (negative) and whose magnitude is a
+/// relative measure of the strength of the disposition. The unit
+/// of this magnitude is arbitrarily defined.
+///
+/// As of now, only takes into consideration faction relations.
+///
+/// \param a The operant creature.
+/// \param b The creature for which a's disposition is to be computed.
+/// \return The disposition.
+///
 int crtr_disposition(const creature * a, const creature * b)
 {
 	if (a == b) return 1000; // temporary
 	return fctn_relto(a->fctn, b->fctn);
 }
 
-//
-// Controls a creature as a basic beast-like ai
-// Attacks creatures based on closeness and disposition, perfering to attack
-//   creatures close and of a negative disposition.
-//
+///
+/// Controls a creature as a basic beast-like ai
+/// Attacks creatures based on closeness and disposition, perfering to attack
+///   creatures close and of a negative disposition.
+///
+/// \param c The creature to simulate.
+///
 static void beast_ai(creature * c)
 {
 	int x, y, s;
@@ -440,9 +542,13 @@ static void beast_ai(creature * c)
 	}
 }
 
-//
-// This is called once per game step
-//
+///
+/// This is called once per game step, and is responsible for
+/// performing basic accounting and simulation tasks.
+///
+/// \param c The creature to step.
+/// \param steps The number of steps performed thus far.
+///
 void crtr_step(creature * c, long steps)
 {
 	assert(!c->deceased);
@@ -462,9 +568,17 @@ void crtr_step(creature * c, long steps)
 	}
 }
 
-//
-// If equipped, unequip item, then remove from inventory
-//
+///
+/// If equipped, unequip item, then remove from inventory
+///
+/// \warning
+/// Do not call \ref inv_rm on the creature's inventory yourself;
+/// you could leave a dangling reference in the equipment.
+///
+/// \param c The operant creature.
+/// \param i The index of the inventory.
+/// \return The item thereby removed.
+///
 item * crtr_rm_item(creature * c, int i)
 {
 	item * it = c->inv->itms[i];
@@ -477,9 +591,16 @@ item * crtr_rm_item(creature * c, int i)
 	return it;
 }
 
-//
-// Tests if a creature can dodge an item
-//
+///
+/// Tests if a creature can dodge an item.
+///
+/// This performs a roll of 1d[c->reflex]; if this value is greater
+/// than the difficulty, the dodge succeeds.
+///
+/// \param c The operant creature.
+/// \param difficulty The measure of difficulty.
+/// \return Whether the dodge succeeds.
+///
 int crtr_dodges(creature * c, int difficulty)
 {
 	int roll;
@@ -488,17 +609,30 @@ int crtr_dodges(creature * c, int difficulty)
 	return difficulty < roll || roll == c->reflex;
 }
 
-//
-// Change stance, see creatures.h
-//
+///
+/// Change stance, see \ref creatures.h
+///
+/// \param c The operant creature.
+/// \param s The stance to change to.
+///
 void crtr_stance(creature * c, int s){
 	c->stance = s;
 }
 
 
-//
-// The following functions are typically called when actions are completed
-//
+///
+/// The following functions are typically called when actions are completed
+///
+
+///
+/// Try to move (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param dx Delta in the x direction.
+/// \param dy Delta in the y direction.
+///
 void crtr_try_move(creature * c, int dx, int dy)
 {
 	if (crtr_move(c, dx, dy)) {
@@ -508,6 +642,15 @@ void crtr_try_move(creature * c, int dx, int dy)
 	}
 }
 
+///
+/// Try to move, possibly attacking (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param dx Delta in the x direction.
+/// \param dy Delta in the y direction.
+///
 void crtr_try_aa_move(creature * c, int dx, int dy)
 {
 	int dam;
@@ -553,6 +696,14 @@ void crtr_try_aa_move(creature * c, int dx, int dy)
 	trigger_pull(&c->on_act_comp, c, NULL);
 }
 
+///
+/// Try to pick an item up from the currently occupied tile (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param i The index of the item in the tile's inventory.
+///
 void crtr_try_pickup(creature * c, int i)
 {
 	int j;
@@ -569,6 +720,14 @@ void crtr_try_pickup(creature * c, int i)
 	}
 }
 
+///
+/// Try to drop an item on the occupied tile (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param i The index of the item in the creature's inventory.
+///
 void crtr_try_drop(creature * c, int i)
 {
 	int j;
@@ -589,6 +748,14 @@ void crtr_try_drop(creature * c, int i)
 	}
 }
 
+///
+/// Try to consume an item (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param i The index of the consumable item in the creature's inventory.
+///
 void crtr_try_consume(creature * c, int i)
 {
 	item * it;
@@ -613,6 +780,14 @@ void crtr_try_consume(creature * c, int i)
 	}
 }
 
+///
+/// Try to equip an item (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param i The index of the equippable item in the creature's inventory.
+///
 void crtr_try_equip(creature * c, int i)
 {
 	item * it;
@@ -631,6 +806,16 @@ void crtr_try_equip(creature * c, int i)
 	}
 }
 
+///
+/// Try to throw an item (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param i The index of the throwable item in the creature's inventory.
+/// \param dx Delta in the x direction of the throw.
+/// \param dy Delta in the y direction of the throw.
+///
 void crtr_try_throw(creature * c, int i, int dx, int dy)
 {
 	assert(c->inv->size > i);
@@ -647,6 +832,15 @@ void crtr_try_throw(creature * c, int i, int dx, int dy)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_THROW);
 }
 
+///
+/// Try to use a feature (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param dx Delta x to the usable feature.
+/// \param dy Delta y to the usable feature.
+///
 void crtr_try_use(creature * c, int dx, int dy)
 {
 	assert(c != NULL);
@@ -660,6 +854,16 @@ void crtr_try_use(creature * c, int dx, int dy)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_USE);
 }
 
+///
+/// Try to cast a spell (as the result of an action).
+///
+/// \trigger {on_act_comp,on_act_fail}
+///
+/// \param c The operant creature.
+/// \param i The index of the spell in the creature's library.
+/// \param argc The number of arguments in argv.
+/// \param argv Arguments to the spell, as an array of strings.
+///
 void crtr_try_cast(creature * c, int i, int argc, void ** argv)
 {
 	if (i < c->lib->size && c->lib->spls[i] != NULL) {
@@ -671,9 +875,9 @@ void crtr_try_cast(creature * c, int i, int argc, void ** argv)
 	trigger_pull(&c->on_act_fail, c, V_ACT_FAIL_CAST);
 }
 
-//
-// The following function schedule creature actions
-//
+///
+/// The following function schedule creature actions
+///
 #define ACT_TMPLT(T) \
 	assert(c->act == NULL); \
 	action * a = malloc(sizeof(action)); \

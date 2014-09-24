@@ -1,15 +1,27 @@
-//
-// inventory.c
-//
+///
+/// inventory.c
+///
+/// Handles inventories, which are simple, arbitrarily large arrays of
+/// item pointers.
+///
+/// Items have been implemented to keep track of the inventory they are
+/// in, such that an item may be in at most one inventory (they contain
+/// only one inventory/index member). The current inventory containing
+/// an item is contained within \ref item.of , which will be `NULL` if
+/// no inventory presently contains it.
 
 #include <assert.h>
 #include <stdlib.h>
 #include "inventory.h"
 #include "io/display.h"
 
-//
-// Allocates a new inventory
-//
+///
+/// Allocates a new inventory.
+///
+/// \newref{inv_free}
+///
+/// \param max Maximum weight of the inventory, or `INFINITE` for no limit.
+///
 inventory * inv_new(int max)
 {
 	inventory * inv = malloc(sizeof(inventory));
@@ -20,9 +32,11 @@ inventory * inv_new(int max)
 	return inv;
 }
 
-//
-// Frees an inventory
-//
+///
+/// Frees an inventory
+///
+/// \param inv The inventory to free.
+///
 void inv_free(inventory * inv)
 {
 	int i;
@@ -37,10 +51,19 @@ void inv_free(inventory * inv)
 	free(inv);
 }
 
-//
-// Adds an item to an inventory
-// Fails if inv_try would fail
-//
+///
+/// Adds an item to an inventory
+/// Fails if \ref inv_try would fail
+///
+/// \note
+/// If the item was previously in another inventory, and adding the item
+/// to this inventory succeeded, it is guaranteed that it will have been
+/// removed from the previous inventory.
+///
+/// \param inv The operant inventory.
+/// \param it The item to add.
+/// \return The index allocated to the item, or `INVALID` if addition failed.
+///
 int inv_add(inventory * inv, item * it)
 {
 #define REALLOC_SIZE 8
@@ -80,23 +103,31 @@ int inv_add(inventory * inv, item * it)
 	return inv->size - REALLOC_SIZE;
 }
 
-//
-// Fails if new weight exceeds max weight
-//
+///
+/// Verifies whether the item can be added to the inventory.
+/// Presently, this implements the following checks:
+/// * Fails if new weight exceeds max weight
+///
+/// \param inv The operant inventory.
+/// \param it The item to test.
+/// \return Whether or not the addition should succeed.
+///
 int inv_try(inventory * inv, item * it)
 {
 	if (inv->max_weight == INFINITE) return 1;
 	return it->weight + inv->weight <= inv->max_weight;
 }
 
-//
-// Removes an item given an index
-//
-// Should we check for the index being outside the inventory
-//
+///
+/// Removes an item from its containing inventory.
+/// This operation never fails.
+///
+/// \param it The item to remove from any containing inventory.
+/// \return it, for backward compatibility.
+///
 item * inv_rm(item *it)
 {
-	if (!it->of) return NULL;
+	if (!it || !it->of) return it;
 
 	it->of->weight -= it->weight;
 	it->of->itms[it->i] = NULL;
@@ -106,9 +137,17 @@ item * inv_rm(item *it)
 	return it;
 }
 
-//
-//
-//
+///
+/// Counts the number of items in an inventory.
+///
+/// \note
+/// The array structure may be sparse (that is, contain NULL pointers
+/// within the boundary of \ref inv.size , so this function should be
+/// used wherever an accurate count of items in an inventory is required.
+///
+/// \param inv The operant inventory.
+/// \return The number of items therein.
+///
 int inv_count(inventory* inv){
 	int i;
 	int count=0;
@@ -120,9 +159,14 @@ int inv_count(inventory* inv){
 return count;
 }
 
-//
-//
-//
+///
+/// Clears an inventory, emptying it of all items.
+///
+/// \warning
+/// This frees all the contained items via \ref item_free .
+///
+/// \param inv The inventory to clear.
+///
 void inv_clear(inventory * inv)
 {
 	int i;
@@ -136,11 +180,15 @@ void inv_clear(inventory * inv)
 	inv->weight = 0;
 }
 
-//
-// Converts an index to a character
-//
-// TODO fix for indexs >= 62
-//
+///
+/// Converts an index to a character
+///
+/// \todo
+/// Fix for indexs >= 62
+///
+/// \param i The index.
+/// \return A character corresponding to that index.
+///
 char ind2ch(int i)
 {
 	if (i < 26) return 'a' + i;
@@ -149,11 +197,15 @@ char ind2ch(int i)
 	assert(0); // TODO: Handle inventories with more than 62 items
 }
 
-//
-// Converts an character to an index
-//
-// TODO fix for characters not [a-zA-Z0-9]
-//
+///
+/// Converts a character to an index
+///
+/// \todo
+/// fix for characters not [a-zA-Z0-9]
+///
+/// \param c The character corresponding to an index.
+/// \return The corresponding index.
+///
 int  ch2ind(char c)
 {
 	if (c <= '9') return (int)c + 52 - '0';

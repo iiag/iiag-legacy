@@ -10,3 +10,4 @@ iiag_server
 *.kdev4
 *.cfg
 *.kate-swp
+doc/doxygen/
