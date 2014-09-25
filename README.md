@@ -9,7 +9,9 @@ Find us on freenode in #iiag, or on [/r/iiag](http://reddit.com/r/iiag).
 Dependencies
 ============
  - lua
- - ncurses or ncursesw
+ - At least one of 
+   - ncurses or ncursesw
+   - SDL and SDL_ttf
 
 Attributions
 ============
