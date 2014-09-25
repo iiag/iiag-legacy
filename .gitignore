@@ -5,6 +5,7 @@ dep/
 obj/
 sdep/
 sobj/
+doc/doxygen/
 iiag
 iiag_server
 *.kdev4
