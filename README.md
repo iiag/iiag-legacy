@@ -15,5 +15,5 @@ Dependencies
 
 Attributions
 ============
- - Thanks to Hugo Chargois for creating Gohu font (font.gohu.org) and Jack Lindsay for creating the TTF version.
+ - Thanks to Hugo Chargois for creating Gohu font at [http://font.gohu.org] and Jack Lindsay for creating the TTF version.
 
