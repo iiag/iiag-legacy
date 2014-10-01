@@ -79,6 +79,10 @@ SERVER_SRCS := $(addprefix src/,$(SERVER_SRCS))
 
 all: $(CLIENT_TARGET) $(SERVER_TARGET)
 
+jerva: all src/jni_main.c src/jni_main.h
+	$(CC) -I/usr/lib/jvm/java-8-jdk/include/linux/ -I/usr/lib/jvm/java-8-jdk/include/ -fPIC -c -o build/obj/jni_main.o src/jni_main.c
+	$(CC) build/obj/jni_main.o $(filter-out build/obj/main.o,$(CLIENT_OBJS)) $(CLIENT_LDFL) -shared -o libiiag.so
+
 $(CLIENT_TARGET): $(CLIENT_OBJS)
 	$(CC) $(CLIENT_OBJS) $(CLIENT_LDFL) -o $(CLIENT_TARGET)
 
@@ -89,7 +93,7 @@ build/obj/%.o: src/%.c
 	@ mkdir -p $(@D)
 	@ mkdir -p $(subst obj,dep,$(@D))
 	@ $(CC) -MM -MP -MT $@ -MF $(patsubst %.o,%.d,$(subst obj,dep,$@)) $<
-	$(CC) $(CLIENT_CCFL) $< -o $@
+	$(CC) $(CLIENT_CCFL) $< -fPIC -o $@
 
 build/sobj/%.o: src/%.c
 	@ mkdir -p $(@D)
