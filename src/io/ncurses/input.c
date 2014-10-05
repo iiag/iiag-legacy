@@ -126,40 +126,42 @@ void nc_prompt_equipped(const char * msg, creature * c)
 //
 char * nc_prompt_string(const char * prompt)
 {
-	int c,i = 0;
+	int c, i = 0;
 	char * string = calloc(1,MAX_CMD_ENTRY);
 
+	curs_set(1);
 	wmove(memoscr, 0, 0);
 	waddstr(memoscr, prompt);
 
 	while ('\n' != c) {
 		string[i] = c = wgetch(memoscr);
 
-		if ((c == 127)) { // Backspace
-			if (i == 0) { wmove(memoscr, 0, 1); continue; }
+		switch (c) {
+		case KEY_BACKSPACE:
+			if (i == 0) {
+				// cancel the input when nothing left in buffer
+				mvwaddch(memoscr, 0, 0, ' ');
+				wrefresh(memoscr);
+				free(string);
+				curs_set(0);
+				return NULL;
+			}
 
 			wmove(memoscr, 0, i);
 			waddch(memoscr, ' ');
 			wmove(memoscr, 0, i);
 			string[--i] = '\0';
 			wrefresh(memoscr);
-			continue;
+			break;
+
+		default:
+			waddch(memoscr, string[i++]);
 		}
 
-		// Cancel input
-		if (c == 27) { // Escape
-			wmove(memoscr, 0, 0);
-			for (c = 0; c < i + 1; c++) {
-				waddch(memoscr, ' ');
-			}
-			wrefresh(memoscr);
-			free(string);
-			return NULL;
-		}
-
-		waddch(memoscr, string[i++]);
 		wrefresh(memoscr);
 	}
+
+	curs_set(0);
 	return string;
 }
 

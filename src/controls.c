@@ -151,6 +151,8 @@ int str_command(const char * str)
 	char ** argv = NULL;
 	const char * start;
 
+	if (str == NULL) return 1;
+
 	// parse the command string
 	while (*str) {
 		while (isspace(*str)) str++;
