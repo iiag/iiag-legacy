@@ -140,6 +140,7 @@ void sdl_end(void) {
 
     SDL_FreeSurface(disp);
     SDL_DestroyWindow(win);
+	SDL_Quit();
 }
 
 void sdl_init(FILE *conf)
@@ -170,25 +171,20 @@ void sdl_init(FILE *conf)
 	input_prompt_string = sdl_prompt_string;
 
 	if(SDL_Init(SDL_INIT_EVERYTHING) || TTF_Init()) {
-        error("Could not initialize SDL: %s / ", SDL_GetError(), TTF_GetError());
-        exit(EXIT_FAILURE);
+        fatal("Could not initialize SDL: %s / ", SDL_GetError(), TTF_GetError());
 	}
-	atexit(SDL_Quit);
 
 	if(!(win = SDL_CreateWindow("iiag", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_RESIZABLE|SDL_WINDOW_SHOWN))) {
-        error("Could not create a window: %s", SDL_GetError());
-        exit(EXIT_FAILURE);
+        fatal("Could not create a window: %s", SDL_GetError());
 	}
 
 	// TODO not compiled in font name
 	if(!(font = TTF_OpenFont("GohuFont-Medium.ttf", 8))) {
-        error("Could not open font: %s", TTF_GetError());
-        exit(EXIT_FAILURE);
+        fatal("Could not open font: %s", TTF_GetError());
 	}
 
 	if(!(disp = SDL_GetWindowSurface(win))) {
-        error("Could not create drawable: %s", SDL_GetError());
-        exit(EXIT_FAILURE);
+        fatal("Could not create drawable: %s", SDL_GetError());
 	}
 
 	fscanf(conf, "%s", dirname);
@@ -198,15 +194,13 @@ void sdl_init(FILE *conf)
 	debug("Current working directory: %s", oldwd);
 	debug("Changing to %s...", dirname);
 	if(chdir(dirname)) {
-        error("Couldn't chdir to %s; aborting.", dirname);
-        exit(EXIT_FAILURE);
+        fatal("Couldn't chdir to %s; aborting.", dirname);
     }
     getcwd(curwd, 256);
     debug("Current working directory: %s", curwd);
 
 	if(!(conf = fopen("tileset", "r"))) {
-        error("Could not open tileset; aborting.");
-        exit(EXIT_FAILURE);
+        fatal("Could not open tileset; aborting.");
 	}
 
 	fscanf(conf, "%zd %d %d %d %d", &sztiles, &swidth, &sheight, &twidth, &theight);
@@ -214,8 +208,7 @@ void sdl_init(FILE *conf)
 	trows = 480 / theight;
 	tiles = malloc(sztiles*sizeof(SDL_Surface *));
 	if(!tiles) {
-        error("Could not allocate graphics memory");
-        exit(EXIT_FAILURE);
+        fatal("Could not allocate graphics memory");
 	}
 	fmul = SDL_CreateRGBSurface(0, twidth, theight, 24, 0xff, 0xff00, 0xff0000, 0);
 	SDL_SetSurfaceBlendMode(fmul, SDL_BLENDMODE_MOD);

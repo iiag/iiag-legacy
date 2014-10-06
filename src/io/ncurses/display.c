@@ -240,8 +240,7 @@ void nc_init(int mode, FILE * f)
 
 	if (memoscr == NULL || dispscr == NULL || statscr == NULL) {
 		nc_end();
-		error("Failed to initialize ncurses!");
-		exit(EXIT_FAILURE);
+		fatal("Failed to initialize ncurses!");
 	}
 
 	if (config.real_time) {

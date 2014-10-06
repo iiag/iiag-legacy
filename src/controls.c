@@ -14,7 +14,6 @@
 // Some wrapper functions called from the controls structure
 static void cmd_quit(int argc, const char ** argv)
 {
-	disp_end();
 	exit(EXIT_SUCCESS);
 }
 

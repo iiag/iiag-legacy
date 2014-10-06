@@ -32,17 +32,16 @@ static void step(void)
 	update_status();
 }
 
-static void sig_handler(int rc)
+void cleanup(void)
 {
 	disp_end();
-	fprintf(stderr, "\nSignal %d caught.\n", rc);
-	exit(rc);
 }
 
 int main(int argc, char ** argv)
 {
 	int c;
 
+	atexit(cleanup);
 	init_introspection(argv[0]);
 	init_config(argc, argv);
 	init_recipes();
@@ -53,15 +52,11 @@ int main(int argc, char ** argv)
 
 	srandom(time(NULL));
 
-	signal(SIGSEGV, sig_handler);
-	signal(SIGINT,  sig_handler);
-
 	init_world();
 
 	if (config.multiplayer) {
 		if (client_connect(config.ip,config.port)) {
-			error("Faild to connect to server.");
-			goto cleanup; //failed to connect to server
+			fatal("Faild to connect to server.");
 		}
 		write_spawn_packet(client_socket);
 
@@ -105,8 +100,5 @@ int main(int argc, char ** argv)
 		}
 	}
 
-	//TODO clean up world and recipes
-cleanup:
-	disp_end();
 	return 0;
 }

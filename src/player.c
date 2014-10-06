@@ -306,8 +306,7 @@ void plyr_ev_death(creature * p, const char * reasons)
 	}
 
 	while (ctrl_by_key(input_get_ctrl()) != CTRL_QUIT);
-	disp_end();
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 void plyr_ev_lvlup(creature * p)

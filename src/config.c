@@ -310,7 +310,7 @@ static void print_help()
 	"\n"
 	);
 
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 void init_config(int argc, char ** argv)

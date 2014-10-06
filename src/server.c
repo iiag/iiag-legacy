@@ -23,29 +23,20 @@
 #include "lua/lua.h"
 #include "net/net.h"
 
-static void sig_handler(int rc)
-{
-	fprintf(stderr, "\nSignal %d caught.\n", rc);
-	exit(rc);
-}
-
 int main(int argc, char ** argv)
 {
 
 	int step;
 	int stall;
 
+	atexit(disp_end);
 	init_config(argc, argv);
 	init_recipes();
 	init_lua();
 
 	srandom(time(NULL));
 
-	signal(SIGSEGV, sig_handler);
-	signal(SIGINT,  sig_handler);
-
 	init_world();
-
 	step_world();
 	setup_listener(config.port);
 

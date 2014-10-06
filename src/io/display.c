@@ -24,6 +24,8 @@ void (* memo)(const char *, ...) = (void *)dumb;
 void (* reset_memos)(void) = dumb;
 void (* statline)(int, const char *, ...) = (void *)dumb;
 
+static int disp_inited = 1;
+
 int disp_width = 0;
 int disp_height = 0;
 int scroll_x = 0;
@@ -63,12 +65,25 @@ void disp_init(void)
 	}
 
 	if(f) fclose(f);
+	disp_inited = 1;
 }
 
 void disp_end(void)
 {
-	graphics_end();
-	free(cache);
+	int i;
+
+	if (disp_inited) {
+		warning("asdfasdfasdfasdfasdf");
+		for (i = 0; i < disp_width; i++) {
+			free(cache[i]);
+		}
+		free(cache);
+
+		graphics_end();
+		disp_inited = 0;
+	} else {
+		warning("Attempting to end uninitialized display.");
+	}
 }
 
 void disp_put(int x, int y, int tile)
