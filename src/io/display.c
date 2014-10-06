@@ -73,7 +73,6 @@ void disp_end(void)
 	int i;
 
 	if (disp_inited) {
-		warning("asdfasdfasdfasdfasdf");
 		for (i = 0; i < disp_width; i++) {
 			free(cache[i]);
 		}
