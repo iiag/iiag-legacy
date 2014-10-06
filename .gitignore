@@ -8,6 +8,7 @@ sobj/
 doc/doxygen/
 iiag
 iiag_server
+iiag.cfg
 *.kdev4
 *.cfg
 *.kate-swp
