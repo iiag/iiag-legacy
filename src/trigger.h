@@ -5,10 +5,15 @@
 #ifndef TRIGGER_H
 #define TRIGGER_H
 
-typedef void (* trigger_cfunc)(void *, void *);
+#include "sol/sol.h"
+
+struct creature;
+typedef struct creature creature;
+
+typedef void (* trigger_cfunc)(creature *, void *);
 
 typedef struct trigger {
-	int lua_block;
+	sol_object_t *sol_func;
 	trigger_cfunc c_func;
 } trigger;
 
@@ -16,12 +21,12 @@ typedef struct trigger {
 // Initializes a trigger to trigger nothing
 //
 #define trigger_init(T) \
-	T.lua_block = 0; \
+	T.sol_func = NULL; \
 	T.c_func = NULL
 
 //
 // Fires the given trigger
 //
-void trigger_pull(const trigger *, void *, void *);
+void trigger_pull(const trigger *, creature *, void *);
 
 #endif

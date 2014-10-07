@@ -16,7 +16,7 @@
 ///// Default Configuration /////
 config_t config = {
 	NULL,               // cfg_file
-	"script/init.lua",  // lua_init
+	"script/init.sol",  // sol_init
 
 	// log_file
 #ifdef SERVER
@@ -67,7 +67,7 @@ struct field {
 };
 
 static const struct field cfg_fields[] = {
-	{ STRING,  "lua-init",         &config.lua_init         },
+	{ STRING,  "sol-init",         &config.sol_init         },
 	{ STRING,  "server-ip",        &config.ip               },
 	{ STRING,  "log-file",         &config.log_file         },
 	{ STRING,  "tileset-file",     &config.tileset_file     },
@@ -348,7 +348,7 @@ void init_config(int argc, char ** argv)
 				i++;
 				break;
 			case 'i':
-				config.lua_init = argv[++i];
+				config.sol_init = argv[++i];
 				break;
 			case 's':
 				config.show_all = 1;

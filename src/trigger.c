@@ -5,29 +5,37 @@
 #include <assert.h>
 #include "log.h"
 #include "trigger.h"
-#include "lua/lua.h"
+#include "sol/cdata.h"
+#include "solint.h"
 
 //
-// Tries to call lua block then C function
+// Tries to call sol function then C function
 //
-void trigger_pull(const trigger * tr, void * ud1, void * ud2)
+void trigger_pull(const trigger * tr, creature * ud1, void * ud2)
 {
-	// call lua block
-	if (tr->lua_block) {
-		lua_checkstack(prim_lstate, 4);
-		lua_rawgeti(prim_lstate, LUA_REGISTRYINDEX, tr->lua_block);
-		lua_pushlightuserdata(prim_lstate, ud1);
-		lua_pushlightuserdata(prim_lstate, ud2);
+    /*
+    Hello Graham. This is the Land Fiish
 
-		if (lua_isfunction(prim_lstate, -3)) {
-			if (lua_pcall(prim_lstate, 2, 0, 0)) {
-				error("In trigger: %s.\n", lua_tostring(prim_lstate, -1));
-				lua_pop(prim_lstate, 3);
-			}
-		} else {
-			error("Trigger index does not point to lua function.");
-		}
-	}
+    How has the Sol been going?
+    I will be here 24/8
+
+    sooo...Bai!
+
+    Swim Deep
+    ~Land Fiish
+
+    */
+
+    int error;
+	// call sol function
+    if(tr->sol_func) {
+        sol_object_t *res = sol_util_call(sol_state, tr->sol_func, &error, 1, sol_new_cstruct(sol_state, ud1, sol_crtr_specs));
+        if(error) {
+            warning("Sol trigger error: %s", (sol_is_string(res)?res->str:"<printed to stdout>"));
+            if(!sol_is_string(res)) ob_print(res);
+        }
+        sol_obj_free(res);
+    }
 
 	// call c function
 	if (tr->c_func != NULL) {

@@ -2,7 +2,6 @@
 // main.c
 //
 
-#include <lua.h>
 #include <time.h>
 #include <stdio.h>
 #include <assert.h>
@@ -19,12 +18,12 @@
 #include "inventory.h"
 #include "io/input.h"
 #include "io/display.h"
-#include "lua/lua.h"
 #include "controls.h"
 #include "net/net.h"
 #include "net/packet.h"
 #include "introspection.h"
 #include "recipe.h"
+#include "solint.h"
 
 static void step(void)
 {
@@ -45,8 +44,8 @@ int main(int argc, char ** argv)
 
 	init_introspection(argv[0]);
 	init_config(argc, argv);
+	init_sol();
 	init_recipes();
-	init_lua();
 
 	info("loaded %i recipes",recipes.cnt);
 	info("loaded %i types",item_types.cnt);

@@ -10,7 +10,7 @@
 // defines how all the configuration data is stored
 typedef struct config {
 	const char * cfg_file;
-	const char * lua_init;
+	const char * sol_init;
 	const char * log_file;
 	const char * tileset_file;
 	const char * ip;

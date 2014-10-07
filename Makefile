@@ -19,19 +19,21 @@ DESTDIR       = /opt/iiag
 MANDIR        = /usr/share/man/man6
 
 # Flags that are used regardless of compiliation options go here
-CLIENT_CCFL := -c -g -Wall `pkg-config --cflags $(LUAV)`
-SERVER_CCFL := -c -g -Wall -DSERVER `pkg-config --cflags $(LUAV)`
-CLIENT_LDFL := -Wall -lm `pkg-config --libs $(LUAV)`
-SERVER_LDFL := -Wall -lm `pkg-config --libs $(LUAV)`
+CLIENT_CCFL := -c -g -Wall
+SERVER_CCFL := -c -g -Wall -DSERVER
+CLIENT_LDFL := -Wall -lm
+SERVER_LDFL := -Wall -lm
 
 # List of source files. Source files both in the client and server go here
 GENERIC_SRCS := world.c zone.c io/display.c log.c inventory.c util.c item.c \
                 creature.c player.c vector.c trigger.c config.c faction.c io/input.c \
-                generator.c names.c room.c tile_object.c recipe.c lua/init.c lua/io.c \
-                lua/form.c controls.c introspection.c net/net.c net/packet.c \
+                generator.c names.c room.c tile_object.c recipe.c solint.c \
+                controls.c introspection.c net/net.c net/packet.c \
                 io/ncurses/controls.c io/ncurses/input.c io/ncurses/display.c \
                 io/ncurses/keys.c io/nogr/display.c io/nogr/input.c spells.c library.c \
-                io/sdl/display.c io/sdl/input.c
+                io/sdl/display.c io/sdl/input.c \
+                sol/lex.yy.c sol/parser.tab.c sol/astprint.c sol/runtime.c sol/object.c \
+                sol/state.c sol/builtins.c sol/cdata.c sol/util.c
 
 # Source files exclusive to the client or server go here
 CLIENT_SRCS := main.c $(GENERIC_SRCS)

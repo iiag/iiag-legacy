@@ -2,7 +2,6 @@
 // server.c
 //
 
-#include <lua.h>
 #include <time.h>
 #include <stdio.h>
 #include <assert.h>
@@ -20,7 +19,6 @@
 #include "inventory.h"
 #include "io/input.h"
 #include "io/display.h"
-#include "lua/lua.h"
 #include "net/net.h"
 
 static void sig_handler(int rc)
@@ -36,8 +34,8 @@ int main(int argc, char ** argv)
 	int stall;
 
 	init_config(argc, argv);
+	init_sol();
 	init_recipes();
-	init_lua();
 
 	srandom(time(NULL));
 

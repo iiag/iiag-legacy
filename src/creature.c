@@ -22,6 +22,16 @@
 // iterations before spawn attempts timeout
 #define SPAWN_TIMEOUT 5000
 
+const char * slot_names[] = {
+    "left-hand",
+    "right-hand",
+    "head",
+    "torso",
+    "cape",
+    "legs",
+    "feet"
+};
+
 //
 // For a given creature, calculates the required XP to level up
 //
