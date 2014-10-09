@@ -78,6 +78,8 @@ int inv_add(inventory * inv, item * it)
 
 	inv->size += REALLOC_SIZE;
 	return inv->size - REALLOC_SIZE;
+
+#undef REALLOC_SIZE
 }
 
 //

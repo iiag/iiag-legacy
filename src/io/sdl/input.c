@@ -148,15 +148,13 @@ int sdl_prompt_inv(const char * prompt, inventory * inv, creature * c)
 
 
     for(i = 0; i < inv->size; i++) {
-        if(!inv->itms[i]) {
-            warning("Encountered NULL item in creature %s inventory index %d", c?crtr_name(c):"NULL", i);
-            continue;
-        }
-        snprintf(s, 512, "%c) %s %s", ind2ch(i), inv->itms[i]->name, (c&&item_equipped(inv->itms[i], c))?"(equipped)":"");
-        text = TTF_RenderUTF8_Solid(font, s, WHITE);
-        SDL_BlitSurface(text, NULL, disp, &cur);
-        cur.y += text->h;
-        SDL_FreeSurface(text);
+        if(inv->itms[i]) {
+			snprintf(s, 512, "%c) %s %s", ind2ch(i), inv->itms[i]->name, (c&&item_equipped(inv->itms[i], c))?"(equipped)":"");
+			text = TTF_RenderUTF8_Solid(font, s, WHITE);
+			SDL_BlitSurface(text, NULL, disp, &cur);
+			cur.y += text->h;
+			SDL_FreeSurface(text);
+		}
     }
     SDL_UpdateWindowSurface(win);
 
