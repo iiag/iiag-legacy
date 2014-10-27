@@ -1,0 +1,12 @@
+item ore /
+	tile = 21
+	weight = 2500
+	freq = 20
+
+	item slag.
+	item iron.
+	item quaz.
+	item tin.
+	item lead.
+/
+
