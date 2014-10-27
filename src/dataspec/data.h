@@ -8,7 +8,14 @@
 typedef struct data_spec data_spec_t;
 typedef struct data_class data_class_t;
 typedef struct data_field data_field_t;
-typedef void * (constructor_t *)(void);
+
+//
+// The functions of this type are intended to act as follows:
+//   constructor(from) :=
+//     NULL : default
+//     from : copy(from)
+//
+typedef void * (constructor_t *)(void *);
 
 #include <stddef.h>
 #include "../util.h"
