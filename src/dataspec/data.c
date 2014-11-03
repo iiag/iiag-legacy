@@ -13,14 +13,15 @@ data_spec_t * make_data_spec(void)
 	return sp;
 }
 
-data_class_t * add_data_class(data_spec_t * sp, const char * name, constructor_t cons, vector_t * arr)
+data_class_t * add_data_class(data_spec_t * sp, const char * name, constructor_t construct, destructor_t destruct, vector_t * arr)
 {
 	data_class_t * cl = malloc(sizeof(data_class_t));
 
+	cl->construct = construct;
+	cl->destruct = destruct;
+	cl->array = arr;
 	cl->name = malloc(strlen(name) + 1);
 	strcpy(cl->name, name);
-	cl->construct = cons;
-	cl->array = arr;
 	vector_init(&cl->fields);
 
 	vector_append(&sp->classes, cl);
@@ -61,9 +62,18 @@ static char * read_delim_str(FILE * f, const char * delims)
 #undef GROW_SIZE
 }
 
+static int nextc(FILE * f)
+{
+	int c;
+	do {
+		c = fgetc(f);
+	} while (isspace(c));
+	return c;
+}
+
 static int peekc(FILE * f)
 {
-	int c = fgetc(f);
+	int c = nextc(f);
 	ungetc(c, f);
 	return c;
 }
@@ -77,33 +87,49 @@ static void chomp(char * str)
 	}
 }
 
-static void load_classes(FILE * f, void * context)
+static void load_classes(FILE * f, int delim, void * context, dataspec_t * ds)
 {
 	data_class_t * cl;
-	char * class_name;
-	char * item_name;
+	void * sub;
+	char * ident;
+	char * inst_name;
 
-	while (peekc(f) != EOF) {
-		class_name = read_delim_str(f, " \t\n\v\f\r");
-		item_name = read_delim_str(f, "./=");
-		chomp(item_name);
+	while (peekc(f) != EOF && peekc(f) != delim) {
+		ident = read_delim_str(f, " \t\n\v\f\r=");
 
-		for (i = 0; i < ds->classes.cnt; i++) {
-			cl = ds->classes.arr[i];
-			if (!strcmp(cl->name, class_name)) break;
-		}
+		if (peekc(f) == '=') {
+			// Trying to specify the value of a field
+			if (!context) fatal("Can only specify field values within a structure.");
 
-		if (i == ds->classes.cnt) {
-			fatal("Class name '%s' unrecognized.", class_name);
-		}
 
-		if (fgetc(f) == '/') {
-			
 		} else {
+			// Trying to specify a class
+			item_name = read_delim_str(f, "{/");
+			chomp(item_name);
+
+			// Search for which class we have
+			for (i = 0; i < ds->classes.cnt; i++) {
+				cl = ds->classes.arr[i];
+				if (!strcmp(cl->name, ident)) break;
+			}
+
+			if (i == ds->classes.cnt) {
+				fatal("Class name '%s' unrecognized.", ident);
+			}
+
+			sub = cl->construct(context);
+			if (fgetc(f) == '{') {
+				load_classes(f, '}', sub, ds);
+				cl->destruct(context);
+			} else {
+				load_classes(f, '/', sub, ds);
+				vector_append(cl->array, sub);
+			}
+
+			free(item_name);
 		}
 
-		free(class_name);
-		free(item_name);
+		free(ident);
 	}
 }
 
@@ -112,9 +138,11 @@ void load_data(const char * filename, dataspec_t * ds)
 	FILE * f;
 
 	f = fopen(filename, "rb");
-	if (f == NULL) fatal("Cannot open data file '%s'.\n", filename);
+	if (f == NULL) {
+		fatal("Cannot open data file '%s'.\n", filename);
+	}
 
-	load_classes(f, NULL);
+	load_classes(f, EOF, NULL, ds);
 
 	fclose(f);
 }

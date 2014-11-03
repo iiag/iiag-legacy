@@ -17,6 +17,10 @@ typedef struct data_field data_field_t;
 //
 typedef void * (constructor_t *)(void *);
 
+//
+// The destructor to reflect the constructor
+typedef void (destructor_t *)(void *);
+
 #include <stddef.h>
 #include "../util.h"
 
@@ -28,6 +32,7 @@ struct data_field {
 struct data_class {
 	char * name;
 	constructor_t construct;
+	destructor_t  destruct;
 	vector_t * array;
 	vector_t fields;
 };
@@ -40,7 +45,7 @@ struct data_spec {
 data_spec_t * make_data_spec(void);
 
 // Adds a class to a data specification format
-data_class_t * add_data_class(data_spec_t *, const char *, constructor_t, vector_t *);
+data_class_t * add_data_class(data_spec_t *, const char *, constructor_t, destructor_t, vector_t *);
 
 // Adds a field to a data class
 void add_data_field(data_class_t *, const char *, size_t);
