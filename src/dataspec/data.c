@@ -28,38 +28,16 @@ data_class_t * add_data_class(data_spec_t * sp, const char * name, constructor_t
 	return cl;
 }
 
-static void ignore_spaces(FILE * f)
+void add_data_field(data_class_t * cl, data_type_t type, const char * name, size_t offset)
 {
-	int c;
-	do {
-		c = fgetc(f);
-	} while (isspace(f));
-	ungetc(c, f);
-}
+	data_field_t * fld = malloc(sizeof(data_field_t));
 
-static char * read_delim_str(FILE * f, const char * delims)
-{
-#define GROW_SIZE 64
-	int i = 0;
-	char * buf = NULL;
+	fld->type = type;
+	fld->offset = offset;
+	fld->name = malloc(strlen(name) + 1);
+	strcpy(fld->name, name);
 
-	ignore_spaces(f);
-
-	for (;;) {
-		if (i % GROW_SIZE == 0) {
-			buf = realloc(buf, i + GROW_SIZE);
-		}
-
-		buf[i] = fgetc(f);
-		if (strchr(delims, buf[i]) != NULL) break;
-		if (buf[i] == EOF) break;
-		i++;
-	}
-
-	ungetc(buf[i], f);
-	buf[i] = 0;
-	return buf;
-#undef GROW_SIZE
+	vector_append(&cl->fields, fld);
 }
 
 static int nextc(FILE * f)
@@ -78,6 +56,31 @@ static int peekc(FILE * f)
 	return c;
 }
 
+static char * read_delim_str(FILE * f, const char * delims)
+{
+#define GROW_SIZE 64
+	int i = 0;
+	char * buf = NULL;
+
+	peekc(f);
+
+	for (;;) {
+		if (i % GROW_SIZE == 0) {
+			buf = realloc(buf, i + GROW_SIZE);
+		}
+
+		buf[i] = fgetc(f);
+		if (strchr(delims, buf[i]) != NULL) break;
+		if (buf[i] == EOF) break;
+		i++;
+	}
+
+	ungetc(buf[i], f);
+	buf[i] = 0;
+	return buf;
+#undef GROW_SIZE
+}
+
 static void chomp(char * str)
 {
 	int i = strlen(str) - 1;
@@ -87,8 +90,9 @@ static void chomp(char * str)
 	}
 }
 
-static void load_classes(FILE * f, int delim, void * context, dataspec_t * ds)
+static void load_classes(FILE * f, int delim, void * context, data_class_t * class, data_spec_t * ds)
 {
+	data_field_t * fld;
 	data_class_t * cl;
 	void * sub;
 	char * ident;
@@ -97,11 +101,34 @@ static void load_classes(FILE * f, int delim, void * context, dataspec_t * ds)
 	while (peekc(f) != EOF && peekc(f) != delim) {
 		ident = read_delim_str(f, " \t\n\v\f\r=");
 
-		if (peekc(f) == '=') {
+		if (fgetc(f) == '=') {
 			// Trying to specify the value of a field
 			if (!context) fatal("Can only specify field values within a structure.");
 
+			// Search for the field
+			for (i = 0; i < class->fields.cnt; i++) {
+				fld = class->fields.arr[i];
+				if (!strcmp(fld->name, ident)) break;
+			}
 
+			if (i == class->fields.cnt) {
+				fatal("Field name '%s' unrecognized.", ident);
+			}
+
+			// Set the field
+			value = read_delim_str(f, " \t\n\v\f\r");
+
+			switch (fld->type) {
+			case DATA_INT:
+				*(int *)((char *)context + fld->offset) = atoi(value);
+				free(value);
+				break;
+			case DATA_STRING:
+				*(char **)((char *)context + fld->offset) = value;
+				break;
+			default:
+				fatal("Unsupported field type %d.", fld->type);
+			}
 		} else {
 			// Trying to specify a class
 			item_name = read_delim_str(f, "{/");
@@ -117,12 +144,16 @@ static void load_classes(FILE * f, int delim, void * context, dataspec_t * ds)
 				fatal("Class name '%s' unrecognized.", ident);
 			}
 
+			if (class != NULL && cl != class) {
+				fatal("Class mismatch of '%s' and '%s' in subinstance.", class->name, ident);
+			}
+
 			sub = cl->construct(context);
 			if (fgetc(f) == '{') {
-				load_classes(f, '}', sub, ds);
+				load_classes(f, '}', sub, cl ds);
 				cl->destruct(context);
 			} else {
-				load_classes(f, '/', sub, ds);
+				load_classes(f, '/', sub, cl, ds);
 				vector_append(cl->array, sub);
 			}
 

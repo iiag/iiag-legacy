@@ -19,12 +19,19 @@ typedef void * (constructor_t *)(void *);
 
 //
 // The destructor to reflect the constructor
+//
 typedef void (destructor_t *)(void *);
 
 #include <stddef.h>
 #include "../util.h"
 
+typedef enum {
+	DATA_INT,
+	DATA_STRING,
+} data_type_t;
+
 struct data_field {
+	data_type_t type;
 	char * name;
 	size_t offset;
 };
@@ -48,13 +55,14 @@ data_spec_t * make_data_spec(void);
 data_class_t * add_data_class(data_spec_t *, const char *, constructor_t, destructor_t, vector_t *);
 
 // Adds a field to a data class
-void add_data_field(data_class_t *, const char *, size_t);
+void add_data_field(data_class_t *, data_type_t, const char *, size_t);
 
 // Loads the data from the file
 void load_data(const char *, data_spec_t *);
 
 // A nice wrapper for add_data_field
-#define add_data_sfield(CLS, NM, ST, FLD) \
-	add_data_field(CLS, NM, offsetof(ST, FLD))
+#define add_data_sfield(CLS, TY, NM, ST, FLD) \
+	add_data_field(CLS, TY, NM, offsetof(ST, FLD))
 
 #endif
+
