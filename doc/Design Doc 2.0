@@ -1,0 +1,59 @@
+struct Game
+struct World
+struct Zone
+struct Tile ?
+
+struct Persistant
+struct Item
+struct Creature
+struct TileEntity ?
+
+struct ItemImp
+struct CreatureImp
+
+struct ItemGenerator
+struct CreatureGenerator
+
+struct Effect
+struct EffectImp ?
+
+struct action ???
+
+struct Game {
+
+	bool multiplayer;
+	vector? Worlds;
+
+	master faction table?
+	
+}
+
+struct World{
+
+	ZoneGenerator;
+	ItemGeneratorGenerator;
+	CreatureGeneratorGenerator;
+
+	DATA_STRUCTURE Zones!
+
+}
+
+struct Zone{
+
+	DATA_STRUCTURE tiles;
+	
+	ItemGenerator
+	CreatureGenerator
+
+	MAP( uuid->Persistant ) things;
+	int zoneID;
+	
+}
+
+struct Persistant{
+
+	int(long long?) uuid;
+	bool alive;
+	int type;
+	
+}
