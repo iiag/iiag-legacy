@@ -2,8 +2,12 @@ Low-coherence items are top-level; all under are highly coherent.
 
 -Information:
 	-Data Structures:
-		-Sequences
+		-Sequences:
+			-Vectors
+			-Lists
+			-Sets
 		-Heaps (priority queue)
+		-Maps
 	-Trigger/Callback/Event Lists
 	-Memory allocation/deallocation
 	-Persistence:
