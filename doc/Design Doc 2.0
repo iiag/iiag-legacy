@@ -1,3 +1,13 @@
+core features
+
+Dynamic world generation
+Dynamic creature generation
+Dynamic Item generation
+Spell crafting system
+(Character exp/leveling)
+Multiplayer
+
+
 struct Game
 struct World
 struct Zone
