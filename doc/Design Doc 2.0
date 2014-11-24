@@ -1,12 +1,36 @@
 core features
 
-Dynamic world generation
+ID Maps (for different types: item, creature, etc.)
+Diffculty based generation
+Dynamic world generation (buildings, overworld, etc.)
 Dynamic creature generation
 Dynamic Item generation
+Item crafting system
 Spell crafting system
-(Character exp/leveling)
+(skill exp/leveling)
+Effect on persistants
+Extensive hook system (on items/creatures/tiles)
+Tile objects (1 per tile)
+Limbic system (creatures have limbs, can add/remove)
+Creature Factions
+ - faction disposition
+ - creature disposition
+Modular Display
 Multiplayer
+ - Display back end for server
+ - Thin client with output/input
+Dialogue
+Quests/Campaigns
+Containers (item holding items)
+Plants/fungi as tile entities
+Corpses drop and stuff
+AI (neural network)
+Genetics (creatures breed to creature more creatures)
+Taming
+Event system (timing)
 
+
+------------------------------
 
 struct Game
 struct World
