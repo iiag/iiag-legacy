@@ -1,0 +1,55 @@
+Low-coherence items are top-level; all under are highly coherent.
+
+-Information:
+	-Data Structures:
+		-Sequences
+		-Heaps (priority queue)
+	-Trigger/Callback/Event Lists
+	-Memory allocation/deallocation
+	-Persistence:
+		-Saving/Restoring:
+			-Serialization/Deserialization
+			-Data File Parsing
+		-Network Data Model
+
+-Interface:
+	-Transput:
+		-Display
+		-Input
+		-Networking (low-level)
+
+-Simulation/Model:
+	-Topography:
+		-World Generation
+		-Spawning (creatures, items):
+			-Level adjustment
+			-Genetics/Breeding
+		-Terrain
+
+	-Inventory/Items:
+		-Items and item handling:
+			-Properties (IDs, name(s), qualities, modifiers, etc.)
+			-Optional Inventory (container items)
+		-Inventories and storage (contents, quantities, size, weight, etc.)
+		-Crafting and exchange
+
+	-Creatures:
+		-Properties (ID, name(s), qualities, modifiers, etc.)
+		-Player
+		-Artificial Intelligence (like heavily triggered)
+		-Skills, experience, and levels (likely triggered)
+		-Death Drops (likely triggered)
+		-Interaction:
+			-Combat:
+				-Weapons (casting, throwing, bludgeoning, etc.)
+				-Movement (speed, interaction, facing?, etc.)
+				-Attack/Defense (armor, strength, damage calc., etc.)
+			-Conference:
+				-Dialogue
+				-Quests/Missions/Campaigns
+				-Taming
+
+	-Tile Entities (plants/fungi, furnaces, etc.):
+		-Properties (ID, name(s), qualities, modifiers, etc.)
+		-Special Actions
+		-Variable Tile Parameters (visibility, passability)
