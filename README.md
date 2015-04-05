@@ -1,7 +1,7 @@
 iiag
 ====
 
-Iiag is a game
+Iiag is a game. Legacy version, in-dev at [iiag/iiag](https://github.com/iiag/iiag).
 
 Find us on freenode in #iiag, or on [/r/iiag](http://reddit.com/r/iiag).
 
