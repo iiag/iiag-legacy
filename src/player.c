@@ -38,7 +38,7 @@ void update_vis(void)
 					for (ry = -1; ry <= 1; ry++) {
 						if ((rx || ry) && (x + rx >= 0) && (x + rx < PLYR.z->width) && (y + ry >= 0) && (y + ry < PLYR.z->height)) {
 							if (!PLYR.z->tiles[x + rx][y + ry].impassible && PLYR.z->tiles[x + rx][y + ry].show) {
-								PLYR.z->tiles[x][y].show = show || config.forget_walls ? 1 : 2;
+								PLYR.z->tiles[x][y].show = config.forget_walls ? 1 : 2;
 								zone_draw_tile(PLYR.z, x, y);
 							}
 						}
